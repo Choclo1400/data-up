@@ -57,7 +57,7 @@ const Index = () => {
   const [currentDate, setCurrentDate] = useState<string>('');
   
   useEffect(() => {
-    // Set current date in Brazilian format
+    // Set current date in Spanish format
     const now = new Date();
     const options: Intl.DateTimeFormatOptions = { 
       weekday: 'long', 
@@ -65,7 +65,7 @@ const Index = () => {
       month: 'long', 
       day: 'numeric' 
     };
-    setCurrentDate(now.toLocaleDateString('pt-BR', options));
+    setCurrentDate(now.toLocaleDateString('es-ES', options));
     
     // First letter uppercase
     setCurrentDate(prev => 
@@ -91,7 +91,7 @@ const Index = () => {
           
           <section className="mt-8 slide-enter" style={{ animationDelay: '0.4s' }}>
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-semibold">Empilhadeiras Em Destaque</h2>
+              <h2 className="text-2xl font-semibold">Empilhadeiras Destacadas</h2>
               <button className="text-sm text-primary hover:underline">
                 Ver todas
               </button>

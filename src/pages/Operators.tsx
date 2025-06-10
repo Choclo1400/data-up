@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -191,7 +190,7 @@ const OperatorsPage = () => {
       )}>
         <Navbar 
           title="Operadores" 
-          subtitle="Gerenciamento de Operadores"
+          subtitle="Gestión de Operadores"
         />
         
         <main className="flex-1 px-6 py-6">
@@ -226,7 +225,7 @@ const OperatorsPage = () => {
                 }}
               >
                 <UserPlus className="w-4 h-4" />
-                Novo Operador
+                Nuevo Operador
               </Button>
             </div>
           </div>
@@ -234,7 +233,7 @@ const OperatorsPage = () => {
           {/* Filter options */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Função</h4>
+              <h4 className="text-sm font-medium">Función</h4>
               <select 
                 className="w-full p-2 rounded-md border border-input bg-background"
                 value={role}
@@ -246,7 +245,7 @@ const OperatorsPage = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Status de Certificação</h4>
+              <h4 className="text-sm font-medium">Estado de Certificación</h4>
               <select 
                 className="w-full p-2 rounded-md border border-input bg-background"
                 value={certStatus}
@@ -254,7 +253,7 @@ const OperatorsPage = () => {
               >
                 <option value="all">Todos</option>
                 <option value="regular">Regular</option>
-                <option value="warning">Próximo do Vencimento</option>
+                <option value="warning">Próximo al Vencimiento</option>
                 <option value="expired">Vencido</option>
               </select>
             </div>
@@ -267,11 +266,11 @@ const OperatorsPage = () => {
                 <thead className="bg-muted/50">
                   <tr>
                     <th className="p-4 text-left font-medium text-muted-foreground">ID</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Nome</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Função</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Nombre</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Función</th>
                     <th className="p-4 text-left font-medium text-muted-foreground">ASO</th>
                     <th className="p-4 text-left font-medium text-muted-foreground">NR-11</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Ações</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -314,7 +313,7 @@ const OperatorsPage = () => {
                             size="sm"
                             onClick={() => handleViewDetails(operator)}
                           >
-                            Detalhes
+                            Detalles
                           </Button>
                           <Button 
                             variant="ghost" 
@@ -322,7 +321,7 @@ const OperatorsPage = () => {
                             className="text-red-500 hover:text-red-700 hover:bg-red-50"
                             onClick={() => handleDeleteOperator(operator.id)}
                           >
-                            Excluir
+                            Eliminar
                           </Button>
                         </div>
                       </td>
@@ -333,7 +332,7 @@ const OperatorsPage = () => {
             </div>
             {filteredOperators.length === 0 && (
               <div className="p-8 text-center">
-                <p className="text-muted-foreground">Nenhum operador encontrado</p>
+                <p className="text-muted-foreground">No se encontraron operadores</p>
               </div>
             )}
           </div>

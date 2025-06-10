@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -145,8 +144,8 @@ const OperationsPage = () => {
       // Add new operation
       setOperations(prev => [operationData, ...prev]);
       toast({
-        title: "Operação criada",
-        description: "A operação foi criada com sucesso."
+        title: "Operación creada",
+        description: "La operación fue creada con éxito."
       });
     } else {
       // Update existing operation
@@ -154,8 +153,8 @@ const OperationsPage = () => {
         prev.map(op => op.id === operationData.id ? operationData : op)
       );
       toast({
-        title: "Operação atualizada",
-        description: "A operação foi atualizada com sucesso."
+        title: "Operación actualizada",
+        description: "La operación fue actualizada con éxito."
       });
     }
   };
@@ -181,8 +180,8 @@ const OperationsPage = () => {
         !isMobile && "ml-64" // Offset for sidebar when not mobile
       )}>
         <Navbar 
-          title="Operações" 
-          subtitle="Controle de Operações"
+          title="Operaciones" 
+          subtitle="Control de Operaciones"
         />
         
         <main className="flex-1 px-6 py-6">
@@ -192,7 +191,7 @@ const OperationsPage = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input 
                 type="text" 
-                placeholder="Buscar operação..." 
+                placeholder="Buscar operación..." 
                 className="pl-10"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -213,7 +212,7 @@ const OperationsPage = () => {
                 }}
               >
                 <Plus className="w-4 h-4" />
-                Nova Operação
+                Nueva Operación
               </Button>
             </div>
           </div>
@@ -221,19 +220,19 @@ const OperationsPage = () => {
           {/* Filter options */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Status</h4>
+              <h4 className="text-sm font-medium">Estado</h4>
               <select 
                 className="w-full p-2 rounded-md border border-input bg-background"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
               >
                 <option value="all">Todos</option>
-                <option value="active">Em Andamento</option>
-                <option value="completed">Concluídas</option>
+                <option value="active">En Progreso</option>
+                <option value="completed">Completadas</option>
               </select>
             </div>
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Setor</h4>
+              <h4 className="text-sm font-medium">Sector</h4>
               <select 
                 className="w-full p-2 rounded-md border border-input bg-background"
                 value={sector}
@@ -249,7 +248,7 @@ const OperationsPage = () => {
           
           {/* Active Operations */}
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Operações em Andamento</h2>
+            <h2 className="text-2xl font-semibold mb-4">Operaciones en Progreso</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredOperations
                 .filter(op => op.status === 'active')
@@ -262,7 +261,7 @@ const OperationsPage = () => {
                           <p className="text-sm text-muted-foreground">ID: {operation.id}</p>
                         </div>
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-status-operational/10 text-status-operational">
-                          Em Andamento
+                          En Progreso
                         </span>
                       </div>
                       
@@ -281,19 +280,19 @@ const OperationsPage = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Clock className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Início: {formatTime(operation.startTime)}</span>
+                          <span className="text-sm">Inicio: {formatTime(operation.startTime)}</span>
                         </div>
                       </div>
                     </div>
                     
                     <div className="border-t px-4 py-3 bg-muted/30 flex justify-between">
-                      <span className="text-sm">Setor: {operation.sector}</span>
+                      <span className="text-sm">Sector: {operation.sector}</span>
                       <Button 
                         variant="ghost" 
                         size="sm"
                         onClick={() => handleViewDetails(operation)}
                       >
-                        Detalhes
+                        Detalles
                       </Button>
                     </div>
                   </div>
@@ -301,7 +300,7 @@ const OperationsPage = () => {
               
               {filteredOperations.filter(op => op.status === 'active').length === 0 && (
                 <div className="col-span-full p-8 text-center bg-card border rounded-lg">
-                  <p className="text-muted-foreground">Nenhuma operação em andamento</p>
+                  <p className="text-muted-foreground">No hay operaciones en progreso</p>
                 </div>
               )}
             </div>
@@ -309,7 +308,7 @@ const OperationsPage = () => {
           
           {/* Completed Operations */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Operações Concluídas</h2>
+            <h2 className="text-2xl font-semibold mb-4">Operaciones Completadas</h2>
             <div className="bg-card rounded-lg shadow overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -318,10 +317,10 @@ const OperationsPage = () => {
                       <th className="p-4 text-left font-medium text-muted-foreground">ID</th>
                       <th className="p-4 text-left font-medium text-muted-foreground">Operador</th>
                       <th className="p-4 text-left font-medium text-muted-foreground">Empilhadeira</th>
-                      <th className="p-4 text-left font-medium text-muted-foreground">Setor</th>
-                      <th className="p-4 text-left font-medium text-muted-foreground">Data</th>
+                      <th className="p-4 text-left font-medium text-muted-foreground">Sector</th>
+                      <th className="p-4 text-left font-medium text-muted-foreground">Fecha</th>
                       <th className="p-4 text-left font-medium text-muted-foreground">Período</th>
-                      <th className="p-4 text-left font-medium text-muted-foreground">Ações</th>
+                      <th className="p-4 text-left font-medium text-muted-foreground">Acciones</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -338,7 +337,7 @@ const OperationsPage = () => {
                           <td className="p-4">{operation.sector}</td>
                           <td className="p-4">{formatDate(operation.startTime)}</td>
                           <td className="p-4">
-                            {formatTime(operation.startTime)} - {operation.endTime ? formatTime(operation.endTime) : 'Em andamento'}
+                            {formatTime(operation.startTime)} - {operation.endTime ? formatTime(operation.endTime) : 'En progreso'}
                           </td>
                           <td className="p-4">
                             <Button 
@@ -346,7 +345,7 @@ const OperationsPage = () => {
                               size="sm"
                               onClick={() => handleViewDetails(operation)}
                             >
-                              Detalhes
+                              Detalles
                             </Button>
                           </td>
                         </tr>
@@ -357,7 +356,7 @@ const OperationsPage = () => {
               
               {filteredOperations.filter(op => op.status === 'completed').length === 0 && (
                 <div className="p-8 text-center">
-                  <p className="text-muted-foreground">Nenhuma operação concluída</p>
+                  <p className="text-muted-foreground">No hay operaciones completadas</p>
                 </div>
               )}
             </div>

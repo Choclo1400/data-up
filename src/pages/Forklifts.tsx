@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -113,7 +112,7 @@ const ForkliftsPage = () => {
   const [selectedForklift, setSelectedForklift] = useState<Forklift | null>(null);
   
   React.useEffect(() => {
-    // Set current date in Brazilian format
+    // Set current date in Spanish format
     const now = new Date();
     const options: Intl.DateTimeFormatOptions = { 
       weekday: 'long', 
@@ -121,7 +120,7 @@ const ForkliftsPage = () => {
       month: 'long', 
       day: 'numeric' 
     };
-    const dateStr = now.toLocaleDateString('pt-BR', options);
+    const dateStr = now.toLocaleDateString('es-ES', options);
     // First letter uppercase
     setCurrentDate(dateStr.charAt(0).toUpperCase() + dateStr.slice(1));
   }, []);
@@ -203,8 +202,8 @@ const ForkliftsPage = () => {
           {/* Header with actions */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <div>
-              <h1 className="text-2xl font-bold">Gerenciamento de Empilhadeiras</h1>
-              <p className="text-muted-foreground">Gerencie sua frota de empilhadeiras</p>
+              <h1 className="text-2xl font-bold">Gestión de Empilhadeiras</h1>
+              <p className="text-muted-foreground">Administra tu flota de montacargas</p>
             </div>
             
             <div className="flex gap-2">
@@ -212,8 +211,8 @@ const ForkliftsPage = () => {
                 variant="outline" 
                 className="flex gap-2 items-center"
                 onClick={() => toast({
-                  title: "Filtros avançados",
-                  description: "Esta funcionalidade permitiria filtros mais avançados."
+                  title: "Filtros avanzados",
+                  description: "Esta funcionalidad permitiría filtros más avanzados."
                 })}
               >
                 <Filter size={16} />
@@ -227,7 +226,7 @@ const ForkliftsPage = () => {
                 }}
               >
                 <Plus size={16} />
-                Nova Empilhadeira
+                Nueva Empilhadeira
               </Button>
             </div>
           </div>
@@ -240,7 +239,7 @@ const ForkliftsPage = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={18} />
                 <input
                   type="text"
-                  placeholder="Buscar por ID ou modelo..."
+                  placeholder="Buscar por ID o modelo..."
                   className="pl-10 h-10 w-full rounded-md border border-input bg-background px-3 py-2"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -254,7 +253,7 @@ const ForkliftsPage = () => {
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value as ForkliftStatus | 'all')}
                 >
-                  <option value="all">Todos os Status</option>
+                  <option value="all">Todos los Estados</option>
                   <option value={ForkliftStatus.OPERATIONAL}>{ForkliftStatus.OPERATIONAL}</option>
                   <option value={ForkliftStatus.MAINTENANCE}>{ForkliftStatus.MAINTENANCE}</option>
                   <option value={ForkliftStatus.STOPPED}>{ForkliftStatus.STOPPED}</option>
@@ -268,7 +267,7 @@ const ForkliftsPage = () => {
                   value={typeFilter}
                   onChange={(e) => setTypeFilter(e.target.value as ForkliftType | 'all')}
                 >
-                  <option value="all">Todos os Tipos</option>
+                  <option value="all">Todos los Tipos</option>
                   <option value={ForkliftType.GAS}>{ForkliftType.GAS}</option>
                   <option value={ForkliftType.ELECTRIC}>{ForkliftType.ELECTRIC}</option>
                   <option value={ForkliftType.RETRACTABLE}>{ForkliftType.RETRACTABLE}</option>

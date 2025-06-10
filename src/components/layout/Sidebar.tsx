@@ -48,10 +48,10 @@ const Sidebar: React.FC = () => {
     { to: "/", icon: LayoutDashboard, label: "Dashboard" },
     { to: "/forklifts", icon: Truck, label: "Empilhadeiras" },
     { to: "/operators", icon: Users, label: "Operadores" },
-    { to: "/operations", icon: ClipboardList, label: "Operações" },
-    { to: "/maintenance", icon: Settings, label: "Manutenção" },
-    { to: "/gas-supply", icon: Fuel, label: "Abastecimento" },
-    { to: "/reports", icon: FileText, label: "Relatórios" },
+    { to: "/operations", icon: ClipboardList, label: "Operaciones" },
+    { to: "/maintenance", icon: Settings, label: "Mantenimiento" },
+    { to: "/gas-supply", icon: Fuel, label: "Abastecimiento" },
+    { to: "/reports", icon: FileText, label: "Reportes" },
   ];
 
   return (
