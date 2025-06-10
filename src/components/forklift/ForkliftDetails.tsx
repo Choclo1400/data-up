@@ -137,10 +137,10 @@ const ForkliftDetails = ({ open, onOpenChange, forklift, onEdit }: ForkliftDetai
         
         <DialogFooter className="gap-2 mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Fechar
+            Cerrar
           </Button>
           <Button onClick={onEdit}>
-            Editar Empilhadeira
+            Editar Montacargas
           </Button>
         </DialogFooter>
       </DialogContent>

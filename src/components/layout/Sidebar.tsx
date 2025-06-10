@@ -46,7 +46,7 @@ const Sidebar: React.FC = () => {
   
   const links = [
     { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/forklifts", icon: Truck, label: "Empilhadeiras" },
+    { to: "/forklifts", icon: Truck, label: "Montacargas" },
     { to: "/operators", icon: Users, label: "Operadores" },
     { to: "/operations", icon: ClipboardList, label: "Operaciones" },
     { to: "/maintenance", icon: Settings, label: "Mantenimiento" },

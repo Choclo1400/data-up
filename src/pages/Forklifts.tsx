@@ -194,7 +194,7 @@ const ForkliftsPage = () => {
         !isMobile && "ml-64" // Offset for sidebar when not mobile
       )}>
         <Navbar 
-          title="Empilhadeiras" 
+          title="Montacargas" 
           subtitle={currentDate}
         />
         
@@ -202,7 +202,7 @@ const ForkliftsPage = () => {
           {/* Header with actions */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
             <div>
-              <h1 className="text-2xl font-bold">Gestión de Empilhadeiras</h1>
+              <h1 className="text-2xl font-bold">Gestión de Montacargas</h1>
               <p className="text-muted-foreground">Administra tu flota de montacargas</p>
             </div>
             
@@ -226,7 +226,7 @@ const ForkliftsPage = () => {
                 }}
               >
                 <Plus size={16} />
-                Nueva Empilhadeira
+                Nuevo Montacargas
               </Button>
             </div>
           </div>
