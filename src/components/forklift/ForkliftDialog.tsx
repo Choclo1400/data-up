@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import {
@@ -98,8 +99,8 @@ const ForkliftDialog = ({ open, onOpenChange, forklift, onSave }: ForkliftDialog
     onOpenChange(false);
     
     toast({
-      title: isEditing ? "Montacargas atualizado" : "Montacargas adicionado",
-      description: `${formData.model} foi ${isEditing ? 'atualizado' : 'adicionado'} com sucesso!`
+      title: isEditing ? "Empilhadeira atualizada" : "Empilhadeira adicionada",
+      description: `${formData.model} foi ${isEditing ? 'atualizada' : 'adicionada'} com sucesso!`
     });
   };
 
@@ -107,11 +108,11 @@ const ForkliftDialog = ({ open, onOpenChange, forklift, onSave }: ForkliftDialog
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Editar Montacargas' : 'Agregar Nuevo Montacargas'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'Editar Empilhadeira' : 'Adicionar Nova Empilhadeira'}</DialogTitle>
           <DialogDescription>
             {isEditing 
-              ? 'Edita la información del montacargas en los campos de abajo.' 
-              : 'Completa la información del nuevo montacargas en los campos de abajo.'}
+              ? 'Edite as informações da empilhadeira nos campos abaixo.' 
+              : 'Preencha as informações da nova empilhadeira nos campos abaixo.'}
           </DialogDescription>
         </DialogHeader>
         
@@ -245,7 +246,7 @@ const ForkliftDialog = ({ open, onOpenChange, forklift, onSave }: ForkliftDialog
             <Button variant="outline" type="button" onClick={() => onOpenChange(false)}>
               Cancelar
             </Button>
-            <Button type="submit">{isEditing ? 'Guardar Cambios' : 'Agregar Montacargas'}</Button>
+            <Button type="submit">{isEditing ? 'Salvar Alterações' : 'Adicionar Empilhadeira'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

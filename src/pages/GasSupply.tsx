@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -172,15 +173,15 @@ const GasSupplyPage = () => {
         !isMobile && "ml-64" // Offset for sidebar when not mobile
       )}>
         <Navbar 
-          title="Abastecimiento" 
-          subtitle="Control de Abastecimiento de Combustible"
+          title="Abastecimento" 
+          subtitle="Controle de Abastecimento de Gás"
         />
         
         <main className="flex-1 px-6 py-6">
           {/* Stats cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <div className="bg-card border rounded-lg p-4 shadow">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Total de Repostajes</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">Total de Abastecimentos</h3>
               <div className="flex items-center justify-between">
                 <p className="text-2xl font-bold">{filteredGasSupplies.length}</p>
                 <div className="p-2 bg-primary/10 rounded-full">
@@ -200,7 +201,7 @@ const GasSupplyPage = () => {
             </div>
             
             <div className="bg-card border rounded-lg p-4 shadow">
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Promedio por Repostaje (L)</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">Média por Abastecimento (L)</h3>
               <div className="flex items-center justify-between">
                 <p className="text-2xl font-bold">{averageConsumption.toFixed(2)}</p>
                 <div className="p-2 bg-primary/10 rounded-full">
@@ -216,7 +217,7 @@ const GasSupplyPage = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input 
                 type="text" 
-                placeholder="Buscar repostaje..." 
+                placeholder="Buscar abastecimento..." 
                 className="pl-10"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -241,7 +242,7 @@ const GasSupplyPage = () => {
                 }}
               >
                 <Plus className="w-4 h-4" />
-                Nuevo Repostaje
+                Novo Abastecimento
               </Button>
             </div>
           </div>
@@ -262,7 +263,7 @@ const GasSupplyPage = () => {
               </select>
             </div>
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Fecha</h4>
+              <h4 className="text-sm font-medium">Data</h4>
               <Input 
                 type="date" 
                 value={dateFilter}
@@ -279,14 +280,14 @@ const GasSupplyPage = () => {
                 <thead className="bg-muted/50">
                   <tr>
                     <th className="p-4 text-left font-medium text-muted-foreground">ID</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Fecha</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Data</th>
                     <th className="p-4 text-left font-medium text-muted-foreground">Empilhadeira</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Cantidad (L)</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Horómetro Inicial</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Horómetro Final</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Quantidade (L)</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Horímetro Inicial</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Horímetro Final</th>
                     <th className="p-4 text-left font-medium text-muted-foreground">Operador</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Eficiencia (L/h)</th>
-                    <th className="p-4 text-left font-medium text-muted-foreground">Acciones</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Eficiência (L/h)</th>
+                    <th className="p-4 text-left font-medium text-muted-foreground">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -321,7 +322,7 @@ const GasSupplyPage = () => {
                             className="text-red-500 hover:text-red-700 hover:bg-red-50"
                             onClick={() => handleDeleteGasSupply(supply.id)}
                           >
-                            Eliminar
+                            Excluir
                           </Button>
                         </div>
                       </td>
@@ -333,7 +334,7 @@ const GasSupplyPage = () => {
             
             {filteredGasSupplies.length === 0 && (
               <div className="p-8 text-center">
-                <p className="text-muted-foreground">No se encontraron repostajes</p>
+                <p className="text-muted-foreground">Nenhum abastecimento encontrado</p>
               </div>
             )}
           </div>

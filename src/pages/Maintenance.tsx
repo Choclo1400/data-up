@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -171,8 +172,8 @@ const MaintenancePage = () => {
         !isMobile && "ml-64" // Offset for sidebar when not mobile
       )}>
         <Navbar 
-          title="Mantenimiento" 
-          subtitle="Gestión de Mantenimientos"
+          title="Manutenção" 
+          subtitle="Gestão de Manutenções"
         />
         
         <main className="flex-1 px-6 py-6">
@@ -182,7 +183,7 @@ const MaintenancePage = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
               <Input 
                 type="text" 
-                placeholder="Buscar mantenimiento..." 
+                placeholder="Buscar manutenção..." 
                 className="pl-10"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -195,7 +196,7 @@ const MaintenancePage = () => {
                   className="flex items-center gap-2"
                   onClick={() => toast({
                     title: "Filtros",
-                    description: "Esta funcionalidad permitiría filtros más avanzados."
+                    description: "Esta funcionalidade permitiria filtros mais avançados."
                   })}
                 >
                   <Filter className="w-4 h-4" />
@@ -210,7 +211,7 @@ const MaintenancePage = () => {
                 }}
               >
                 <Plus className="w-4 h-4" />
-                Nuevo Mantenimiento
+                Nova Manutenção
               </Button>
             </div>
           </div>
@@ -218,23 +219,23 @@ const MaintenancePage = () => {
           {/* Filter options */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="space-y-2">
-              <h4 className="text-sm font-medium">Estado</h4>
+              <h4 className="text-sm font-medium">Status</h4>
               <select 
                 className="w-full p-2 rounded-md border border-input bg-background"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >
                 <option value="all">Todos</option>
-                <option value={MaintenanceStatus.WAITING}>En Espera</option>
-                <option value={MaintenanceStatus.IN_PROGRESS}>En Progreso</option>
-                <option value={MaintenanceStatus.COMPLETED}>Completado</option>
+                <option value={MaintenanceStatus.WAITING}>Aguardando</option>
+                <option value={MaintenanceStatus.IN_PROGRESS}>Em andamento</option>
+                <option value={MaintenanceStatus.COMPLETED}>Concluído</option>
               </select>
             </div>
           </div>
           
           {/* Maintenance Cards - Waiting & In Progress */}
           <div className="mb-8">
-            <h2 className="text-2xl font-semibold mb-4">Mantenimientos Pendientes</h2>
+            <h2 className="text-2xl font-semibold mb-4">Manutenções Pendentes</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredMaintenance
                 .filter(m => m.status !== MaintenanceStatus.COMPLETED)
@@ -243,7 +244,7 @@ const MaintenancePage = () => {
                     <div className="p-4">
                       <div className="flex justify-between items-start mb-3">
                         <div>
-                          <h3 className="font-medium">Mantenimiento #{maintenance.id}</h3>
+                          <h3 className="font-medium">Manutenção #{maintenance.id}</h3>
                           <p className="text-sm text-muted-foreground">{maintenance.forkliftModel}</p>
                         </div>
                         <span className={cn(
@@ -272,7 +273,7 @@ const MaintenancePage = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm">Fecha: {formatDate(maintenance.reportedDate)}</span>
+                          <span className="text-sm">Data: {formatDate(maintenance.reportedDate)}</span>
                         </div>
                       </div>
                     </div>
@@ -293,7 +294,7 @@ const MaintenancePage = () => {
                           className="text-red-500 hover:text-red-700 hover:bg-red-50"
                           onClick={() => handleDeleteMaintenance(maintenance.id)}
                         >
-                          Eliminar
+                          Excluir
                         </Button>
                       </div>
                     </div>
@@ -302,7 +303,7 @@ const MaintenancePage = () => {
               
               {filteredMaintenance.filter(m => m.status !== MaintenanceStatus.COMPLETED).length === 0 && (
                 <div className="col-span-full p-8 text-center bg-card border rounded-lg">
-                  <p className="text-muted-foreground">No hay mantenimientos pendientes</p>
+                  <p className="text-muted-foreground">Nenhuma manutenção pendente</p>
                 </div>
               )}
             </div>
@@ -310,7 +311,7 @@ const MaintenancePage = () => {
           
           {/* Maintenance History */}
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Historial de Mantenimientos</h2>
+            <h2 className="text-2xl font-semibold mb-4">Histórico de Manutenções</h2>
             <div className="bg-card rounded-lg shadow overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -320,10 +321,10 @@ const MaintenancePage = () => {
                       <th className="p-4 text-left font-medium text-muted-foreground">Empilhadeira</th>
                       <th className="p-4 text-left font-medium text-muted-foreground">Problema</th>
                       <th className="p-4 text-left font-medium text-muted-foreground">Reportado por</th>
-                      <th className="p-4 text-left font-medium text-muted-foreground">Fecha Reportada</th>
-                      <th className="p-4 text-left font-medium text-muted-foreground">Fecha Completada</th>
-                      <th className="p-4 text-left font-medium text-muted-foreground">Estado</th>
-                      <th className="p-4 text-left font-medium text-muted-foreground">Acciones</th>
+                      <th className="p-4 text-left font-medium text-muted-foreground">Data Reportada</th>
+                      <th className="p-4 text-left font-medium text-muted-foreground">Data Concluída</th>
+                      <th className="p-4 text-left font-medium text-muted-foreground">Status</th>
+                      <th className="p-4 text-left font-medium text-muted-foreground">Ações</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -363,7 +364,7 @@ const MaintenancePage = () => {
                                 className="text-red-500 hover:text-red-700 hover:bg-red-50"
                                 onClick={() => handleDeleteMaintenance(maintenance.id)}
                               >
-                                Eliminar
+                                Excluir
                               </Button>
                             </div>
                           </td>
@@ -375,7 +376,7 @@ const MaintenancePage = () => {
               
               {filteredMaintenance.filter(m => m.status === MaintenanceStatus.COMPLETED).length === 0 && (
                 <div className="p-8 text-center">
-                  <p className="text-muted-foreground">No hay mantenimientos completados</p>
+                  <p className="text-muted-foreground">Nenhuma manutenção concluída</p>
                 </div>
               )}
             </div>
