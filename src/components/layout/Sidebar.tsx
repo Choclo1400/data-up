@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
-  Truck, Users, ClipboardList, Fuel, 
-  Settings, FileText, LayoutDashboard, Menu, X
+  ClipboardList, Users, Fuel, 
+  Settings, FileText, LayoutDashboard, Menu, X, Building2
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -46,12 +46,21 @@ const Sidebar: React.FC = () => {
   
   const links = [
     { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/forklifts", icon: Truck, label: "Montacargas" },
+    { to: "/requests", icon: ClipboardList, label: "Solicitudes Técnicas" },
+    { to: "/users", icon: Users, label: "Usuarios" },
+    { to: "/clients", icon: Building2, label: "Clientes" },
+    { to: "/reports", icon: FileText, label: "Reportes" },
+    { to: "/settings", icon: Settings, label: "Configuración" },
+  ];
+
+  // Legacy links (hidden by default, can be shown for migration period)
+  const legacyLinks = [
+    { to: "/legacy-dashboard", icon: LayoutDashboard, label: "Dashboard Anterior" },
+    { to: "/forklifts", icon: Building2, label: "Montacargas" },
     { to: "/operators", icon: Users, label: "Operadores" },
     { to: "/operations", icon: ClipboardList, label: "Operaciones" },
     { to: "/maintenance", icon: Settings, label: "Mantenimiento" },
     { to: "/gas-supply", icon: Fuel, label: "Abastecimiento" },
-    { to: "/reports", icon: FileText, label: "Reportes" },
   ];
 
   return (
@@ -85,7 +94,7 @@ const Sidebar: React.FC = () => {
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
           <div className="flex items-center justify-between px-4 py-5">
-            <h1 className="text-xl font-bold text-sidebar-foreground">Forklift Manager</h1>
+            <h1 className="text-xl font-bold text-sidebar-foreground">Inmel Chile</h1>
             {isMobile && (
               <button
                 onClick={closeSidebar}
@@ -96,18 +105,42 @@ const Sidebar: React.FC = () => {
             )}
           </div>
           
-          {/* Sidebar Navigation */}
+          {/* Main Navigation */}
           <nav className="flex-1 px-3 py-4 space-y-1">
-            {links.map((link) => (
-              <SidebarLink 
-                key={link.to}
-                to={link.to}
-                icon={link.icon}
-                label={link.label}
-                isActive={location.pathname === link.to}
-                onClick={isMobile ? closeSidebar : undefined}
-              />
-            ))}
+            <div className="mb-4">
+              <h3 className="px-3 text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider mb-2">
+                Sistema Principal
+              </h3>
+              {links.map((link) => (
+                <SidebarLink 
+                  key={link.to}
+                  to={link.to}
+                  icon={link.icon}
+                  label={link.label}
+                  isActive={location.pathname === link.to}
+                  onClick={isMobile ? closeSidebar : undefined}
+                />
+              ))}
+            </div>
+
+            {/* Legacy Section - Hidden by default, uncomment for migration period */}
+            {/*
+            <div className="mb-4">
+              <h3 className="px-3 text-xs font-semibold text-sidebar-foreground/70 uppercase tracking-wider mb-2">
+                Sistema Anterior
+              </h3>
+              {legacyLinks.map((link) => (
+                <SidebarLink 
+                  key={link.to}
+                  to={link.to}
+                  icon={link.icon}
+                  label={link.label}
+                  isActive={location.pathname === link.to}
+                  onClick={isMobile ? closeSidebar : undefined}
+                />
+              ))}
+            </div>
+            */}
           </nav>
           
           {/* Sidebar Footer */}
@@ -117,8 +150,8 @@ const Sidebar: React.FC = () => {
                 <Users className="w-4 h-4 text-sidebar-accent-foreground" />
               </div>
               <div>
-                <p className="text-sm font-medium text-sidebar-foreground">Administrador</p>
-                <p className="text-xs text-sidebar-foreground/70">v1.0.0</p>
+                <p className="text-sm font-medium text-sidebar-foreground">Sistema Enel</p>
+                <p className="text-xs text-sidebar-foreground/70">v2.0.0</p>
               </div>
             </div>
           </div>

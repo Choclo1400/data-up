@@ -12,6 +12,8 @@ import OperatorsPage from "./pages/Operators";
 import OperationsPage from "./pages/Operations";
 import MaintenancePage from "./pages/Maintenance";
 import GasSupplyPage from "./pages/GasSupply";
+import RequestsPage from "./pages/Requests";
+import RequestsDashboard from "./pages/RequestsDashboard";
 
 const queryClient = new QueryClient();
 
@@ -22,7 +24,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<RequestsDashboard />} />
+          <Route path="/requests" element={<RequestsPage />} />
+          <Route path="/legacy-dashboard" element={<Index />} />
           <Route path="/forklifts" element={<ForkliftsPage />} />
           <Route path="/operators" element={<OperatorsPage />} />
           <Route path="/operations" element={<OperationsPage />} />
