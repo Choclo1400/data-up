@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Operation } from '@/types';
-import { Badge } from "@/components/ui/badge";
+import Badge from "@/components/common/Badge";
 import { Calendar, Clock, Gauge, Info, Map, Settings, Truck, User, Wrench } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
