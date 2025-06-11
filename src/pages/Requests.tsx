@@ -1,12 +1,15 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Badge from "@/components/common/Badge";
-import { Plus, Search, Filter, Eye, Edit, MapPin } from 'lucide-react';
+import Breadcrumbs from "@/components/common/Breadcrumbs";
+import RequestForm from "@/components/requests/RequestForm";
+import { Plus, Search, Filter, Eye, Edit, MapPin, ClipboardList } from 'lucide-react';
 import { TechnicalRequest, RequestStatus, RequestType, Priority } from '@/types/requests';
+import { useRequests } from '@/hooks/useRequests';
+import { useToast } from '@/hooks/use-toast';
 
 // Datos mock de solicitudes técnicas
 const mockRequests: TechnicalRequest[] = [
@@ -106,13 +109,83 @@ const getPriorityBadgeVariant = (priority: Priority) => {
 
 const RequestsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [requests] = useState<TechnicalRequest[]>(mockRequests);
+  const [requests, setRequests] = useState<TechnicalRequest[]>(mockRequests);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingRequest, setEditingRequest] = useState<TechnicalRequest | null>(null);
+  
+  const { createRequest, updateRequest, loading } = useRequests();
+  const { toast } = useToast();
 
   const filteredRequests = requests.filter(request =>
     request.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     request.requestNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
     request.clientName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleCreateRequest = async (requestData: Partial<TechnicalRequest>) => {
+    try {
+      const newRequest = await createRequest(requestData);
+      setRequests(prev => [newRequest, ...prev]);
+      toast({
+        title: "Solicitud creada",
+        description: "La solicitud técnica ha sido creada exitosamente.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo crear la solicitud. Intente nuevamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditRequest = async (requestData: Partial<TechnicalRequest>) => {
+    if (!editingRequest) return;
+    
+    try {
+      await updateRequest(editingRequest.id, requestData);
+      setRequests(prev => 
+        prev.map(req => 
+          req.id === editingRequest.id 
+            ? { ...req, ...requestData, updatedDate: new Date().toISOString() }
+            : req
+        )
+      );
+      setEditingRequest(null);
+      toast({
+        title: "Solicitud actualizada",
+        description: "La solicitud técnica ha sido actualizada exitosamente.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la solicitud. Intente nuevamente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleViewRequest = (request: TechnicalRequest) => {
+    console.log('Ver detalles de solicitud:', request);
+    toast({
+      title: "Vista de solicitud",
+      description: `Abriendo detalles de ${request.requestNumber}`,
+    });
+  };
+
+  const openEditForm = (request: TechnicalRequest) => {
+    setEditingRequest(request);
+    setIsFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setIsFormOpen(false);
+    setEditingRequest(null);
+  };
+
+  const breadcrumbItems = [
+    { label: "Solicitudes Técnicas", icon: ClipboardList }
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -122,6 +195,8 @@ const RequestsPage: React.FC = () => {
           <div className="flex-1">
             <Card>
               <CardHeader>
+                <Breadcrumbs items={breadcrumbItems} className="mb-4" />
+                
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div>
                     <CardTitle className="text-2xl">Solicitudes Técnicas</CardTitle>
@@ -129,7 +204,10 @@ const RequestsPage: React.FC = () => {
                       Gestión y seguimiento de solicitudes técnicas de clientes
                     </CardDescription>
                   </div>
-                  <Button className="flex items-center gap-2">
+                  <Button 
+                    className="flex items-center gap-2"
+                    onClick={() => setIsFormOpen(true)}
+                  >
                     <Plus className="w-4 h-4" />
                     Nueva Solicitud
                   </Button>
@@ -208,10 +286,18 @@ const RequestsPage: React.FC = () => {
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleViewRequest(request)}
+                              >
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="sm">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => openEditForm(request)}
+                              >
                                 <Edit className="w-4 h-4" />
                               </Button>
                             </div>
@@ -226,6 +312,16 @@ const RequestsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Request Form Dialog */}
+      <RequestForm
+        isOpen={isFormOpen}
+        onClose={closeForm}
+        onSubmit={editingRequest ? handleEditRequest : handleCreateRequest}
+        initialData={editingRequest || undefined}
+        loading={loading}
+        title={editingRequest ? "Editar Solicitud" : "Nueva Solicitud Técnica"}
+      />
     </div>
   );
 };
