@@ -52,6 +52,20 @@ const Sidebar: React.FC = () => {
     { to: "/maintenance", icon: Settings, label: "Manutenção" },
     { to: "/gas-supply", icon: Fuel, label: "Abastecimento" },
     { to: "/reports", icon: FileText, label: "Relatórios" },
+    { to: "/requests", icon: ClipboardList, label: "Solicitudes Técnicas" },
+    { to: "/operators", icon: Users,     label: "Usuarios" },
+    { to: "/operations", icon: ClipboardList,    label: "Clientes" },
+    { to: "/reports", icon: FileText, label: "Reportes" },
+    { to: "/settings", icon: Settings, label: "Configuración" },
+  ];
+
+  // Legacy links (hidden by default, can be shown for migration period)
+  const legacyLinks = [
+    { to: "/legacy-dashboard", icon: LayoutDashboard, label: "Dashboard Anterior" },
+    { to: "/forklifts", icon: Building2, label: "Montacargas" },
+    { to: "/users", icon: Users, label: "Usuarios" },    { to: "/operations", icon: ClipboardList, label: "Operaciones" },
+    { to: "/maintenance", icon: Settings, label: "Mantenimiento" },
+    { to: "/gas-supply", icon: Fuel, label: "Abastecimiento" },
   ];
 
   return (
