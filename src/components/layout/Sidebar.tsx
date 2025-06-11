@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   Truck, Users, ClipboardList, Fuel, 
-  Settings, FileText, LayoutDashboard, Menu, X
+  Settings, FileText, LayoutDashboard, Menu, X,
+  Building2 // Added missing import
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -44,28 +44,15 @@ const Sidebar: React.FC = () => {
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
   
+  // Main navigation links - cleaned up and organized
   const links = [
     { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/forklifts", icon: Truck, label: "Empilhadeiras" },
+    { to: "/forklifts", icon: Truck, label: "Montacargas" },
     { to: "/operators", icon: Users, label: "Operadores" },
-    { to: "/operations", icon: ClipboardList, label: "Operações" },
-    { to: "/maintenance", icon: Settings, label: "Manutenção" },
-    { to: "/gas-supply", icon: Fuel, label: "Abastecimento" },
-    { to: "/reports", icon: FileText, label: "Relatórios" },
-    { to: "/requests", icon: ClipboardList, label: "Solicitudes Técnicas" },
-    { to: "/operators", icon: Users,     label: "Usuarios" },
-    { to: "/operations", icon: ClipboardList,    label: "Clientes" },
-    { to: "/reports", icon: FileText, label: "Reportes" },
-    { to: "/settings", icon: Settings, label: "Configuración" },
-  ];
-
-  // Legacy links (hidden by default, can be shown for migration period)
-  const legacyLinks = [
-    { to: "/legacy-dashboard", icon: LayoutDashboard, label: "Dashboard Anterior" },
-    { to: "/forklifts", icon: Building2, label: "Montacargas" },
-    { to: "/users", icon: Users, label: "Usuarios" },    { to: "/operations", icon: ClipboardList, label: "Operaciones" },
+    { to: "/operations", icon: ClipboardList, label: "Operaciones" },
     { to: "/maintenance", icon: Settings, label: "Mantenimiento" },
     { to: "/gas-supply", icon: Fuel, label: "Abastecimiento" },
+    { to: "/reports", icon: FileText, label: "Reportes" },
   ];
 
   return (
