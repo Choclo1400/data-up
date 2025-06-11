@@ -1,12 +1,18 @@
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Badge from "@/components/common/Badge";
-import { Plus, Search, Filter, Eye, Edit, Building2, Phone, Mail } from 'lucide-react';
+import Breadcrumbs from "@/components/common/Breadcrumbs";
+import ClientForm from "@/components/clients/ClientForm";
+import ClientDialog from "@/components/clients/ClientDialog";
+import ClientFilters from "@/components/clients/ClientFilters";
+import ClientTypeIcon from "@/components/clients/ClientTypeIcon";
+import { useClients } from "@/hooks/useClients";
+import { Plus, Search, Eye, Edit, Trash2, Power, Archive, Building2, Phone, Mail } from 'lucide-react';
 import { Client, ClientType } from '@/types/requests';
+import { useToast } from "@/hooks/use-toast";
 
 // Datos mock de clientes
 const mockClients: Client[] = [
@@ -80,19 +86,176 @@ const getClientTypeBadgeVariant = (type: ClientType) => {
 
 const ClientsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [clients] = useState<Client[]>(mockClients);
+  const [clients, setClients] = useState<Client[]>(mockClients);
+  const [showClientForm, setShowClientForm] = useState(false);
+  const [showClientDialog, setShowClientDialog] = useState(false);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [sortBy, setSortBy] = useState<'name' | 'createdDate' | 'type'>('name');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [filters, setFilters] = useState<{
+    type?: ClientType;
+    region?: string;
+    isActive?: boolean;
+    dateFrom?: string;
+    dateTo?: string;
+  }>({});
 
-  const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.region.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const { createClient, updateClient, deleteClient, toggleClientStatus, archiveClient, loading } = useClients();
+  const { toast } = useToast();
+
+  const filteredAndSortedClients = useMemo(() => {
+    let filtered = clients.filter(client => {
+      const matchesSearch = 
+        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        client.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesType = !filters.type || client.type === filters.type;
+      const matchesRegion = !filters.region || client.region === filters.region;
+      const matchesStatus = filters.isActive === undefined || client.isActive === filters.isActive;
+      
+      const matchesDate = (!filters.dateFrom && !filters.dateTo) || 
+        ((!filters.dateFrom || new Date(client.createdDate) >= new Date(filters.dateFrom)) &&
+         (!filters.dateTo || new Date(client.createdDate) <= new Date(filters.dateTo)));
+
+      return matchesSearch && matchesType && matchesRegion && matchesStatus && matchesDate;
+    });
+
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'createdDate':
+          comparison = new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime();
+          break;
+        case 'type':
+          comparison = a.type.localeCompare(b.type);
+          break;
+      }
+      
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    return filtered;
+  }, [clients, searchTerm, filters, sortBy, sortOrder]);
+
+  const handleCreateClient = async (clientData: Partial<Client>) => {
+    try {
+      const newClient = await createClient(clientData);
+      setClients(prev => [...prev, newClient]);
+      toast({
+        title: "Cliente creado",
+        description: `${newClient.name} ha sido creado exitosamente.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo crear el cliente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUpdateClient = async (clientData: Partial<Client>) => {
+    if (!editingClient) return;
+    
+    try {
+      const updatedClient = await updateClient(editingClient.id, clientData);
+      setClients(prev => prev.map(c => c.id === editingClient.id ? { ...c, ...updatedClient } : c));
+      setEditingClient(null);
+      toast({
+        title: "Cliente actualizado",
+        description: `${clientData.name} ha sido actualizado exitosamente.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar el cliente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteClient = async (client: Client) => {
+    if (!confirm(`¿Estás seguro de que quieres eliminar a ${client.name}?`)) return;
+    
+    try {
+      await deleteClient(client.id);
+      setClients(prev => prev.filter(c => c.id !== client.id));
+      toast({
+        title: "Cliente eliminado",
+        description: `${client.name} ha sido eliminado exitosamente.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el cliente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleToggleStatus = async (client: Client) => {
+    try {
+      const newStatus = !client.isActive;
+      await toggleClientStatus(client.id, newStatus);
+      setClients(prev => prev.map(c => c.id === client.id ? { ...c, isActive: newStatus } : c));
+      toast({
+        title: "Estado actualizado",
+        description: `${client.name} ha sido ${newStatus ? 'activado' : 'desactivado'}.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo cambiar el estado del cliente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleArchiveClient = async (client: Client) => {
+    if (!confirm(`¿Estás seguro de que quieres archivar a ${client.name}?`)) return;
+    
+    try {
+      await archiveClient(client.id);
+      setClients(prev => prev.filter(c => c.id !== client.id));
+      toast({
+        title: "Cliente archivado",
+        description: `${client.name} ha sido archivado exitosamente.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo archivar el cliente.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('es-CL', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const breadcrumbItems = [
+    { label: "Clientes", icon: Building2 }
+  ];
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
+        <Breadcrumbs items={breadcrumbItems} className="mb-6" />
+        
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Content */}
           <div className="flex-1">
             <Card>
               <CardHeader>
@@ -103,27 +266,70 @@ const ClientsPage: React.FC = () => {
                       Administración de empresas distribuidoras y clientes corporativos
                     </CardDescription>
                   </div>
-                  <Button className="flex items-center gap-2">
+                  <Button 
+                    className="flex items-center gap-2"
+                    onClick={() => setShowClientForm(true)}
+                  >
                     <Plus className="w-4 h-4" />
                     Nuevo Cliente
                   </Button>
                 </div>
                 
                 {/* Search and Filters */}
-                <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      placeholder="Buscar por nombre, contacto o región..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
+                <div className="flex flex-col gap-4 mt-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        placeholder="Buscar por nombre, contacto, email o región..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <ClientFilters
+                      isOpen={showFilters}
+                      onToggle={() => setShowFilters(!showFilters)}
+                      filters={filters}
+                      onFiltersChange={setFilters}
+                      onClearFilters={() => setFilters({})}
                     />
                   </div>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Filter className="w-4 h-4" />
-                    Filtros
-                  </Button>
+                  
+                  {showFilters && (
+                    <ClientFilters
+                      isOpen={showFilters}
+                      onToggle={() => setShowFilters(!showFilters)}
+                      filters={filters}
+                      onFiltersChange={setFilters}
+                      onClearFilters={() => setFilters({})}
+                    />
+                  )}
+                </div>
+
+                {/* Results Summary */}
+                <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
+                  <span>
+                    Mostrando {filteredAndSortedClients.length} de {clients.length} clientes
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span>Ordenar por:</span>
+                    <select 
+                      value={`${sortBy}-${sortOrder}`}
+                      onChange={(e) => {
+                        const [field, order] = e.target.value.split('-');
+                        setSortBy(field as 'name' | 'createdDate' | 'type');
+                        setSortOrder(order as 'asc' | 'desc');
+                      }}
+                      className="text-sm border rounded px-2 py-1"
+                    >
+                      <option value="name-asc">Nombre A-Z</option>
+                      <option value="name-desc">Nombre Z-A</option>
+                      <option value="createdDate-desc">Más reciente</option>
+                      <option value="createdDate-asc">Más antiguo</option>
+                      <option value="type-asc">Tipo A-Z</option>
+                    </select>
+                  </div>
                 </div>
               </CardHeader>
 
@@ -138,11 +344,12 @@ const ClientsPage: React.FC = () => {
                         <TableHead>Ubicación</TableHead>
                         <TableHead>Contrato</TableHead>
                         <TableHead>Estado</TableHead>
+                        <TableHead>Fecha Creación</TableHead>
                         <TableHead>Acciones</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredClients.map((client) => (
+                      {filteredAndSortedClients.map((client) => (
                         <TableRow key={client.id}>
                           <TableCell>
                             <div className="flex items-center gap-3">
@@ -156,9 +363,12 @@ const ClientsPage: React.FC = () => {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge variant={getClientTypeBadgeVariant(client.type)}>
-                              {client.type}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                              <ClientTypeIcon type={client.type} />
+                              <Badge variant={getClientTypeBadgeVariant(client.type)}>
+                                {client.type}
+                              </Badge>
+                            </div>
                           </TableCell>
                           <TableCell>
                             <div>
@@ -190,12 +400,52 @@ const ClientsPage: React.FC = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button variant="ghost" size="sm">
+                            <div className="text-sm">
+                              {formatDate(client.createdDate)}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedClient(client);
+                                  setShowClientDialog(true);
+                                }}
+                              >
                                 <Eye className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="sm">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => {
+                                  setEditingClient(client);
+                                  setShowClientForm(true);
+                                }}
+                              >
                                 <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleToggleStatus(client)}
+                              >
+                                <Power className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleArchiveClient(client)}
+                              >
+                                <Archive className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDeleteClient(client)}
+                              >
+                                <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           </TableCell>
@@ -209,6 +459,29 @@ const ClientsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Formulario de Cliente */}
+      <ClientForm
+        isOpen={showClientForm}
+        onClose={() => {
+          setShowClientForm(false);
+          setEditingClient(null);
+        }}
+        onSubmit={editingClient ? handleUpdateClient : handleCreateClient}
+        initialData={editingClient || undefined}
+        loading={loading}
+        title={editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
+      />
+
+      {/* Modal de Detalles */}
+      <ClientDialog
+        client={selectedClient}
+        isOpen={showClientDialog}
+        onClose={() => {
+          setShowClientDialog(false);
+          setSelectedClient(null);
+        }}
+      />
     </div>
   );
 };
