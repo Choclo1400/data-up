@@ -25,6 +25,7 @@ export interface Forklift {
 
 // User/Operator Types (adaptamos para técnicos)
 export enum UserRole {
+  OPERATOR = "Operador",
   TECHNICIAN = "Técnico",
   SUPERVISOR = "Supervisor",
   MANAGER = "Gestor",

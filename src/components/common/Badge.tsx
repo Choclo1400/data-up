@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-type BadgeVariant = 'default' | 'success' | 'warning' | 'danger' | 'info' | 'outline';
+type BadgeVariant = 'default' | 'success' | 'warning' | 'danger' | 'info' | 'outline' | 'neutral';
 type BadgeSize = 'sm' | 'md' | 'lg';
 
 interface BadgeProps {
@@ -29,6 +29,7 @@ const Badge = ({
     danger: "bg-status-warning text-white",
     info: "bg-primary text-primary-foreground",
     outline: "bg-transparent border border-current text-muted-foreground",
+    neutral: "bg-muted text-muted-foreground",
   };
   
   const sizeStyles = {
@@ -56,6 +57,7 @@ const Badge = ({
           variant === 'danger' && "bg-white",
           variant === 'info' && "bg-white",
           variant === 'outline' && "bg-current",
+          variant === 'neutral' && "bg-current",
         )} />
       )}
       {children}
