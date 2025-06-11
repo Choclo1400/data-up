@@ -2,23 +2,35 @@
 import React from 'react';
 import StatusCard from './StatusCard';
 import { 
-  Truck, Users, AlertTriangle, CheckCircle, 
-  Clock, Fuel, Settings, Calendar
+  ClipboardList, Users, AlertTriangle, CheckCircle, 
+  Clock, UserCheck, Settings, Calendar, Building2, BarChart3
 } from 'lucide-react';
 import { DashboardStats } from '@/types';
 
-// Mock data for initial rendering
+// Datos mock para solicitudes técnicas
 const initialStats: DashboardStats = {
-  totalForklifts: 15,
-  operationalForklifts: 9,
-  stoppedForklifts: 3,
-  maintenanceForklifts: 3,
-  totalOperators: 20,
-  operatorsWithValidCertificates: 16,
-  operatorsWithWarningCertificates: 3,
-  operatorsWithExpiredCertificates: 1,
-  activeOperations: 7,
-  pendingMaintenances: 4
+  // Métricas de solicitudes técnicas
+  totalRequests: 156,
+  newRequests: 23,
+  inProgressRequests: 45,
+  completedRequests: 88,
+  overdueRequests: 8,
+  
+  // Métricas de técnicos
+  totalTechnicians: 28,
+  availableTechnicians: 15,
+  busyTechnicians: 13,
+  techniciansWithValidCertificates: 24,
+  techniciansWithWarningCertificates: 3,
+  techniciansWithExpiredCertificates: 1,
+  
+  // Métricas de clientes
+  totalClients: 12,
+  activeClients: 10,
+  
+  // Métricas operacionales
+  averageCompletionTime: 4.2,
+  pendingValidations: 6
 };
 
 interface DashboardOverviewProps {
@@ -31,93 +43,94 @@ const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   return (
     <section className="space-y-6">
       <div className="slide-enter" style={{ animationDelay: '0.1s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Status da Frota</h2>
+        <h2 className="text-2xl font-semibold mb-4">Estado de Solicitudes Técnicas</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
-            title="Total de Empilhadeiras" 
-            value={stats.totalForklifts} 
-            icon={Truck} 
+            title="Total de Solicitudes" 
+            value={stats.totalRequests} 
+            icon={ClipboardList} 
             status="info" 
           />
           <StatusCard 
-            title="Em Operação" 
-            value={stats.operationalForklifts} 
-            icon={CheckCircle} 
+            title="En Proceso" 
+            value={stats.inProgressRequests} 
+            icon={Settings} 
             status="success"
             change={{ value: 12, trend: 'up' }}
           />
           <StatusCard 
-            title="Em Manutenção" 
-            value={stats.maintenanceForklifts} 
-            icon={Settings} 
-            status="warning" 
-          />
-          <StatusCard 
-            title="Paradas" 
-            value={stats.stoppedForklifts} 
+            title="Nuevas" 
+            value={stats.newRequests} 
             icon={Clock} 
-            status="neutral" 
-          />
-        </div>
-      </div>
-
-      <div className="slide-enter" style={{ animationDelay: '0.2s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Status dos Operadores</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatusCard 
-            title="Total de Operadores" 
-            value={stats.totalOperators} 
-            icon={Users} 
-            status="info" 
-          />
-          <StatusCard 
-            title="ASO e NR Regulares" 
-            value={stats.operatorsWithValidCertificates} 
-            icon={CheckCircle} 
-            status="success" 
-          />
-          <StatusCard 
-            title="Próximo do Vencimento" 
-            value={stats.operatorsWithWarningCertificates} 
-            icon={AlertTriangle} 
             status="warning" 
           />
           <StatusCard 
-            title="ASO/NR Vencidos" 
-            value={stats.operatorsWithExpiredCertificates} 
+            title="Vencidas" 
+            value={stats.overdueRequests} 
             icon={AlertTriangle} 
             status="danger" 
           />
         </div>
       </div>
 
-      <div className="slide-enter" style={{ animationDelay: '0.3s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Operação Atual</h2>
+      <div className="slide-enter" style={{ animationDelay: '0.2s' }}>
+        <h2 className="text-2xl font-semibold mb-4">Estado de Técnicos</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatusCard 
-            title="Operações Ativas" 
-            value={stats.activeOperations} 
-            icon={Truck} 
-            status="success"
-            change={{ value: 5, trend: 'up' }}
-          />
-          <StatusCard 
-            title="Manutenções Pendentes" 
-            value={stats.pendingMaintenances} 
-            icon={Settings} 
-            status="warning" 
-          />
-          <StatusCard 
-            title="Abastecimentos Hoje" 
-            value={3} 
-            icon={Fuel} 
+            title="Total de Técnicos" 
+            value={stats.totalTechnicians} 
+            icon={UserCheck} 
             status="info" 
           />
           <StatusCard 
-            title="ASOs a Vencer (30d)" 
-            value={4} 
-            icon={Calendar} 
+            title="Disponibles" 
+            value={stats.availableTechnicians} 
+            icon={CheckCircle} 
+            status="success" 
+          />
+          <StatusCard 
+            title="Ocupados" 
+            value={stats.busyTechnicians} 
+            icon={Users} 
             status="warning" 
+          />
+          <StatusCard 
+            title="Cert. Por Vencer" 
+            value={stats.techniciansWithWarningCertificates} 
+            icon={AlertTriangle} 
+            status="warning" 
+          />
+        </div>
+      </div>
+
+      <div className="slide-enter" style={{ animationDelay: '0.3s' }}>
+        <h2 className="text-2xl font-semibold mb-4">Métricas Operacionales</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatusCard 
+            title="Tiempo Promedio (días)" 
+            value={stats.averageCompletionTime} 
+            icon={BarChart3} 
+            status="info"
+            change={{ value: 8, trend: 'down' }}
+          />
+          <StatusCard 
+            title="Pendientes Validación" 
+            value={stats.pendingValidations} 
+            icon={ClipboardList} 
+            status="warning" 
+          />
+          <StatusCard 
+            title="Clientes Activos" 
+            value={stats.activeClients} 
+            icon={Building2} 
+            status="success" 
+          />
+          <StatusCard 
+            title="Completadas Hoy" 
+            value={12} 
+            icon={CheckCircle} 
+            status="success"
+            change={{ value: 15, trend: 'up' }}
           />
         </div>
       </div>

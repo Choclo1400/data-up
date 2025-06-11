@@ -12,6 +12,8 @@ import OperatorsPage from "./pages/Operators";
 import OperationsPage from "./pages/Operations";
 import MaintenancePage from "./pages/Maintenance";
 import GasSupplyPage from "./pages/GasSupply";
+import RequestsPage from "./pages/Requests";
+import ClientsPage from "./pages/Clients";
 
 const queryClient = new QueryClient();
 
@@ -23,12 +25,18 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          {/* Nuevas rutas para sistema de solicitudes técnicas */}
+          <Route path="/requests" element={<RequestsPage />} />
+          <Route path="/clients" element={<ClientsPage />} />
+          
+          {/* Rutas existentes mantenidas para compatibilidad */}
           <Route path="/forklifts" element={<ForkliftsPage />} />
           <Route path="/operators" element={<OperatorsPage />} />
           <Route path="/operations" element={<OperationsPage />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/gas-supply" element={<GasSupplyPage />} />
           <Route path="/reports" element={<ReportsPage />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

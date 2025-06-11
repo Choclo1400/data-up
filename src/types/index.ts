@@ -1,5 +1,5 @@
 
-// Forklift Types
+// Forklift Types (mantenemos para referencia)
 export enum ForkliftType {
   GAS = "Gás",
   ELECTRIC = "Elétrica",
@@ -23,10 +23,11 @@ export interface Forklift {
   hourMeter: number;
 }
 
-// User/Operator Types
+// User/Operator Types (adaptamos para técnicos)
 export enum UserRole {
-  OPERATOR = "Operador",
+  TECHNICIAN = "Técnico",
   SUPERVISOR = "Supervisor",
+  MANAGER = "Gestor",
   ADMIN = "Administrador"
 }
 
@@ -50,7 +51,10 @@ export interface User {
   nrStatus: CertificateStatus;
 }
 
-// Operation Types
+// Importamos y reexportamos los tipos de solicitudes técnicas
+export * from './requests';
+
+// Operation Types (mantenemos para compatibilidad)
 export interface Operation {
   id: string;
   operatorId: string;
@@ -66,10 +70,10 @@ export interface Operation {
   status: "active" | "completed";
 }
 
-// Maintenance Types
+// Maintenance Types (mantenemos para compatibilidad)
 export enum MaintenanceStatus {
   WAITING = "Aguardando",
-  IN_PROGRESS = "Em andamento",
+  IN_PROGRESS = "Em andamento", 
   COMPLETED = "Concluído"
 }
 
@@ -84,7 +88,7 @@ export interface Maintenance {
   completedDate?: string;
 }
 
-// Gas Supply Types
+// Gas Supply Types (mantenemos para compatibilidad)
 export interface GasSupply {
   id: string;
   date: string;
@@ -96,18 +100,30 @@ export interface GasSupply {
   operator: string;
 }
 
-// Dashboard Types
+// Dashboard Types actualizados
 export interface DashboardStats {
-  totalForklifts: number;
-  operationalForklifts: number;
-  stoppedForklifts: number;
-  maintenanceForklifts: number;
-  totalOperators: number;
-  operatorsWithValidCertificates: number;
-  operatorsWithWarningCertificates: number;
-  operatorsWithExpiredCertificates: number;
-  activeOperations: number;
-  pendingMaintenances: number;
+  // Métricas de solicitudes técnicas
+  totalRequests: number;
+  newRequests: number;
+  inProgressRequests: number;
+  completedRequests: number;
+  overdueRequests: number;
+  
+  // Métricas de técnicos
+  totalTechnicians: number;
+  availableTechnicians: number;
+  busyTechnicians: number;
+  techniciansWithValidCertificates: number;
+  techniciansWithWarningCertificates: number;
+  techniciansWithExpiredCertificates: number;
+  
+  // Métricas de clientes
+  totalClients: number;
+  activeClients: number;
+  
+  // Métricas operacionales
+  averageCompletionTime: number;
+  pendingValidations: number;
 }
 
 // Common Component Props

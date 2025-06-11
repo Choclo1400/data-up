@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
-  Truck, Users, ClipboardList, Fuel, 
-  Settings, FileText, LayoutDashboard, Menu, X
+  ClipboardList, Users, Building2, Settings, 
+  FileText, LayoutDashboard, Menu, X, UserCheck, BarChart3
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -44,14 +44,15 @@ const Sidebar: React.FC = () => {
   const toggleSidebar = () => setIsOpen(!isOpen);
   const closeSidebar = () => setIsOpen(false);
   
-  // Main navigation links - cleaned up and organized
+  // Navegación actualizada para sistema de solicitudes técnicas
   const links = [
     { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/forklifts", icon: Truck, label: "Montacargas" },
-    { to: "/operators", icon: Users, label: "Operadores" },
-    { to: "/operations", icon: ClipboardList, label: "Operaciones" },
-    { to: "/maintenance", icon: Settings, label: "Mantenimiento" },
-    { to: "/gas-supply", icon: Fuel, label: "Abastecimiento" },
+    { to: "/requests", icon: ClipboardList, label: "Solicitudes Técnicas" },
+    { to: "/clients", icon: Building2, label: "Clientes" },
+    { to: "/technicians", icon: UserCheck, label: "Técnicos" },
+    { to: "/analytics", icon: BarChart3, label: "Análisis" },
+    { to: "/users", icon: Users, label: "Usuarios" },
+    { to: "/settings", icon: Settings, label: "Configuración" },
     { to: "/reports", icon: FileText, label: "Reportes" },
   ];
 
@@ -86,7 +87,7 @@ const Sidebar: React.FC = () => {
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
           <div className="flex items-center justify-between px-4 py-5">
-            <h1 className="text-xl font-bold text-sidebar-foreground">Forklift Manager</h1>
+            <h1 className="text-xl font-bold text-sidebar-foreground">Inmel Chile</h1>
             {isMobile && (
               <button
                 onClick={closeSidebar}
@@ -119,7 +120,7 @@ const Sidebar: React.FC = () => {
               </div>
               <div>
                 <p className="text-sm font-medium text-sidebar-foreground">Administrador</p>
-                <p className="text-xs text-sidebar-foreground/70">v1.0.0</p>
+                <p className="text-xs text-sidebar-foreground/70">Sistema v2.0.0</p>
               </div>
             </div>
           </div>
