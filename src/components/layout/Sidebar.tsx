@@ -1,10 +1,10 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   Truck, Users, ClipboardList, Fuel, 
-  Settings, FileText, LayoutDashboard, Menu, X,
-  Building2 // Added missing import
+  Settings, FileText, LayoutDashboard, Menu, X
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
