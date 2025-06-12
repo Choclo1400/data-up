@@ -14,6 +14,10 @@ import MaintenancePage from "./pages/Maintenance";
 import GasSupplyPage from "./pages/GasSupply";
 import RequestsPage from "./pages/Requests";
 import ClientsPage from "./pages/Clients";
+import TechniciansPage from "./pages/Technicians";
+import AnalyticsPage from "./pages/Analytics";
+import UsersPage from "./pages/Users";
+import SettingsPage from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -25,9 +29,14 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* Nuevas rutas para sistema de solicitudes técnicas */}
+          
+          {/* Rutas principales del sistema de solicitudes técnicas */}
           <Route path="/requests" element={<RequestsPage />} />
           <Route path="/clients" element={<ClientsPage />} />
+          <Route path="/technicians" element={<TechniciansPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/users" element={<UsersPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           
           {/* Rutas existentes mantenidas para compatibilidad */}
           <Route path="/forklifts" element={<ForkliftsPage />} />
