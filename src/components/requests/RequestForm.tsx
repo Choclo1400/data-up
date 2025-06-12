@@ -55,6 +55,10 @@ const RequestForm: React.FC<RequestFormProps> = ({
     }
   });
 
+  const watchedType = watch('type');
+  const watchedPriority = watch('priority');
+  const watchedClientType = watch('clientType');
+
   const handleFormSubmit = async (data: FormData) => {
     const requestData: Partial<TechnicalRequest> = {
       ...data,
@@ -96,7 +100,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
 
             <div>
               <Label htmlFor="type">Tipo de Solicitud</Label>
-              <Select onValueChange={(value) => setValue("type", value as RequestType)}>
+              <Select value={watchedType} onValueChange={(value) => setValue("type", value as RequestType)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar tipo" />
                 </SelectTrigger>
@@ -110,7 +114,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
 
             <div>
               <Label htmlFor="priority">Prioridad</Label>
-              <Select onValueChange={(value) => setValue("priority", value as Priority)}>
+              <Select value={watchedPriority} onValueChange={(value) => setValue("priority", value as Priority)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar prioridad" />
                 </SelectTrigger>
@@ -136,7 +140,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
 
             <div>
               <Label htmlFor="clientType">Tipo de Cliente</Label>
-              <Select onValueChange={(value) => setValue("clientType", value as ClientType)}>
+              <Select value={watchedClientType} onValueChange={(value) => setValue("clientType", value as ClientType)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar tipo" />
                 </SelectTrigger>

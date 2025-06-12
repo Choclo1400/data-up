@@ -49,13 +49,14 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
       name: initialData?.name || '',
       email: initialData?.email || '',
       phone: initialData?.phone || '',
-      region: initialData?.region || '',
+      region: initialData?.region || regiones[0], // Set default to first region
       specialties: initialData?.specialties || [],
       maxConcurrentRequests: initialData?.maxConcurrentRequests || 5
     }
   });
 
   const watchedSpecialties = watch('specialties') || [];
+  const watchedRegion = watch('region');
 
   const handleFormSubmit = async (data: FormData) => {
     await onSubmit(data);
@@ -130,7 +131,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
 
             <div>
               <Label htmlFor="region">Región</Label>
-              <Select onValueChange={(value) => setValue("region", value)}>
+              <Select value={watchedRegion} onValueChange={(value) => setValue("region", value)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar región" />
                 </SelectTrigger>
