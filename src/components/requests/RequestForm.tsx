@@ -105,7 +105,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   <SelectValue placeholder="Seleccionar tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.values(RequestType).map((type) => (
+                  {Object.values(RequestType).filter(type => type && type.trim() !== '').map((type) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>
@@ -119,7 +119,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   <SelectValue placeholder="Seleccionar prioridad" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.values(Priority).map((priority) => (
+                  {Object.values(Priority).filter(priority => priority && priority.trim() !== '').map((priority) => (
                     <SelectItem key={priority} value={priority}>{priority}</SelectItem>
                   ))}
                 </SelectContent>
@@ -145,7 +145,7 @@ const RequestForm: React.FC<RequestFormProps> = ({
                   <SelectValue placeholder="Seleccionar tipo" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.values(ClientType).map((type) => (
+                  {Object.values(ClientType).filter(type => type && type.trim() !== '').map((type) => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
                 </SelectContent>

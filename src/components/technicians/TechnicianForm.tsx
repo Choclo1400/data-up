@@ -136,7 +136,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
                   <SelectValue placeholder="Seleccionar región" />
                 </SelectTrigger>
                 <SelectContent>
-                  {regiones.map((region) => (
+                  {regiones.filter(region => region && region.trim() !== '').map((region) => (
                     <SelectItem key={region} value={region}>{region}</SelectItem>
                   ))}
                 </SelectContent>
@@ -165,7 +165,7 @@ const TechnicianForm: React.FC<TechnicianFormProps> = ({
             <div className="md:col-span-2">
               <Label>Especialidades</Label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                {Object.values(RequestType).map((specialty) => (
+                {Object.values(RequestType).filter(specialty => specialty && specialty.trim() !== '').map((specialty) => (
                   <div key={specialty} className="flex items-center space-x-2">
                     <Checkbox
                       id={specialty}
