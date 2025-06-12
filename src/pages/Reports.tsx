@@ -2,19 +2,86 @@
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
+import Breadcrumbs from '@/components/common/Breadcrumbs';
+import DateRangePicker from '@/components/common/DateRangePicker';
+import ReportCard from '@/components/reports/ReportCard';
+import ReportPreview from '@/components/reports/ReportPreview';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useReports } from '@/hooks/useReports';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar } from '@/components/ui/calendar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
-import { ChevronDown, Download, FileBarChart, Filter } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Download, FileText, Loader2 } from 'lucide-react';
+import { ReportType, ReportFilters } from '@/types/reports';
+
+const availableReports = [
+  {
+    type: ReportType.FORKLIFT_USAGE,
+    title: "Utilización de Empilhadeiras",
+    description: "Análise de horas de uso por máquina"
+  },
+  {
+    type: ReportType.FUEL_CONSUMPTION,
+    title: "Consumo de Combustível",
+    description: "Consumo de gás por empilhadeira e horímetro"
+  },
+  {
+    type: ReportType.MAINTENANCE_HISTORY,
+    title: "Histórico de Manutenções",
+    description: "Registros de manutenções realizadas"
+  },
+  {
+    type: ReportType.OPERATOR_STATUS,
+    title: "Status dos Operadores",
+    description: "Validade de ASO e certificações"
+  }
+];
 
 const ReportsPage: React.FC = () => {
   const isMobile = useIsMobile();
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const { loading, reportData, selectedReport, generateReport, exportReport, setSelectedReport } = useReports();
+  
+  const [filters, setFilters] = useState<ReportFilters>({
+    dateFrom: undefined,
+    dateTo: undefined,
+    reportType: undefined
+  });
+
+  const handleDateChange = (from: Date | undefined, to: Date | undefined) => {
+    setFilters(prev => ({ ...prev, dateFrom: from, dateTo: to }));
+  };
+
+  const handleReportTypeChange = (type: string) => {
+    setFilters(prev => ({ ...prev, reportType: type as ReportType }));
+  };
+
+  const handleApplyFilters = () => {
+    if (!filters.reportType) {
+      return;
+    }
+    generateReport(filters);
+  };
+
+  const handleReportCardClick = (type: ReportType) => {
+    setSelectedReport(type);
+    setFilters(prev => ({ ...prev, reportType: type }));
+  };
+
+  const handleExport = (format: 'pdf' | 'excel') => {
+    if (!filters.reportType) return;
+    
+    exportReport({
+      format,
+      filters,
+      reportType: filters.reportType
+    });
+  };
+
+  const breadcrumbItems = [
+    { label: 'Relatórios', icon: FileText }
+  ];
 
   return (
     <div className="flex min-h-screen bg-background">
@@ -22,7 +89,7 @@ const ReportsPage: React.FC = () => {
       
       <div className={cn(
         "flex-1 flex flex-col",
-        !isMobile && "ml-64" // Offset for sidebar when not mobile
+        !isMobile && "ml-64"
       )}>
         <Navbar 
           title="Relatórios" 
@@ -30,141 +97,113 @@ const ReportsPage: React.FC = () => {
         />
         
         <main className="flex-1 px-6 py-6">
+          <Breadcrumbs items={breadcrumbItems} className="mb-6" />
+          
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <h1 className="text-2xl font-bold">Relatórios do Sistema</h1>
-            
-            <div className="flex gap-2">
-              <Button variant="outline" className="gap-2">
-                <Filter className="w-4 h-4" />
-                <span className="hidden sm:inline">Filtros</span>
-              </Button>
-              <Button variant="outline" className="gap-2">
-                <Download className="w-4 h-4" />
-                <span className="hidden sm:inline">Exportar</span>
-              </Button>
-            </div>
+            <h1 className="text-2xl font-bold">Sistema de Relatórios</h1>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="md:col-span-1">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Columna izquierda - Filtros */}
+            <div className="lg:col-span-1">
               <Card>
                 <CardHeader>
                   <CardTitle>Filtros</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
+                  <DateRangePicker
+                    from={filters.dateFrom}
+                    to={filters.dateTo}
+                    onDateChange={handleDateChange}
+                    label="Período"
+                  />
+                  
                   <div>
-                    <h3 className="text-sm font-medium mb-2">Período</h3>
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      className="rounded-md border"
-                    />
+                    <Label htmlFor="reportType">Tipo de Reporte</Label>
+                    <Select value={filters.reportType} onValueChange={handleReportTypeChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(ReportType).filter(type => type && type.trim() !== '').map((type) => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   
-                  <Collapsible open={isFiltersOpen} onOpenChange={setIsFiltersOpen} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium">Tipos de Relatório</h3>
-                      <CollapsibleTrigger asChild>
-                        <Button variant="ghost" size="sm" className="w-9 p-0">
-                          <ChevronDown className="h-4 w-4" />
-                          <span className="sr-only">Toggle</span>
+                  <Button 
+                    onClick={handleApplyFilters} 
+                    disabled={loading || !filters.reportType}
+                    className="w-full"
+                  >
+                    {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Aplicar Filtros
+                  </Button>
+                  
+                  {reportData && (
+                    <div className="space-y-2 pt-4 border-t">
+                      <Label>Exportar</Label>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleExport('pdf')}
+                          disabled={loading}
+                          className="flex-1"
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          PDF
                         </Button>
-                      </CollapsibleTrigger>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleExport('excel')}
+                          disabled={loading}
+                          className="flex-1"
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          Excel
+                        </Button>
+                      </div>
                     </div>
-                    <CollapsibleContent className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="operations" />
-                        <label htmlFor="operations" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Operações
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="maintenance" />
-                        <label htmlFor="maintenance" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Manutenções
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="gas" />
-                        <label htmlFor="gas" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Abastecimento
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <Checkbox id="operator" />
-                        <label htmlFor="operator" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                          Operadores
-                        </label>
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
+                  )}
                 </CardContent>
               </Card>
             </div>
             
-            <div className="md:col-span-2">
-              <Card className="h-full">
+            {/* Columna derecha - Reportes disponibles y vista previa */}
+            <div className="lg:col-span-2">
+              <Card>
                 <CardHeader>
                   <CardTitle>Relatórios Disponíveis</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Report Cards */}
-                    <Card className="hover:bg-muted/50 cursor-pointer transition-colors">
-                      <CardContent className="p-4 flex gap-4 items-center">
-                        <div className="p-2 bg-primary/10 text-primary rounded-md">
-                          <FileBarChart className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium">Utilização de Empilhadeiras</h3>
-                          <p className="text-sm text-muted-foreground">Análise de horas de uso por máquina</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="hover:bg-muted/50 cursor-pointer transition-colors">
-                      <CardContent className="p-4 flex gap-4 items-center">
-                        <div className="p-2 bg-primary/10 text-primary rounded-md">
-                          <FileBarChart className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium">Consumo de Combustível</h3>
-                          <p className="text-sm text-muted-foreground">Consumo de gás por empilhadeira e horímetro</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="hover:bg-muted/50 cursor-pointer transition-colors">
-                      <CardContent className="p-4 flex gap-4 items-center">
-                        <div className="p-2 bg-primary/10 text-primary rounded-md">
-                          <FileBarChart className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium">Histórico de Manutenções</h3>
-                          <p className="text-sm text-muted-foreground">Registros de manutenções realizadas</p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card className="hover:bg-muted/50 cursor-pointer transition-colors">
-                      <CardContent className="p-4 flex gap-4 items-center">
-                        <div className="p-2 bg-primary/10 text-primary rounded-md">
-                          <FileBarChart className="w-6 h-6" />
-                        </div>
-                        <div>
-                          <h3 className="font-medium">Status dos Operadores</h3>
-                          <p className="text-sm text-muted-foreground">Validade de ASO e certificações</p>
-                        </div>
-                      </CardContent>
-                    </Card>
+                  <div className="grid grid-cols-1 gap-4">
+                    {availableReports.map((report) => (
+                      <ReportCard
+                        key={report.type}
+                        type={report.type}
+                        title={report.title}
+                        description={report.description}
+                        isSelected={selectedReport === report.type}
+                        onClick={() => handleReportCardClick(report.type)}
+                      />
+                    ))}
                   </div>
                   
-                  <div className="mt-8 text-center text-muted-foreground">
-                    <p>Selecione um relatório para visualizar ou exportar</p>
-                  </div>
+                  {!reportData && !selectedReport && (
+                    <div className="mt-8 text-center text-muted-foreground">
+                      <p>Seleccione un tipo de reporte y aplique filtros para generar la vista previa</p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
+              
+              {/* Vista previa del reporte */}
+              {reportData && (
+                <ReportPreview reportData={reportData} />
+              )}
             </div>
           </div>
         </main>
