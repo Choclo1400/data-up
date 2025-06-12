@@ -18,6 +18,9 @@ import TechniciansPage from "./pages/Technicians";
 import AnalyticsPage from "./pages/Analytics";
 import UsersPage from "./pages/Users";
 import SettingsPage from "./pages/Settings";
+import NewRequestPage from "./pages/NewRequestPage";
+import PendingManagerPage from "./pages/PendingManagerPage";
+import PendingSupervisorPage from "./pages/PendingSupervisorPage";
 
 const queryClient = new QueryClient();
 
@@ -32,11 +35,16 @@ const App = () => (
           
           {/* Rutas principales del sistema de solicitudes técnicas */}
           <Route path="/requests" element={<RequestsPage />} />
+          <Route path="/requests/new" element={<NewRequestPage />} />
+          <Route path="/requests/pending-manager" element={<PendingManagerPage />} />
+          <Route path="/requests/pending-supervisor" element={<PendingSupervisorPage />} />
+          
           <Route path="/clients" element={<ClientsPage />} />
           <Route path="/technicians" element={<TechniciansPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
           
           {/* Rutas existentes mantenidas para compatibilidad */}
           <Route path="/forklifts" element={<ForkliftsPage />} />
@@ -44,7 +52,6 @@ const App = () => (
           <Route path="/operations" element={<OperationsPage />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/gas-supply" element={<GasSupplyPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
           
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

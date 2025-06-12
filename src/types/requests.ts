@@ -12,9 +12,13 @@ export enum RequestType {
 export enum RequestStatus {
   NEW = "Nueva",
   VALIDATING = "En Validación",
+  PENDING_MANAGER = "Pendiente Gestor",
+  PENDING_SUPERVISOR = "Pendiente Supervisor",
   ASSIGNED = "Asignada", 
   IN_PROGRESS = "En Proceso",
   COMPLETED = "Completada",
+  APPROVED = "Aprobada",
+  REJECTED = "Rechazada",
   CLOSED = "Cerrada",
   CANCELLED = "Cancelada"
 }
@@ -32,6 +36,13 @@ export enum ClientType {
   CGE = "CGE",
   FRONTEL = "Frontel",
   OTHER = "Otro"
+}
+
+export enum UserRole {
+  EMPLOYEE = "Empleado",
+  MANAGER = "Gestor",
+  SUPERVISOR = "Supervisor",
+  ADMIN = "Administrador"
 }
 
 export interface TechnicalRequest {
@@ -60,10 +71,15 @@ export interface TechnicalRequest {
   equipmentRequired: string[];
   materials: string[];
   observations?: string;
+  rejectionReason?: string;
   attachments: string[];
   createdBy: string;
   createdDate: string;
   updatedDate: string;
+  approvedByManager?: string;
+  approvedBySupervisor?: string;
+  managerApprovalDate?: string;
+  supervisorApprovalDate?: string;
 }
 
 export interface Client {
@@ -100,10 +116,21 @@ export interface Technician {
 export interface RequestStats {
   totalRequests: number;
   newRequests: number;
+  pendingManagerRequests: number;
+  pendingSupervisorRequests: number;
   inProgressRequests: number;
   completedRequests: number;
+  approvedRequests: number;
+  rejectedRequests: number;
   overdueRequests: number;
   averageCompletionTime: number;
   techniciansAvailable: number;
   pendingValidation: number;
+}
+
+export interface ApprovalAction {
+  requestId: string;
+  action: 'approve' | 'reject';
+  reason?: string;
+  comments?: string;
 }
