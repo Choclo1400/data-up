@@ -169,12 +169,14 @@ const NotificationPanel: React.FC = () => {
                 </div>
               ) : (
                 <ScrollArea className="h-full px-6">
-                  <div className="space-y-1 py-4">
+                  <div className="space-y-3 py-4">
                     {filteredNotifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`p-4 rounded-lg hover:bg-muted/50 cursor-pointer transition-all duration-200 ${
-                          !notification.isRead ? 'bg-blue-50/50 border border-blue-200' : 'border border-transparent'
+                        className={`p-4 rounded-xl border border-border hover:shadow-md cursor-pointer transition-all duration-200 ${
+                          !notification.isRead 
+                            ? 'bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800' 
+                            : 'bg-card hover:bg-accent/50'
                         }`}
                         onClick={() => handleNotificationClick(notification)}
                       >
@@ -198,7 +200,7 @@ const NotificationPanel: React.FC = () => {
                                   {notification.priority.toUpperCase()}
                                 </Badge>
                                 {!notification.isRead && (
-                                  <div className="w-2 h-2 bg-blue-500 rounded-full" />
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
                                 )}
                               </div>
                             </div>
@@ -225,7 +227,7 @@ const NotificationPanel: React.FC = () => {
                                       e.stopPropagation();
                                       markAsRead(notification.id);
                                     }}
-                                    className="h-7 w-7 p-0 hover:bg-green-100"
+                                    className="h-7 w-7 p-0 hover:bg-green-100 dark:hover:bg-green-900/20"
                                   >
                                     <Check className="w-3 h-3 text-green-600" />
                                   </Button>
@@ -237,7 +239,7 @@ const NotificationPanel: React.FC = () => {
                                     e.stopPropagation();
                                     deleteNotification(notification.id);
                                   }}
-                                  className="h-7 w-7 p-0 hover:bg-red-100"
+                                  className="h-7 w-7 p-0 hover:bg-red-100 dark:hover:bg-red-900/20"
                                 >
                                   <Trash2 className="w-3 h-3 text-red-500" />
                                 </Button>
