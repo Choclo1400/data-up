@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -10,9 +9,10 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import UserForm from '@/components/users/UserForm';
+import RoleChangeDialog from '@/components/users/RoleChangeDialog';
 import { useUsers, User } from '@/hooks/useUsers';
 import { UserRole } from '@/types';
-import { Users, Plus, Search, Edit, Trash2, UserX, CheckCircle, XCircle } from 'lucide-react';
+import { Users, Plus, Search, Edit, Trash2, UserX, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 // Datos de muestra
@@ -42,12 +42,21 @@ const sampleUsers: User[] = [
 const UsersPage: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const { createUser, updateUser, deleteUser, toggleUserStatus, loading } = useUsers();
+  const { createUser, updateUser, deleteUser, toggleUserStatus, changeUserRole, loading } = useUsers();
   
   const [users, setUsers] = useState<User[]>(sampleUsers);
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [roleChangeDialog, setRoleChangeDialog] = useState<{
+    isOpen: boolean;
+    user: User | null;
+    newRole: UserRole;
+  }>({
+    isOpen: false,
+    user: null,
+    newRole: UserRole.OPERATOR
+  });
 
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -159,6 +168,52 @@ const UsersPage: React.FC = () => {
     }
   };
 
+  const openRoleChangeDialog = (user: User) => {
+    setRoleChangeDialog({
+      isOpen: true,
+      user,
+      newRole: user.role
+    });
+  };
+
+  const closeRoleChangeDialog = () => {
+    setRoleChangeDialog({
+      isOpen: false,
+      user: null,
+      newRole: UserRole.OPERATOR
+    });
+  };
+
+  const handleRoleChange = (newRole: UserRole) => {
+    setRoleChangeDialog(prev => ({ ...prev, newRole }));
+  };
+
+  const confirmRoleChange = async () => {
+    if (!roleChangeDialog.user) return;
+    
+    const { user, newRole } = roleChangeDialog;
+    
+    try {
+      await changeUserRole(user.id, user.role, newRole, user.name);
+      setUsers(prev => 
+        prev.map(u => 
+          u.id === user.id ? { ...u, role: newRole } : u
+        )
+      );
+      closeRoleChangeDialog();
+      toast({
+        title: "Rol actualizado",
+        description: `El rol del usuario ${user.name} ha sido cambiado a ${newRole}.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo cambiar el rol del usuario.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-background">
       <Sidebar />
@@ -265,6 +320,14 @@ const UsersPage: React.FC = () => {
                             <Button
                               variant="outline"
                               size="sm"
+                              onClick={() => openRoleChangeDialog(user)}
+                              disabled={user.role === UserRole.ADMIN}
+                            >
+                              <Shield className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleToggleStatus(user.id, !user.isActive)}
                             >
                               <UserX className="w-4 h-4" />
@@ -296,6 +359,16 @@ const UsersPage: React.FC = () => {
         initialData={editingUser || undefined}
         loading={loading}
         title={editingUser ? "Editar Usuario" : "Nuevo Usuario"}
+      />
+
+      <RoleChangeDialog
+        isOpen={roleChangeDialog.isOpen}
+        onClose={closeRoleChangeDialog}
+        user={roleChangeDialog.user}
+        newRole={roleChangeDialog.newRole}
+        onRoleChange={handleRoleChange}
+        onConfirm={confirmRoleChange}
+        loading={loading}
       />
     </div>
   );
