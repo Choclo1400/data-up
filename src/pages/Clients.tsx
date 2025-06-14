@@ -13,6 +13,11 @@ import { useClients } from "@/hooks/useClients";
 import { Plus, Search, Eye, Edit, Trash2, Power, Archive, Building2, Phone, Mail } from 'lucide-react';
 import { Client, ClientType } from '@/types/requests';
 import { useToast } from "@/hooks/use-toast";
+import { EmptyState } from '@/components/ui/empty-state';
+import { LoadingState } from '@/components/ui/loading-state';
+import { ErrorState } from '@/components/ui/error-state';
+import { ConfirmationDialog } from '@/components/ui/confirmation-dialog';
+import { useConfirmation } from '@/hooks/useConfirmation';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
 
@@ -106,6 +111,8 @@ const ClientsPage: React.FC = () => {
 
   const { createClient, updateClient, deleteClient, toggleClientStatus, archiveClient, loading } = useClients();
   const { toast } = useToast();
+  const { confirmation, showConfirmation, hideConfirmation, confirm } = useConfirmation();
+  const [dataState, setDataState] = useState<'loading' | 'error' | 'success' | 'empty'>('success');
 
   const filteredAndSortedClients = useMemo(() => {
     let filtered = clients.filter(client => {
@@ -201,59 +208,80 @@ const ClientsPage: React.FC = () => {
   };
 
   const handleDeleteClient = async (client: Client) => {
-    if (!confirm(`¿Estás seguro de que quieres eliminar a ${client.name}?`)) return;
-    
-    try {
-      await deleteClient(client.id);
-      setClients(prev => prev.filter(c => c.id !== client.id));
-      toast({
-        title: "Cliente eliminado",
-        description: `${client.name} ha sido eliminado exitosamente.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el cliente.",
-        variant: "destructive",
-      });
-    }
+    showConfirmation({
+      title: 'Eliminar Cliente',
+      description: `¿Estás seguro de que quieres eliminar a ${client.name}? Esta acción no se puede deshacer.`,
+      type: 'delete',
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await deleteClient(client.id);
+          setClients(prev => prev.filter(c => c.id !== client.id));
+          toast({
+            title: "Cliente eliminado",
+            description: `${client.name} ha sido eliminado exitosamente.`,
+          });
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "No se pudo eliminar el cliente.",
+            variant: "destructive",
+          });
+        }
+      }
+    });
   };
 
   const handleToggleStatus = async (client: Client) => {
-    try {
-      const newStatus = !client.isActive;
-      await toggleClientStatus(client.id, newStatus);
-      setClients(prev => prev.map(c => c.id === client.id ? { ...c, isActive: newStatus } : c));
-      toast({
-        title: "Estado actualizado",
-        description: `${client.name} ha sido ${newStatus ? 'activado' : 'desactivado'}.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo cambiar el estado del cliente.",
-        variant: "destructive",
-      });
-    }
+    const newStatus = !client.isActive;
+    showConfirmation({
+      title: `${newStatus ? 'Activar' : 'Desactivar'} Cliente`,
+      description: `¿Estás seguro de que quieres ${newStatus ? 'activar' : 'desactivar'} a ${client.name}?`,
+      type: 'disable',
+      variant: 'warning',
+      confirmText: newStatus ? 'Activar' : 'Desactivar',
+      onConfirm: async () => {
+        try {
+          await toggleClientStatus(client.id, newStatus);
+          setClients(prev => prev.map(c => c.id === client.id ? { ...c, isActive: newStatus } : c));
+          toast({
+            title: "Estado actualizado",
+            description: `${client.name} ha sido ${newStatus ? 'activado' : 'desactivado'}.`,
+          });
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "No se pudo cambiar el estado del cliente.",
+            variant: "destructive",
+          });
+        }
+      }
+    });
   };
 
   const handleArchiveClient = async (client: Client) => {
-    if (!confirm(`¿Estás seguro de que quieres archivar a ${client.name}?`)) return;
-    
-    try {
-      await archiveClient(client.id);
-      setClients(prev => prev.filter(c => c.id !== client.id)); // Assuming archive removes from active list
-      toast({
-        title: "Cliente archivado",
-        description: `${client.name} ha sido archivado exitosamente.`,
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo archivar el cliente.",
-        variant: "destructive",
-      });
-    }
+    showConfirmation({
+      title: 'Archivar Cliente',
+      description: `¿Estás seguro de que quieres archivar a ${client.name}? Podrás restaurarlo más tarde desde el archivo.`,
+      type: 'archive',
+      variant: 'warning',
+      onConfirm: async () => {
+        try {
+          await archiveClient(client.id);
+          setClients(prev => prev.filter(c => c.id !== client.id));
+          toast({
+            title: "Cliente archivado",
+            description: `${client.name} ha sido archivado exitosamente.`,
+          });
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "No se pudo archivar el cliente.",
+            variant: "destructive",
+          });
+        }
+      }
+    });
   };
 
   const formatDate = (dateString?: string) => {
@@ -270,16 +298,192 @@ const ClientsPage: React.FC = () => {
     { label: "Clientes", icon: Building2 }
   ];
 
+  const renderContent = () => {
+    if (loading && dataState === 'loading') {
+      return <LoadingState type="table" rows={6} />;
+    }
+
+    if (dataState === 'error') {
+      return (
+        <ErrorState
+          type="generic"
+          onRetry={() => {
+            setDataState('loading');
+            // Simulate reload
+            setTimeout(() => setDataState('success'), 1000);
+          }}
+        />
+      );
+    }
+
+    if (filteredAndSortedClients.length === 0 && searchTerm) {
+      return (
+        <EmptyState
+          icon={Search}
+          title="No se encontraron resultados"
+          description={`No hay clientes que coincidan con "${searchTerm}". Intenta con otros términos de búsqueda.`}
+          action={{
+            label: "Limpiar búsqueda",
+            onClick: () => setSearchTerm('')
+          }}
+        />
+      );
+    }
+
+    if (filteredAndSortedClients.length === 0) {
+      return (
+        <EmptyState
+          icon={Building2}
+          title="No hay clientes registrados"
+          description="Comienza agregando tu primer cliente para gestionar tus relaciones comerciales."
+          action={{
+            label: "Agregar Cliente",
+            onClick: () => {
+              setEditingClient(null);
+              setShowClientForm(true);
+            }
+          }}
+        />
+      );
+    }
+
+    return (
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Cliente</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead>Contacto</TableHead>
+              <TableHead>Ubicación</TableHead>
+              <TableHead>Contrato</TableHead>
+              <TableHead>Estado</TableHead>
+              <TableHead>Fecha Creación</TableHead>
+              <TableHead>Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredAndSortedClients.map((client) => (
+              <TableRow key={client.id}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Building2 className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <div className="font-medium">{client.name}</div>
+                      <div className="text-sm text-muted-foreground">{client.id}</div>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <ClientTypeIcon type={client.type} />
+                    <Badge variant={getClientTypeBadgeVariant(client.type)}>
+                      {client.type || 'N/A'}
+                    </Badge>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div>
+                    <div className="font-medium">{client.contactPerson || 'N/A'}</div>
+                    {client.email && <div className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Mail className="w-3 h-3" />
+                      {client.email}
+                    </div>}
+                    {client.phone && <div className="text-sm text-muted-foreground flex items-center gap-1">
+                      <Phone className="w-3 h-3" />
+                      {client.phone}
+                    </div>}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div>
+                    <div className="font-medium">{client.comuna || 'N/A'}</div>
+                    <div className="text-sm text-muted-foreground">{client.region || 'N/A'}</div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm font-mono">
+                    {client.contractNumber || 'N/A'}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={client.isActive ? 'success' : 'danger'}>
+                    {client.isActive ? 'Activo' : 'Inactivo'}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="text-sm">
+                    {formatDate(client.createdDate)}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedClient(client);
+                        setShowClientDialog(true);
+                      }}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => {
+                        setEditingClient(client);
+                        setShowClientForm(true);
+                      }}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleToggleStatus(client)}
+                      title={client.isActive ? "Desactivar" : "Activar"}
+                    >
+                      <Power className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleArchiveClient(client)}
+                      title="Archivar"
+                    >
+                      <Archive className="w-4 h-4" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleDeleteClient(client)}
+                      className="text-destructive hover:text-destructive"
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  };
+
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden md:pl-64"> {/* Added md:pl-64 */}
+      <div className="flex-1 flex flex-col overflow-hidden md:pl-64">
         <Navbar title="Gestión de Clientes" />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6">
           <div className="container mx-auto">
             <Breadcrumbs items={breadcrumbItems} className="mb-6" />
             
-            {/* Removed outer flex div as Card will manage its own layout */}
             <Card>
               <CardHeader>
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -354,130 +558,7 @@ const ClientsPage: React.FC = () => {
               </CardHeader>
 
               <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Cliente</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Contacto</TableHead>
-                        <TableHead>Ubicación</TableHead>
-                        <TableHead>Contrato</TableHead>
-                        <TableHead>Estado</TableHead>
-                        <TableHead>Fecha Creación</TableHead>
-                        <TableHead>Acciones</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredAndSortedClients.map((client) => (
-                        <TableRow key={client.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                <Building2 className="w-5 h-5 text-primary" />
-                              </div>
-                              <div>
-                                <div className="font-medium">{client.name}</div>
-                                <div className="text-sm text-muted-foreground">{client.id}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <ClientTypeIcon type={client.type} />
-                              <Badge variant={getClientTypeBadgeVariant(client.type)}>
-                                {client.type || 'N/A'}
-                              </Badge>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{client.contactPerson || 'N/A'}</div>
-                              {client.email && <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Mail className="w-3 h-3" />
-                                {client.email}
-                              </div>}
-                              {client.phone && <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Phone className="w-3 h-3" />
-                                {client.phone}
-                              </div>}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{client.comuna || 'N/A'}</div>
-                              <div className="text-sm text-muted-foreground">{client.region || 'N/A'}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-sm font-mono">
-                              {client.contractNumber || 'N/A'}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={client.isActive ? 'success' : 'danger'}>
-                              {client.isActive ? 'Activo' : 'Inactivo'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-sm">
-                              {formatDate(client.createdDate)}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedClient(client);
-                                  setShowClientDialog(true);
-                                }}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => {
-                                  setEditingClient(client);
-                                  setShowClientForm(true);
-                                }}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleToggleStatus(client)}
-                                title={client.isActive ? "Desactivar" : "Activar"}
-                              >
-                                <Power className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleArchiveClient(client)}
-                                title="Archivar"
-                              >
-                                <Archive className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleDeleteClient(client)}
-                                className="text-destructive hover:text-destructive"
-                                title="Eliminar"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
+                {renderContent()}
               </CardContent>
             </Card>
           </div>
@@ -501,6 +582,19 @@ const ClientsPage: React.FC = () => {
               setShowClientDialog(false);
               setSelectedClient(null);
             }}
+          />
+
+          <ConfirmationDialog
+            isOpen={confirmation.isOpen}
+            onClose={hideConfirmation}
+            onConfirm={confirm}
+            title={confirmation.title}
+            description={confirmation.description}
+            type={confirmation.type}
+            variant={confirmation.variant}
+            confirmText={confirmation.confirmText}
+            cancelText={confirmation.cancelText}
+            loading={loading}
           />
         </main>
       </div>
