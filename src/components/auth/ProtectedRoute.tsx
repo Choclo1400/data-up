@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
+import AccessDeniedMessage from './AccessDeniedMessage';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,7 +18,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requiredRole 
 }) => {
   const { isAuthenticated, hasPermission, hasRole, loading, user } = useAuth();
-  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -41,48 +40,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (requiredPermission && !hasPermission(requiredPermission)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-full max-w-md">
-          <CardContent className="py-8 text-center">
-            <h2 className="text-xl font-semibold mb-3 text-destructive">Acceso Denegado</h2>
-            <p className="text-muted-foreground mb-4">
-              No tienes los permisos necesarios para acceder a esta sección.
-            </p>
-            <p className="text-sm text-muted-foreground mt-2 mb-6">
-              Permiso requerido: <span className="font-medium">{requiredPermission}</span>
-            </p>
-            <Button onClick={() => navigate(-1)} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Volver
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AccessDeniedMessage 
+        requiredPermission={requiredPermission}
+        showUserInfo={true}
+      />
     );
   }
 
   if (requiredRole && !hasRole(requiredRole as any)) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-full max-w-md">
-          <CardContent className="py-8 text-center">
-            <h2 className="text-xl font-semibold mb-3 text-destructive">Acceso Denegado</h2>
-            <p className="text-muted-foreground mb-4">
-              Tu rol actual no te permite acceder a esta sección.
-            </p>
-            <p className="text-sm text-muted-foreground mt-2 mb-1">
-              Rol requerido: <span className="font-medium">{requiredRole}</span>
-            </p>
-            <p className="text-sm text-muted-foreground mb-6">
-              Tu rol: <span className="font-medium">{user?.role}</span>
-            </p>
-            <Button onClick={() => navigate(-1)} className="gap-2">
-              <ArrowLeft className="w-4 h-4" />
-              Volver
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <AccessDeniedMessage 
+        requiredRole={requiredRole}
+        showUserInfo={true}
+      />
     );
   }
 
