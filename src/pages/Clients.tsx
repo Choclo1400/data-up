@@ -13,6 +13,8 @@ import { useClients } from "@/hooks/useClients";
 import { Plus, Search, Eye, Edit, Trash2, Power, Archive, Building2, Phone, Mail } from 'lucide-react';
 import { Client, ClientType } from '@/types/requests';
 import { useToast } from "@/hooks/use-toast";
+import Sidebar from '@/components/layout/Sidebar';
+import Navbar from '@/components/layout/Navbar';
 
 // Datos mock de clientes
 const mockClients: Client[] = [
@@ -251,237 +253,244 @@ const ClientsPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <Breadcrumbs items={breadcrumbItems} className="mb-6" />
-        
-        <div className="flex flex-col lg:flex-row gap-8">
-          <div className="flex-1">
-            <Card>
-              <CardHeader>
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <CardTitle className="text-2xl">Gestión de Clientes</CardTitle>
-                    <CardDescription>
-                      Administración de empresas distribuidoras y clientes corporativos
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    className="flex items-center gap-2"
-                    onClick={() => setShowClientForm(true)}
-                  >
-                    <Plus className="w-4 h-4" />
-                    Nuevo Cliente
-                  </Button>
-                </div>
-                
-                {/* Search and Filters */}
-                <div className="flex flex-col gap-4 mt-4">
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                      <Input
-                        placeholder="Buscar por nombre, contacto, email o región..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
+    <div className="flex h-screen bg-background">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Navbar title="Gestión de Clientes" />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6">
+          <div className="container mx-auto">
+            <Breadcrumbs items={breadcrumbItems} className="mb-6" />
+            
+            <div className="flex flex-col lg:flex-row gap-8">
+              <div className="flex-1">
+                <Card>
+                  <CardHeader>
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div>
+                        <CardTitle className="text-2xl">Listado de Clientes</CardTitle>
+                        <CardDescription>
+                          Administración de empresas distribuidoras y clientes corporativos
+                        </CardDescription>
+                      </div>
+                      <Button 
+                        className="flex items-center gap-2"
+                        onClick={() => setShowClientForm(true)}
+                      >
+                        <Plus className="w-4 h-4" />
+                        Nuevo Cliente
+                      </Button>
                     </div>
-                    <ClientFilters
-                      isOpen={showFilters}
-                      onToggle={() => setShowFilters(!showFilters)}
-                      filters={filters}
-                      onFiltersChange={setFilters}
-                      onClearFilters={() => setFilters({})}
-                    />
-                  </div>
-                  
-                  {showFilters && (
-                    <ClientFilters
-                      isOpen={showFilters}
-                      onToggle={() => setShowFilters(!showFilters)}
-                      filters={filters}
-                      onFiltersChange={setFilters}
-                      onClearFilters={() => setFilters({})}
-                    />
-                  )}
-                </div>
+                    
+                    {/* Search and Filters */}
+                    <div className="flex flex-col gap-4 mt-4">
+                      <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="relative flex-1">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                          <Input
+                            placeholder="Buscar por nombre, contacto, email o región..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10"
+                          />
+                        </div>
+                        <ClientFilters
+                          isOpen={showFilters}
+                          onToggle={() => setShowFilters(!showFilters)}
+                          filters={filters}
+                          onFiltersChange={setFilters}
+                          onClearFilters={() => setFilters({})}
+                        />
+                      </div>
+                      
+                      {showFilters && (
+                        <ClientFilters
+                          isOpen={showFilters}
+                          onToggle={() => setShowFilters(!showFilters)}
+                          filters={filters}
+                          onFiltersChange={setFilters}
+                          onClearFilters={() => setFilters({})}
+                        />
+                      )}
+                    </div>
 
-                {/* Results Summary */}
-                <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
-                  <span>
-                    Mostrando {filteredAndSortedClients.length} de {clients.length} clientes
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span>Ordenar por:</span>
-                    <select 
-                      value={`${sortBy}-${sortOrder}`}
-                      onChange={(e) => {
-                        const [field, order] = e.target.value.split('-');
-                        setSortBy(field as 'name' | 'createdDate' | 'type');
-                        setSortOrder(order as 'asc' | 'desc');
-                      }}
-                      className="text-sm border rounded px-2 py-1"
-                    >
-                      <option value="name-asc">Nombre A-Z</option>
-                      <option value="name-desc">Nombre Z-A</option>
-                      <option value="createdDate-desc">Más reciente</option>
-                      <option value="createdDate-asc">Más antiguo</option>
-                      <option value="type-asc">Tipo A-Z</option>
-                    </select>
-                  </div>
-                </div>
-              </CardHeader>
+                    {/* Results Summary */}
+                    <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
+                      <span>
+                        Mostrando {filteredAndSortedClients.length} de {clients.length} clientes
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span>Ordenar por:</span>
+                        <select 
+                          value={`${sortBy}-${sortOrder}`}
+                          onChange={(e) => {
+                            const [field, order] = e.target.value.split('-');
+                            setSortBy(field as 'name' | 'createdDate' | 'type');
+                            setSortOrder(order as 'asc' | 'desc');
+                          }}
+                          className="text-sm border rounded px-2 py-1 bg-background text-foreground"
+                        >
+                          <option value="name-asc">Nombre A-Z</option>
+                          <option value="name-desc">Nombre Z-A</option>
+                          <option value="createdDate-desc">Más reciente</option>
+                          <option value="createdDate-asc">Más antiguo</option>
+                          <option value="type-asc">Tipo A-Z</option>
+                        </select>
+                      </div>
+                    </div>
+                  </CardHeader>
 
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Cliente</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Contacto</TableHead>
-                        <TableHead>Ubicación</TableHead>
-                        <TableHead>Contrato</TableHead>
-                        <TableHead>Estado</TableHead>
-                        <TableHead>Fecha Creación</TableHead>
-                        <TableHead>Acciones</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredAndSortedClients.map((client) => (
-                        <TableRow key={client.id}>
-                          <TableCell>
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                <Building2 className="w-5 h-5 text-primary" />
-                              </div>
-                              <div>
-                                <div className="font-medium">{client.name}</div>
-                                <div className="text-sm text-muted-foreground">{client.id}</div>
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <ClientTypeIcon type={client.type} />
-                              <Badge variant={getClientTypeBadgeVariant(client.type)}>
-                                {client.type}
-                              </Badge>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{client.contactPerson}</div>
-                              <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Mail className="w-3 h-3" />
-                                {client.email}
-                              </div>
-                              <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                <Phone className="w-3 h-3" />
-                                {client.phone}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{client.comuna}</div>
-                              <div className="text-sm text-muted-foreground">{client.region}</div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-sm font-mono">
-                              {client.contractNumber}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={client.isActive ? 'success' : 'danger'}>
-                              {client.isActive ? 'Activo' : 'Inactivo'}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <div className="text-sm">
-                              {formatDate(client.createdDate)}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedClient(client);
-                                  setShowClientDialog(true);
-                                }}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => {
-                                  setEditingClient(client);
-                                  setShowClientForm(true);
-                                }}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleToggleStatus(client)}
-                              >
-                                <Power className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleArchiveClient(client)}
-                              >
-                                <Archive className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleDeleteClient(client)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Cliente</TableHead>
+                            <TableHead>Tipo</TableHead>
+                            <TableHead>Contacto</TableHead>
+                            <TableHead>Ubicación</TableHead>
+                            <TableHead>Contrato</TableHead>
+                            <TableHead>Estado</TableHead>
+                            <TableHead>Fecha Creación</TableHead>
+                            <TableHead>Acciones</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredAndSortedClients.map((client) => (
+                            <TableRow key={client.id}>
+                              <TableCell>
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                    <Building2 className="w-5 h-5 text-primary" />
+                                  </div>
+                                  <div>
+                                    <div className="font-medium">{client.name}</div>
+                                    <div className="text-sm text-muted-foreground">{client.id}</div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <ClientTypeIcon type={client.type} />
+                                  <Badge variant={getClientTypeBadgeVariant(client.type)}>
+                                    {client.type}
+                                  </Badge>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{client.contactPerson}</div>
+                                  <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                    <Mail className="w-3 h-3" />
+                                    {client.email}
+                                  </div>
+                                  <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                    <Phone className="w-3 h-3" />
+                                    {client.phone}
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{client.comuna}</div>
+                                  <div className="text-sm text-muted-foreground">{client.region}</div>
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm font-mono">
+                                  {client.contractNumber}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={client.isActive ? 'success' : 'danger'}>
+                                  {client.isActive ? 'Activo' : 'Inactivo'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <div className="text-sm">
+                                  {formatDate(client.createdDate)}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedClient(client);
+                                      setShowClientDialog(true);
+                                    }}
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => {
+                                      setEditingClient(client);
+                                      setShowClientForm(true);
+                                    }}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => handleToggleStatus(client)}
+                                  >
+                                    <Power className="w-4 h-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => handleArchiveClient(client)}
+                                  >
+                                    <Archive className="w-4 h-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => handleDeleteClient(client)}
+                                    className="text-destructive hover:text-destructive"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
-        </div>
+
+          {/* Formulario de Cliente */}
+          <ClientForm
+            isOpen={showClientForm}
+            onClose={() => {
+              setShowClientForm(false);
+              setEditingClient(null);
+            }}
+            onSubmit={editingClient ? handleUpdateClient : handleCreateClient}
+            initialData={editingClient || undefined}
+            loading={loading}
+            title={editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
+          />
+
+          {/* Modal de Detalles */}
+          <ClientDialog
+            client={selectedClient}
+            isOpen={showClientDialog}
+            onClose={() => {
+              setShowClientDialog(false);
+              setSelectedClient(null);
+            }}
+          />
+        </main>
       </div>
-
-      {/* Formulario de Cliente */}
-      <ClientForm
-        isOpen={showClientForm}
-        onClose={() => {
-          setShowClientForm(false);
-          setEditingClient(null);
-        }}
-        onSubmit={editingClient ? handleUpdateClient : handleCreateClient}
-        initialData={editingClient || undefined}
-        loading={loading}
-        title={editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
-      />
-
-      {/* Modal de Detalles */}
-      <ClientDialog
-        client={selectedClient}
-        isOpen={showClientDialog}
-        onClose={() => {
-          setShowClientDialog(false);
-          setSelectedClient(null);
-        }}
-      />
     </div>
   );
 };

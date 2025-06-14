@@ -6,10 +6,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Badge from "@/components/common/Badge";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import RequestForm from "@/components/requests/RequestForm";
-import { Plus, Search, Filter, Eye, Edit, MapPin, ClipboardList } from 'lucide-react';
+import { Plus, Search, Filter, Eye, Edit, MapPin, ClipboardList, Home } from 'lucide-react';
 import { TechnicalRequest, RequestStatus, RequestType, Priority } from '@/types/requests';
 import { useRequests } from '@/hooks/useRequests';
 import { useToast } from '@/hooks/use-toast';
+import Sidebar from '@/components/layout/Sidebar';
+import Navbar from '@/components/layout/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 // Datos mock de solicitudes técnicas
 const mockRequests: TechnicalRequest[] = [
@@ -108,6 +111,7 @@ const getPriorityBadgeVariant = (priority: Priority) => {
 };
 
 const RequestsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [requests, setRequests] = useState<TechnicalRequest[]>(mockRequests);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -130,6 +134,7 @@ const RequestsPage: React.FC = () => {
         title: "Solicitud creada",
         description: "La solicitud técnica ha sido creada exitosamente.",
       });
+      closeForm(); // Close form after successful creation
     } catch (error) {
       toast({
         title: "Error",
@@ -156,6 +161,7 @@ const RequestsPage: React.FC = () => {
         title: "Solicitud actualizada",
         description: "La solicitud técnica ha sido actualizada exitosamente.",
       });
+      closeForm(); // Close form after successful update
     } catch (error) {
       toast({
         title: "Error",
@@ -167,10 +173,18 @@ const RequestsPage: React.FC = () => {
 
   const handleViewRequest = (request: TechnicalRequest) => {
     console.log('Ver detalles de solicitud:', request);
+    // Here you would typically navigate to a detail page or open a modal
+    // For now, we'll just toast as an example.
     toast({
       title: "Vista de solicitud",
       description: `Abriendo detalles de ${request.requestNumber}`,
     });
+    // Example navigation: navigate(`/requests/${request.id}`);
+  };
+
+  const openCreateForm = () => {
+    setEditingRequest(null);
+    setIsFormOpen(true);
   };
 
   const openEditForm = (request: TechnicalRequest) => {
@@ -184,144 +198,151 @@ const RequestsPage: React.FC = () => {
   };
 
   const breadcrumbItems = [
+    { label: "Dashboard", href: "/", icon: Home },
     { label: "Solicitudes Técnicas", icon: ClipboardList }
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Content */}
-          <div className="flex-1">
-            <Card>
-              <CardHeader>
-                <Breadcrumbs items={breadcrumbItems} className="mb-4" />
-                
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <CardTitle className="text-2xl">Solicitudes Técnicas</CardTitle>
-                    <CardDescription>
-                      Gestión y seguimiento de solicitudes técnicas de clientes
-                    </CardDescription>
-                  </div>
-                  <Button 
-                    className="flex items-center gap-2"
-                    onClick={() => setIsFormOpen(true)}
-                  >
-                    <Plus className="w-4 h-4" />
-                    Nueva Solicitud
-                  </Button>
-                </div>
-                
-                {/* Search and Filters */}
-                <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      placeholder="Buscar por número, título o cliente..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <Filter className="w-4 h-4" />
-                    Filtros
-                  </Button>
-                </div>
-              </CardHeader>
+    <div className="flex h-screen bg-background">
+      <Sidebar />
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Navbar title="Solicitudes Técnicas" />
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6">
+          <div className="container mx-auto">
+            <div className="flex flex-col lg:flex-row gap-8">
+              {/* Main Content */}
+              <div className="flex-1">
+                <Card>
+                  <CardHeader>
+                    <Breadcrumbs items={breadcrumbItems} className="mb-4" />
+                    
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div>
+                        <CardTitle className="text-2xl">Listado de Solicitudes</CardTitle>
+                        <CardDescription>
+                          Gestión y seguimiento de solicitudes técnicas de clientes
+                        </CardDescription>
+                      </div>
+                      <Button 
+                        className="flex items-center gap-2"
+                        onClick={() => navigate('/requests/new')} // Navigate to NewRequestPage
+                      >
+                        <Plus className="w-4 h-4" />
+                        Nueva Solicitud
+                      </Button>
+                    </div>
+                    
+                    {/* Search and Filters */}
+                    <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                        <Input
+                          placeholder="Buscar por número, título o cliente..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                      <Button variant="outline" className="flex items-center gap-2">
+                        <Filter className="w-4 h-4" />
+                        Filtros
+                      </Button>
+                    </div>
+                  </CardHeader>
 
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Número</TableHead>
-                        <TableHead>Título</TableHead>
-                        <TableHead>Cliente</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Estado</TableHead>
-                        <TableHead>Prioridad</TableHead>
-                        <TableHead>Técnico</TableHead>
-                        <TableHead>Fecha</TableHead>
-                        <TableHead>Acciones</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredRequests.map((request) => (
-                        <TableRow key={request.id}>
-                          <TableCell className="font-medium">
-                            {request.requestNumber}
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <div className="font-medium">{request.title}</div>
-                              <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                <MapPin className="w-3 h-3" />
-                                {request.location}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>{request.clientName}</TableCell>
-                          <TableCell>
-                            <Badge variant="info">{request.type}</Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getStatusBadgeVariant(request.status)}>
-                              {request.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getPriorityBadgeVariant(request.priority)}>
-                              {request.priority}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {request.assignedTechnicianName || (
-                              <span className="text-muted-foreground">Sin asignar</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            {new Date(request.requestedDate).toLocaleDateString('es-CL')}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => handleViewRequest(request)}
-                              >
-                                <Eye className="w-4 h-4" />
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm"
-                                onClick={() => openEditForm(request)}
-                              >
-                                <Edit className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Número</TableHead>
+                            <TableHead>Título</TableHead>
+                            <TableHead>Cliente</TableHead>
+                            <TableHead>Tipo</TableHead>
+                            <TableHead>Estado</TableHead>
+                            <TableHead>Prioridad</TableHead>
+                            <TableHead>Técnico</TableHead>
+                            <TableHead>Fecha</TableHead>
+                            <TableHead>Acciones</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredRequests.map((request) => (
+                            <TableRow key={request.id}>
+                              <TableCell className="font-medium">
+                                {request.requestNumber}
+                              </TableCell>
+                              <TableCell>
+                                <div>
+                                  <div className="font-medium">{request.title}</div>
+                                  <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" />
+                                    {request.location}
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>{request.clientName}</TableCell>
+                              <TableCell>
+                                <Badge variant="info">{request.type}</Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={getStatusBadgeVariant(request.status)}>
+                                  {request.status}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={getPriorityBadgeVariant(request.priority)}>
+                                  {request.priority}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>
+                                {request.assignedTechnicianName || (
+                                  <span className="text-muted-foreground">Sin asignar</span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {new Date(request.requestedDate).toLocaleDateString('es-CL')}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => handleViewRequest(request)}
+                                  >
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm"
+                                    onClick={() => openEditForm(request)}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Request Form Dialog */}
-      <RequestForm
-        isOpen={isFormOpen}
-        onClose={closeForm}
-        onSubmit={editingRequest ? handleEditRequest : handleCreateRequest}
-        initialData={editingRequest || undefined}
-        loading={loading}
-        title={editingRequest ? "Editar Solicitud" : "Nueva Solicitud Técnica"}
-      />
+          {/* Request Form Dialog */}
+          <RequestForm
+            isOpen={isFormOpen}
+            onClose={closeForm}
+            onSubmit={editingRequest ? handleEditRequest : handleCreateRequest}
+            initialData={editingRequest || undefined}
+            loading={loading}
+            title={editingRequest ? "Editar Solicitud" : "Crear Nueva Solicitud"}
+          />
+        </main>
+      </div>
     </div>
   );
 };
