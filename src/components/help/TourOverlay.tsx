@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { X, ArrowLeft, ArrowRight, Skip } from 'lucide-react';
+import { X, ArrowLeft, ArrowRight, SkipForward } from 'lucide-react';
 import { useHelpTour } from '@/hooks/useHelpTour';
 
 const TourOverlay: React.FC = () => {
@@ -113,7 +113,7 @@ const TourOverlay: React.FC = () => {
               onClick={skipTour}
               className="flex items-center gap-1"
             >
-              <Skip className="h-3 w-3" />
+              <SkipForward className="h-3 w-3" />
               Saltar tour
             </Button>
             
