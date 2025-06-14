@@ -1,4 +1,3 @@
-
 // Tipos específicos para el sistema de solicitudes técnicas
 
 export enum RequestType {
@@ -80,6 +79,8 @@ export interface TechnicalRequest {
   approvedBySupervisor?: string;
   managerApprovalDate?: string;
   supervisorApprovalDate?: string;
+  hasRating?: boolean; // Nuevo campo para saber si ya fue calificada
+  ratingId?: string; // ID de la calificación si existe
 }
 
 export interface Client {

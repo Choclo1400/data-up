@@ -7,6 +7,7 @@ import ReportCard from '@/components/reports/ReportCard';
 import ReportPreview from '@/components/reports/ReportPreview';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useRatings } from '@/hooks/useRatings';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart3, Download, FileText, Calendar, TrendingUp, TrendingDown, Loader2, Users, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { ReportType, ReportFilters } from '@/types/reports';
 
 const availableReports = [
@@ -54,6 +55,7 @@ const AnalyticsPage: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const { loading, reportData, selectedReport, generateReport, exportReport, setSelectedReport } = useAnalytics();
+  const { getRatingStats } = useRatings();
   
   const [filters, setFilters] = useState<ReportFilters>({
     dateFrom: undefined,
@@ -91,6 +93,9 @@ const AnalyticsPage: React.FC = () => {
     });
   };
 
+  // Obtener estadísticas reales de calificaciones
+  const ratingStats = getRatingStats();
+
   const metricsData = [
     { 
       title: "Solicitudes Totales", 
@@ -108,9 +113,9 @@ const AnalyticsPage: React.FC = () => {
     },
     { 
       title: "Satisfacción del Cliente", 
-      value: "4.8/5", 
-      trend: "+0.2",
-      isPositive: true,
+      value: `${ratingStats.averageRating}/5`, 
+      trend: ratingStats.totalRatings > 0 ? `${ratingStats.totalRatings} calificaciones` : "Sin datos",
+      isPositive: ratingStats.averageRating >= 4,
       icon: Star
     },
     { 
@@ -308,8 +313,8 @@ const AnalyticsPage: React.FC = () => {
             <ReportPreview reportData={reportData} />
           )}
 
-          {/* Gráficos de análisis existentes */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Gráficos de análisis */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle>Solicitudes por Mes</CardTitle>
@@ -354,6 +359,40 @@ const AnalyticsPage: React.FC = () => {
                     <Tooltip />
                   </PieChart>
                 </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Nuevo gráfico de satisfacción del cliente */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Satisfacción del Cliente</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {ratingStats.totalRatings > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={ratingStats.monthlyTrend}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis domain={[1, 5]} />
+                      <Tooltip />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="rating" 
+                        stroke="hsl(var(--primary))" 
+                        name="Calificación Promedio"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-[300px] text-muted-foreground">
+                    <div className="text-center">
+                      <Star className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                      <p>No hay calificaciones disponibles</p>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
