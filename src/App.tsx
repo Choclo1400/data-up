@@ -4,6 +4,9 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import LoginPage from "./pages/LoginPage";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ForkliftsPage from "./pages/Forklifts";
@@ -21,6 +24,8 @@ import SettingsPage from "./pages/Settings";
 import NewRequestPage from "./pages/NewRequestPage";
 import PendingManagerPage from "./pages/PendingManagerPage";
 import PendingSupervisorPage from "./pages/PendingSupervisorPage";
+import ServicesPage from "./pages/ServicesPage";
+import EmployeesPage from "./pages/EmployeesPage";
 
 const queryClient = new QueryClient();
 
@@ -29,34 +34,112 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          
-          {/* Rutas principales del sistema de solicitudes técnicas */}
-          <Route path="/requests" element={<RequestsPage />} />
-          <Route path="/requests/new" element={<NewRequestPage />} />
-          <Route path="/requests/pending-manager" element={<PendingManagerPage />} />
-          <Route path="/requests/pending-supervisor" element={<PendingSupervisorPage />} />
-          
-          <Route path="/clients" element={<ClientsPage />} />
-          <Route path="/technicians" element={<TechniciansPage />} />
-          <Route path="/analytics" element={<AnalyticsPage />} />
-          <Route path="/users" element={<UsersPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          
-          {/* Rutas existentes mantenidas para compatibilidad */}
-          <Route path="/forklifts" element={<ForkliftsPage />} />
-          <Route path="/operators" element={<OperatorsPage />} />
-          <Route path="/operations" element={<OperationsPage />} />
-          <Route path="/maintenance" element={<MaintenancePage />} />
-          <Route path="/gas-supply" element={<GasSupplyPage />} />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            
+            <Route path="/" element={
+              <ProtectedRoute>
+                <Index />
+              </ProtectedRoute>
+            } />
+            
+            {/* Rutas principales del sistema de solicitudes técnicas */}
+            <Route path="/requests" element={
+              <ProtectedRoute>
+                <RequestsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/requests/new" element={
+              <ProtectedRoute>
+                <NewRequestPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/requests/pending-manager" element={
+              <ProtectedRoute requiredPermission="approve_manager">
+                <PendingManagerPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/requests/pending-supervisor" element={
+              <ProtectedRoute requiredPermission="approve_requests">
+                <PendingSupervisorPage />
+              </ProtectedRoute>
+            } />
+            
+            <Route path="/clients" element={
+              <ProtectedRoute>
+                <ClientsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/technicians" element={
+              <ProtectedRoute>
+                <TechniciansPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/analytics" element={
+              <ProtectedRoute>
+                <AnalyticsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/users" element={
+              <ProtectedRoute requiredPermission="manage_users">
+                <UsersPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/services" element={
+              <ProtectedRoute requiredPermission="manage_services">
+                <ServicesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/employees" element={
+              <ProtectedRoute requiredPermission="manage_employees">
+                <EmployeesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings" element={
+              <ProtectedRoute>
+                <SettingsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/reports" element={
+              <ProtectedRoute>
+                <ReportsPage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Rutas existentes mantenidas para compatibilidad */}
+            <Route path="/forklifts" element={
+              <ProtectedRoute>
+                <ForkliftsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/operators" element={
+              <ProtectedRoute>
+                <OperatorsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/operations" element={
+              <ProtectedRoute>
+                <OperationsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/maintenance" element={
+              <ProtectedRoute>
+                <MaintenancePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/gas-supply" element={
+              <ProtectedRoute>
+                <GasSupplyPage />
+              </ProtectedRoute>
+            } />
+            
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

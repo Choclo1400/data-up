@@ -1,4 +1,3 @@
-
 // Forklift Types (mantenemos para referencia)
 export enum ForkliftType {
   GAS = "Gás",
@@ -138,3 +137,7 @@ export interface StatusCardProps {
     trend: "up" | "down" | "neutral";
   };
 }
+
+// Export new types for services and employees
+export * from './services';
+export * from './employees';
