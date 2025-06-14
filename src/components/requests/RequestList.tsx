@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Badge from "@/components/common/Badge";
 import { TechnicalRequest, RequestStatus, Priority } from '@/types/requests';
-import { MapPin, Clock, User, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { MapPin, Clock, User, CheckCircle, XCircle, Eye, Star } from 'lucide-react';
 
 interface RequestListProps {
   requests: TechnicalRequest[];
@@ -12,6 +12,7 @@ interface RequestListProps {
   onApprove?: (requestId: string) => void;
   onReject?: (requestId: string, reason: string) => void;
   onView?: (request: TechnicalRequest) => void;
+  onRate?: (request: TechnicalRequest) => void;
   loading?: boolean;
   actionLabel?: string;
 }
@@ -49,6 +50,7 @@ const RequestList: React.FC<RequestListProps> = ({
   onApprove,
   onReject,
   onView,
+  onRate,
   loading = false,
   actionLabel = "Aprobar"
 }) => {
@@ -88,6 +90,11 @@ const RequestList: React.FC<RequestListProps> = ({
                 <Badge variant={getPriorityBadgeVariant(request.priority)}>
                   {request.priority}
                 </Badge>
+                {request.hasRating && (
+                  <div className="flex items-center text-green-600" title="Servicio calificado">
+                    <Star className="w-4 h-4 fill-current" />
+                  </div>
+                )}
               </div>
             </div>
           </CardHeader>
@@ -147,6 +154,19 @@ const RequestList: React.FC<RequestListProps> = ({
                     >
                       <Eye className="w-4 h-4 mr-1" />
                       Ver Detalles
+                    </Button>
+                  )}
+                  
+                  {(request.status === RequestStatus.COMPLETED || request.status === RequestStatus.APPROVED) && 
+                   !request.hasRating && onRate && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onRate(request)}
+                      className="text-yellow-600 hover:text-yellow-700"
+                    >
+                      <Star className="w-4 h-4 mr-1" />
+                      Calificar
                     </Button>
                   )}
                   

@@ -6,9 +6,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import Badge from "@/components/common/Badge";
 import Breadcrumbs from "@/components/common/Breadcrumbs";
 import RequestForm from "@/components/requests/RequestForm";
-import { Plus, Search, Filter, Eye, Edit, MapPin, ClipboardList, Home } from 'lucide-react';
+import RatingDialog from "@/components/ratings/RatingDialog";
+import { Plus, Search, Filter, Eye, Edit, MapPin, ClipboardList, Home, Star } from 'lucide-react';
 import { TechnicalRequest, RequestStatus, RequestType, Priority } from '@/types/requests';
 import { useRequests } from '@/hooks/useRequests';
+import { useRatings } from '@/hooks/useRatings';
 import { useToast } from '@/hooks/use-toast';
 import Sidebar from '@/components/layout/Sidebar';
 import Navbar from '@/components/layout/Navbar';
@@ -116,8 +118,11 @@ const RequestsPage: React.FC = () => {
   const [requests, setRequests] = useState<TechnicalRequest[]>(mockRequests);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRequest, setEditingRequest] = useState<TechnicalRequest | null>(null);
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [requestToRate, setRequestToRate] = useState<TechnicalRequest | null>(null);
   
   const { createRequest, updateRequest, loading } = useRequests();
+  const { createRating, loading: ratingLoading } = useRatings();
   const { toast } = useToast();
 
   const filteredRequests = requests.filter(request =>
@@ -178,6 +183,33 @@ const RequestsPage: React.FC = () => {
         description: "No se pudo actualizar la solicitud. Intente nuevamente.",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleRateRequest = (request: TechnicalRequest) => {
+    setRequestToRate(request);
+    setRatingDialogOpen(true);
+  };
+
+  const handleSubmitRating = async (ratingData: any) => {
+    if (!requestToRate) return;
+    
+    try {
+      await createRating(ratingData);
+      
+      // Marcar la solicitud como calificada
+      setRequests(prev => 
+        prev.map(req => 
+          req.id === requestToRate.id 
+            ? { ...req, hasRating: true }
+            : req
+        )
+      );
+      
+      setRatingDialogOpen(false);
+      setRequestToRate(null);
+    } catch (error) {
+      // Error handling is done in the hook
     }
   };
 
@@ -323,6 +355,23 @@ const RequestsPage: React.FC = () => {
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
+                              {(request.status === RequestStatus.COMPLETED || request.status === RequestStatus.APPROVED) && 
+                               !request.hasRating && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleRateRequest(request)}
+                                  className="text-yellow-600 hover:text-yellow-700"
+                                  title="Calificar servicio"
+                                >
+                                  <Star className="w-4 h-4" />
+                                </Button>
+                              )}
+                              {request.hasRating && (
+                                <div className="flex items-center text-green-600" title="Servicio calificado">
+                                  <Star className="w-4 h-4 fill-current" />
+                                </div>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>
@@ -342,6 +391,21 @@ const RequestsPage: React.FC = () => {
             loading={loading}
             title={editingRequest ? "Editar Solicitud" : "Crear Nueva Solicitud"}
           />
+
+          {requestToRate && (
+            <RatingDialog
+              isOpen={ratingDialogOpen}
+              onClose={() => {
+                setRatingDialogOpen(false);
+                setRequestToRate(null);
+              }}
+              onSubmit={handleSubmitRating}
+              requestId={requestToRate.id}
+              requestTitle={requestToRate.title}
+              technicianName={requestToRate.assignedTechnicianName || "Técnico asignado"}
+              loading={ratingLoading}
+            />
+          )}
         </main>
       </div>
     </div>
