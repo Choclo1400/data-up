@@ -1,131 +1,174 @@
-
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { cn } from '@/lib/utils';
-import { 
-  ClipboardList, Users, Building2, Settings, 
-  LayoutDashboard, Menu, X, UserCheck, BarChart3
-} from 'lucide-react';
+import React from 'react';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import {
+  BarChart,
+  Building2,
+  Calendar,
+  CheckSquare,
+  LayoutDashboard,
+  ListChecks,
+  Settings,
+  User,
+  Users,
+  File,
+  Shield
+} from "lucide-react";
+import { NavLink, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
-interface SidebarLinkProps {
-  to: string;
-  icon: React.ElementType;
-  label: string;
-  isActive: boolean;
-  onClick?: () => void;
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<any>;
+  permission?: string;
 }
 
-const SidebarLink: React.FC<SidebarLinkProps> = ({ 
-  to, icon: Icon, label, isActive, onClick 
-}) => {
-  return (
-    <Link
-      to={to}
-      className={cn(
-        "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300",
-        isActive 
-          ? "bg-sidebar-primary text-sidebar-primary-foreground font-medium" 
-          : "text-sidebar-foreground/90 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-      )}
-      onClick={onClick}
-    >
-      <Icon className="w-5 h-5" />
-      <span>{label}</span>
-    </Link>
-  );
-};
-
 const Sidebar: React.FC = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const { user, hasPermission } = useAuth();
   const location = useLocation();
   const isMobile = useIsMobile();
-  
-  const toggleSidebar = () => setIsOpen(!isOpen);
-  const closeSidebar = () => setIsOpen(false);
-  
-  // Navegación actualizada para sistema de solicitudes técnicas
-  const links = [
-    { to: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { to: "/requests", icon: ClipboardList, label: "Solicitudes Técnicas" },
-    { to: "/clients", icon: Building2, label: "Clientes" },
-    { to: "/technicians", icon: UserCheck, label: "Técnicos" },
-    { to: "/analytics", icon: BarChart3, label: "Análisis y Reportes" },
-    { to: "/users", icon: Users, label: "Usuarios" },
-    { to: "/settings", icon: Settings, label: "Configuración" },
+
+  const navigation: NavItem[] = [
+    {
+      name: 'Dashboard',
+      href: '/',
+      icon: LayoutDashboard
+    },
+    {
+      name: 'Solicitudes',
+      href: '/requests',
+      icon: ListChecks,
+      permission: 'view_requests'
+    },
+    {
+      name: 'Clientes',
+      href: '/clients',
+      icon: Building2,
+      permission: 'manage_clients'
+    },
+    {
+      name: 'Técnicos',
+      href: '/technicians',
+      icon: User,
+      permission: 'manage_technicians'
+    },
+    {
+      name: 'Servicios',
+      href: '/services',
+      icon: CheckSquare,
+      permission: 'manage_services'
+    },
+    {
+      name: 'Empleados',
+      href: '/employees',
+      icon: Users,
+      permission: 'manage_employees'
+    },
+    {
+      name: 'Reportes',
+      href: '/reports',
+      icon: BarChart,
+      permission: 'view_reports'
+    },
+    {
+      name: 'Calendario',
+      href: '/calendar',
+      icon: Calendar,
+      permission: 'view_calendar'
+    },
+    {
+      name: 'Documentos',
+      href: '/documents',
+      icon: File,
+      permission: 'view_documents'
+    },
+    {
+      name: 'Usuarios',
+      href: '/users',
+      icon: Users,
+      permission: 'manage_users'
+    },
+    {
+      name: 'Ajustes',
+      href: '/settings',
+      icon: Settings,
+      permission: 'system_config'
+    },
+    {
+      name: 'Auditoría',
+      href: '/audit',
+      icon: Shield,
+      permission: 'view_audit'
+    },
   ];
 
+  const renderSidebarContent = () => (
+    <div className="flex flex-col h-full p-4">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold">Inmel</h1>
+        <p className="text-sm text-muted-foreground">
+          Sistema de gestión
+        </p>
+      </div>
+      <div className="flex-1 space-y-1">
+        {navigation.map((item) => {
+          if (item.permission && !hasPermission(item.permission)) {
+            return null;
+          }
+
+          return (
+            <NavLink
+              key={item.href}
+              to={item.href}
+              className={({ isActive }) =>
+                cn(
+                  "group flex items-center rounded-md px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground",
+                  isActive ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"
+                )
+              }
+            >
+              <item.icon className="mr-2 h-4 w-4" />
+              <span>{item.name}</span>
+            </NavLink>
+          );
+        })}
+      </div>
+      <div className="mt-4">
+        <p className="text-xs text-muted-foreground">
+          {user?.name} ({user?.role})
+        </p>
+      </div>
+    </div>
+  );
+
+  if (isMobile) {
+    return (
+      <Sheet>
+        <SheetTrigger asChild>
+          <button className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-secondary data-[state=open]:text-secondary-foreground bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+            Abrir menú
+          </button>
+        </SheetTrigger>
+        <SheetContent side="left" className="p-0 w-64">
+          {renderSidebarContent()}
+        </SheetContent>
+      </Sheet>
+    );
+  }
+
   return (
-    <>
-      {/* Mobile Menu Button */}
-      {isMobile && (
-        <button
-          onClick={toggleSidebar}
-          className="fixed top-4 left-4 z-50 p-2 rounded-lg bg-primary text-primary-foreground"
-          aria-label="Toggle Menu"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
-      )}
-
-      {/* Sidebar Backdrop (Mobile Only) */}
-      {isMobile && isOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm transition-opacity duration-300"
-          onClick={closeSidebar}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={cn(
-          "fixed top-0 left-0 z-40 h-full w-64 bg-sidebar transition-transform duration-300 ease-in-out",
-          isMobile ? (isOpen ? "translate-x-0" : "-translate-x-full") : "translate-x-0"
-        )}
-      >
-        <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-between px-4 py-5">
-            <h1 className="text-xl font-bold text-sidebar-foreground">Inmel Chile</h1>
-            {isMobile && (
-              <button
-                onClick={closeSidebar}
-                className="p-1 rounded-lg text-sidebar-foreground"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-          
-          {/* Sidebar Navigation */}
-          <nav className="flex-1 px-3 py-4 space-y-1">
-            {links.map((link) => (
-              <SidebarLink 
-                key={link.to}
-                to={link.to}
-                icon={link.icon}
-                label={link.label}
-                isActive={location.pathname === link.to}
-                onClick={isMobile ? closeSidebar : undefined}
-              />
-            ))}
-          </nav>
-          
-          {/* Sidebar Footer */}
-          <div className="p-4 border-t border-sidebar-border">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center">
-                <Users className="w-4 h-4 text-sidebar-accent-foreground" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-sidebar-foreground">Administrador</p>
-                <p className="text-xs text-sidebar-foreground/70">Sistema v2.0.0</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </aside>
-    </>
+    <aside className="fixed left-0 top-0 z-20 h-full w-64 flex-col bg-background border-r flex">
+      {renderSidebarContent()}
+    </aside>
   );
 };
 
