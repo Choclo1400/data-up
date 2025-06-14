@@ -56,6 +56,12 @@ const RoleBasedNavigation: React.FC = () => {
         { name: 'Reportes', href: '/reports', icon: BarChart, permission: 'view_reports', description: 'Reportes del sistema' }
       ],
       
+      [UserRole.TECHNICIAN]: [
+        { name: 'Mis Asignaciones', href: '/requests', icon: Wrench, permission: 'view_requests', description: 'Solicitudes asignadas' },
+        { name: 'Calendario', href: '/calendar', icon: Calendar, permission: 'view_calendar', description: 'Mi programación' },
+        { name: 'Reportes', href: '/reports', icon: BarChart, permission: 'view_reports', description: 'Reportes de trabajo' }
+      ],
+      
       [UserRole.SUPERVISOR]: [
         { name: 'Aprobar Solicitudes', href: '/requests/pending-supervisor', icon: CheckSquare, permission: 'approve_requests', description: 'Solicitudes pendientes' },
         { name: 'Técnicos', href: '/technicians', icon: Wrench, permission: 'manage_technicians', description: 'Gestión de técnicos' },
