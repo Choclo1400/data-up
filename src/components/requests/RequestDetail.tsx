@@ -31,6 +31,24 @@ interface RequestDetailProps {
   onClose: () => void;
 }
 
+// Map custom variants to shadcn variants
+const mapToShadcnVariant = (customVariant: string) => {
+  switch (customVariant) {
+    case 'info':
+      return 'default';
+    case 'warning':
+      return 'outline';
+    case 'success':
+      return 'default';
+    case 'danger':
+      return 'destructive';
+    case 'neutral':
+      return 'secondary';
+    default:
+      return 'default';
+  }
+};
+
 const RequestDetail: React.FC<RequestDetailProps> = ({
   request,
   isOpen,
@@ -39,6 +57,9 @@ const RequestDetail: React.FC<RequestDetailProps> = ({
   const [activeTab, setActiveTab] = useState('details');
 
   if (!request) return null;
+
+  const statusVariant = mapToShadcnVariant(getStatusBadgeVariant(request.status));
+  const priorityVariant = mapToShadcnVariant(getPriorityBadgeVariant(request.priority));
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -54,10 +75,10 @@ const RequestDetail: React.FC<RequestDetailProps> = ({
               </p>
             </div>
             <div className="flex gap-2">
-              <Badge variant={getStatusBadgeVariant(request.status)}>
+              <Badge variant={statusVariant}>
                 {request.status}
               </Badge>
-              <Badge variant={getPriorityBadgeVariant(request.priority)}>
+              <Badge variant={priorityVariant}>
                 {request.priority}
               </Badge>
               {request.hasRating && (
