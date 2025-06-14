@@ -18,7 +18,8 @@ import {
   Shield,
   Plus,
   Eye,
-  Wrench
+  Wrench,
+  HelpCircle
 } from 'lucide-react';
 
 interface NavItem {
@@ -83,8 +84,18 @@ const RoleBasedNavigation: React.FC = () => {
       ]
     };
 
-    // Combinar items base con items específicos del rol
-    const allItems = [...baseItems, ...roleSpecificItems[user.role]];
+    // Items comunes para todos los roles
+    const commonItems: NavItem[] = [
+      {
+        name: 'Ayuda',
+        href: '/help',
+        icon: HelpCircle,
+        description: 'Centro de ayuda y documentación'
+      }
+    ];
+
+    // Combinar items base con items específicos del rol y items comunes
+    const allItems = [...baseItems, ...roleSpecificItems[user.role], ...commonItems];
 
     // Filtrar por permisos
     return allItems.filter(item => !item.permission || hasPermission(item.permission));
@@ -93,7 +104,7 @@ const RoleBasedNavigation: React.FC = () => {
   const navigationItems = getNavigationItems();
 
   return (
-    <nav className="space-y-1">
+    <nav className="space-y-1" data-tour="navigation">
       {navigationItems.map((item) => (
         <NavLink
           key={item.href}

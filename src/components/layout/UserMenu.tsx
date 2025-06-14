@@ -11,12 +11,14 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User, Settings } from 'lucide-react';
+import { LogOut, User, Settings, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useHelpTour } from '@/hooks/useHelpTour';
 
 const UserMenu: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { startTour } = useHelpTour();
 
   const handleLogout = () => {
     logout();
@@ -31,6 +33,10 @@ const UserMenu: React.FC = () => {
     navigate('/settings');
   };
 
+  const handleHelp = () => {
+    navigate('/help');
+  };
+
   if (!user) return null;
 
   const initials = user.name
@@ -42,7 +48,7 @@ const UserMenu: React.FC = () => {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
+      <DropdownMenuTrigger asChild data-tour="user-menu">
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarFallback className="bg-primary text-primary-foreground">
@@ -71,6 +77,15 @@ const UserMenu: React.FC = () => {
         <DropdownMenuItem onClick={handleSettings}>
           <Settings className="mr-2 h-4 w-4" />
           <span>Configuración</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleHelp}>
+          <HelpCircle className="mr-2 h-4 w-4" />
+          <span>Centro de Ayuda</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={startTour}>
+          <HelpCircle className="mr-2 h-4 w-4" />
+          <span>Tour Guiado</span>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
