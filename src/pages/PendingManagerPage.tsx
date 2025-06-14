@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,9 +32,9 @@ const PendingManagerPage: React.FC = () => {
     }
   };
 
-  const handleApprove = async (requestId: string) => {
+  const handleApprove = async (requestId: string, comments?: string) => {
     try {
-      await approveManager(requestId);
+      await approveManager(requestId, comments);
       // Remover la solicitud de la lista después de aprobarla
       setRequests(prev => prev.filter(req => req.id !== requestId));
     } catch (error) {
@@ -56,6 +55,11 @@ const PendingManagerPage: React.FC = () => {
   const handleViewRequest = (request: TechnicalRequest) => {
     console.log('Ver detalles de solicitud:', request);
     // Aquí se podría abrir un modal con los detalles completos
+  };
+
+  const handleViewHistory = (request: TechnicalRequest) => {
+    console.log('Ver historial de decisiones:', request.id);
+    // Aquí se podría abrir un modal con el historial
   };
 
   const filteredRequests = requests.filter(request =>
@@ -187,6 +191,7 @@ const PendingManagerPage: React.FC = () => {
                 onApprove={handleApprove}
                 onReject={handleReject}
                 onView={handleViewRequest}
+                onViewHistory={handleViewHistory}
                 loading={loading}
                 actionLabel="Aprobar para Supervisor"
               />

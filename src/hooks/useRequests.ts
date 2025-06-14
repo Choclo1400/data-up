@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { TechnicalRequest, RequestType, RequestStatus, Priority, ApprovalAction } from '@/types/requests';
 import { toast } from 'sonner';
@@ -165,14 +164,14 @@ export const useRequests = () => {
     }
   };
 
-  const approveManager = async (requestId: string): Promise<void> => {
+  const approveManager = async (requestId: string, comments?: string): Promise<void> => {
     setLoading(true);
     setError(null);
     
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      console.log('Solicitud aprobada por gestor:', requestId);
+      console.log('Solicitud aprobada por gestor:', requestId, 'Comentarios:', comments);
       
       toast.success('Solicitud Aprobada por Gestor', {
         description: 'La solicitud ha sido enviada para revisión del Supervisor'
@@ -189,14 +188,14 @@ export const useRequests = () => {
     }
   };
 
-  const approveSupervisor = async (requestId: string): Promise<void> => {
+  const approveSupervisor = async (requestId: string, comments?: string): Promise<void> => {
     setLoading(true);
     setError(null);
     
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      console.log('Solicitud aprobada por supervisor:', requestId);
+      console.log('Solicitud aprobada por supervisor:', requestId, 'Comentarios:', comments);
       
       toast.success('Proceso Completado', {
         description: 'La solicitud ha sido aprobada completamente y está lista para asignación'
