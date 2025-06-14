@@ -1,33 +1,45 @@
 
-import { RequestStatus, RequestPriority } from '@/types/requests';
+import { RequestStatus, Priority } from '@/types/requests';
 
 export const getStatusBadgeVariant = (status: RequestStatus) => {
   switch (status) {
-    case RequestStatus.PENDING:
-      return 'default';
-    case RequestStatus.APPROVED:
-      return 'secondary';
-    case RequestStatus.REJECTED:
-      return 'destructive';
+    case RequestStatus.NEW:
+      return 'info';
+    case RequestStatus.VALIDATING:
+      return 'warning';
+    case RequestStatus.PENDING_MANAGER:
+      return 'warning';
+    case RequestStatus.PENDING_SUPERVISOR:
+      return 'warning';
+    case RequestStatus.ASSIGNED:
+      return 'info';
     case RequestStatus.IN_PROGRESS:
-      return 'default';
+      return 'info';
     case RequestStatus.COMPLETED:
-      return 'secondary';
+      return 'success';
+    case RequestStatus.APPROVED:
+      return 'success';
+    case RequestStatus.REJECTED:
+      return 'danger';
+    case RequestStatus.CLOSED:
+      return 'neutral';
+    case RequestStatus.CANCELLED:
+      return 'danger';
     default:
       return 'default';
   }
 };
 
-export const getPriorityBadgeVariant = (priority: RequestPriority) => {
+export const getPriorityBadgeVariant = (priority: Priority) => {
   switch (priority) {
-    case RequestPriority.LOW:
-      return 'secondary';
-    case RequestPriority.MEDIUM:
+    case Priority.LOW:
+      return 'neutral';
+    case Priority.MEDIUM:
       return 'default';
-    case RequestPriority.HIGH:
-      return 'destructive';
-    case RequestPriority.URGENT:
-      return 'destructive';
+    case Priority.HIGH:
+      return 'warning';
+    case Priority.CRITICAL:
+      return 'danger';
     default:
       return 'default';
   }
