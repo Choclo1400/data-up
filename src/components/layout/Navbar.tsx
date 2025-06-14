@@ -1,50 +1,50 @@
 
 import React from 'react';
-import { Search } from 'lucide-react';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { Button } from '@/components/ui/button';
 import UserMenu from './UserMenu';
-import NotificationDropdown from '@/components/notifications/NotificationDropdown';
+import NotificationCenter from '../notifications/NotificationCenter';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
+import { Menu } from 'lucide-react';
 
 interface NavbarProps {
-  title: string;
+  title?: string;
   subtitle?: string;
+  onMenuClick?: () => void;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ title, subtitle }) => {
+const Navbar: React.FC<NavbarProps> = ({ 
+  title = "Dashboard", 
+  subtitle,
+  onMenuClick 
+}) => {
+  const isMobile = useIsMobile();
+
   return (
-    <header className="w-full py-4 px-6 flex items-center justify-between bg-background/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-border dark:border-border-dark sticky top-0 z-10">
-      {/* Título */}
-      <div>
-        <h1 className="text-2xl font-bold text-foreground dark:text-foreground-dark">
-          {title}
-        </h1>
-        {subtitle && (
-          <p className="text-sm text-muted-foreground dark:text-muted-foreground-dark">
-            {subtitle}
-          </p>
-        )}
-      </div>
-      
-      {/* Controles: búsqueda, notificaciones, modo y usuario */}
-      <div className="flex items-center gap-4">
-        {/* Search */}
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground dark:text-muted-foreground-dark w-4 h-4" />
-          <input 
-            type="text" 
-            placeholder="Buscar..." 
-            className="py-2 pl-10 pr-4 rounded-lg bg-secondary dark:bg-secondary-dark border border-border dark:border-border-dark focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-ring-dark w-full max-w-xs transition-all duration-300 text-foreground dark:text-foreground-dark placeholder:text-muted-foreground dark:placeholder:text-muted-foreground-dark"
-          />
+    <header className={cn(
+      "sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+      "px-4 md:px-6"
+    )}>
+      <div className="flex h-14 items-center justify-between">
+        <div className="flex items-center gap-4">
+          {isMobile && onMenuClick && (
+            <Button variant="ghost" size="sm" onClick={onMenuClick}>
+              <Menu className="h-5 w-5" />
+            </Button>
+          )}
+          
+          <div>
+            <h1 className="text-lg font-semibold">{title}</h1>
+            {subtitle && (
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            )}
+          </div>
         </div>
-        
-        {/* Notifications - Reemplazamos el botón simple con el dropdown completo */}
-        <NotificationDropdown />
 
-        {/* Theme Toggle */}
-        <ThemeToggle />
-
-        {/* User Menu */}
-        <UserMenu />
+        <div className="flex items-center gap-2">
+          <NotificationCenter />
+          <UserMenu />
+        </div>
       </div>
     </header>
   );
