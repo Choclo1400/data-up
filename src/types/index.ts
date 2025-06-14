@@ -54,6 +54,7 @@ export interface User {
 // Importamos y reexportamos los tipos de solicitudes técnicas
 export * from './requests';
 export * from './ratings'; // Nuevo export
+export * from './notifications';
 
 // Operation Types (mantenemos para compatibilidad)
 export interface Operation {

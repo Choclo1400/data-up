@@ -1,8 +1,9 @@
 
 import React from 'react';
-import { Bell, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import UserMenu from './UserMenu';
+import NotificationDropdown from '@/components/notifications/NotificationDropdown';
 
 interface NavbarProps {
   title: string;
@@ -36,13 +37,8 @@ const Navbar: React.FC<NavbarProps> = ({ title, subtitle }) => {
           />
         </div>
         
-        {/* Notifications */}
-        <div className="relative">
-          <button className="p-2 rounded-lg hover:bg-secondary dark:hover:bg-secondary-dark transition-colors">
-            <Bell className="w-5 h-5 text-foreground dark:text-foreground-dark" />
-            <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-red-500" />
-          </button>
-        </div>
+        {/* Notifications - Reemplazamos el botón simple con el dropdown completo */}
+        <NotificationDropdown />
 
         {/* Theme Toggle */}
         <ThemeToggle />
