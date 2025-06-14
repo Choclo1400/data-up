@@ -19,7 +19,7 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react';
-import { DateRangePicker } from '@/components/common/DateRangePicker';
+import DateRangePicker from '@/components/common/DateRangePicker';
 
 const AuditLogViewer: React.FC = () => {
   const { getAuditEvents, loading } = useAudit();
@@ -166,10 +166,10 @@ const AuditLogViewer: React.FC = () => {
             <DateRangePicker
               from={filters.dateFrom}
               to={filters.dateTo}
-              onSelect={(range) => setFilters(prev => ({
+              onDateChange={(from, to) => setFilters(prev => ({
                 ...prev,
-                dateFrom: range?.from,
-                dateTo: range?.to
+                dateFrom: from,
+                dateTo: to
               }))}
             />
           </div>

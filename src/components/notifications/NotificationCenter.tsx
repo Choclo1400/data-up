@@ -13,8 +13,7 @@ import {
   UserPlus, 
   FileText,
   Shield,
-  Trash2,
-  MarkAsUnread
+  Trash2
 } from 'lucide-react';
 import { NotificationType } from '@/types/notifications';
 import { formatDistanceToNow } from 'date-fns';
