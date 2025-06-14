@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileBarChart, Fuel, Wrench, Users } from 'lucide-react';
+import { FileBarChart, Users, Building2, Clock, Wrench, TrendingUp } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ReportType } from '@/types/reports';
 import { cn } from '@/lib/utils';
@@ -15,14 +15,18 @@ interface ReportCardProps {
 
 const getReportIcon = (type: ReportType) => {
   switch (type) {
-    case ReportType.FORKLIFT_USAGE:
+    case ReportType.REQUEST_STATUS:
       return FileBarChart;
-    case ReportType.FUEL_CONSUMPTION:
-      return Fuel;
-    case ReportType.MAINTENANCE_HISTORY:
-      return Wrench;
-    case ReportType.OPERATOR_STATUS:
+    case ReportType.TECHNICIAN_PERFORMANCE:
       return Users;
+    case ReportType.CLIENT_ANALYSIS:
+      return Building2;
+    case ReportType.RESOLUTION_TIMES:
+      return Clock;
+    case ReportType.SERVICE_TYPES:
+      return Wrench;
+    case ReportType.MONTHLY_TRENDS:
+      return TrendingUp;
     default:
       return FileBarChart;
   }

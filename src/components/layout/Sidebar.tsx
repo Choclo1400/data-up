@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { 
   ClipboardList, Users, Building2, Settings, 
-  FileText, LayoutDashboard, Menu, X, UserCheck, BarChart3
+  LayoutDashboard, Menu, X, UserCheck, BarChart3
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -50,10 +50,9 @@ const Sidebar: React.FC = () => {
     { to: "/requests", icon: ClipboardList, label: "Solicitudes Técnicas" },
     { to: "/clients", icon: Building2, label: "Clientes" },
     { to: "/technicians", icon: UserCheck, label: "Técnicos" },
-    { to: "/analytics", icon: BarChart3, label: "Análisis" },
+    { to: "/analytics", icon: BarChart3, label: "Análisis y Reportes" },
     { to: "/users", icon: Users, label: "Usuarios" },
     { to: "/settings", icon: Settings, label: "Configuración" },
-    { to: "/reports", icon: FileText, label: "Reportes" },
   ];
 
   return (

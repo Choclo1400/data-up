@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,7 +10,6 @@ import LoginPage from "./pages/LoginPage";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ForkliftsPage from "./pages/Forklifts";
-import ReportsPage from "./pages/Reports";
 import OperatorsPage from "./pages/Operators";
 import OperationsPage from "./pages/Operations";
 import MaintenancePage from "./pages/Maintenance";
@@ -100,11 +100,6 @@ const App = () => (
             <Route path="/settings" element={
               <ProtectedRoute>
                 <SettingsPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/reports" element={
-              <ProtectedRoute>
-                <ReportsPage />
               </ProtectedRoute>
             } />
             

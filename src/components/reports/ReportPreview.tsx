@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ReportData, ReportType } from '@/types/reports';
 
@@ -8,35 +8,61 @@ interface ReportPreviewProps {
   reportData: ReportData;
 }
 
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+
 const ReportPreview: React.FC<ReportPreviewProps> = ({ reportData }) => {
   const renderChart = () => {
     switch (reportData.type) {
-      case ReportType.FORKLIFT_USAGE:
+      case ReportType.REQUEST_STATUS:
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={reportData.data}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                label={({ estado, porcentaje }) => `${estado} ${porcentaje}%`}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="cantidad"
+              >
+                {reportData.data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        );
+      
+      case ReportType.TECHNICIAN_PERFORMANCE:
         return (
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={reportData.data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="empilhadeira" />
+              <XAxis dataKey="tecnico" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="horasUso" fill="hsl(var(--primary))" name="Horas de Uso" />
+              <Bar dataKey="solicitudesCompletadas" fill="hsl(var(--primary))" name="Solicitudes Completadas" />
               <Bar dataKey="eficiencia" fill="hsl(var(--secondary))" name="Eficiencia %" />
             </BarChart>
           </ResponsiveContainer>
         );
-      
-      case ReportType.FUEL_CONSUMPTION:
+
+      case ReportType.MONTHLY_TRENDS:
         return (
           <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={reportData.data}>
+            <LineChart data={reportData.data}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="empilhadeira" />
+              <XAxis dataKey="mes" />
               <YAxis />
               <Tooltip />
               <Legend />
-              <Bar dataKey="consumo" fill="hsl(var(--primary))" name="Consumo (L)" />
-            </BarChart>
+              <Line type="monotone" dataKey="solicitudes" stroke="hsl(var(--primary))" name="Solicitudes" />
+              <Line type="monotone" dataKey="completadas" stroke="hsl(var(--secondary))" name="Completadas" />
+            </LineChart>
           </ResponsiveContainer>
         );
       
@@ -85,7 +111,7 @@ const ReportPreview: React.FC<ReportPreviewProps> = ({ reportData }) => {
         <p className="text-sm text-muted-foreground">{reportData.description}</p>
       </CardHeader>
       <CardContent>
-        {[ReportType.FORKLIFT_USAGE, ReportType.FUEL_CONSUMPTION].includes(reportData.type) 
+        {[ReportType.REQUEST_STATUS, ReportType.TECHNICIAN_PERFORMANCE, ReportType.MONTHLY_TRENDS].includes(reportData.type) 
           ? renderChart() 
           : renderTable()
         }

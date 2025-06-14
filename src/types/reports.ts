@@ -1,15 +1,22 @@
 
 export enum ReportType {
-  FORKLIFT_USAGE = "Utilización de Empilhadeiras",
-  FUEL_CONSUMPTION = "Consumo de Combustible", 
-  MAINTENANCE_HISTORY = "Histórico de Manutenções",
-  OPERATOR_STATUS = "Status de Operadores"
+  REQUEST_STATUS = "Solicitudes por Estado",
+  TECHNICIAN_PERFORMANCE = "Rendimiento de Técnicos", 
+  CLIENT_ANALYSIS = "Análisis de Clientes",
+  RESOLUTION_TIMES = "Tiempos de Resolución",
+  SERVICE_TYPES = "Tipos de Servicio",
+  MONTHLY_TRENDS = "Tendencias Mensuales"
 }
 
 export interface ReportFilters {
   dateFrom?: Date;
   dateTo?: Date;
   reportType?: ReportType;
+  clientId?: string;
+  technicianId?: string;
+  serviceType?: string;
+  status?: string;
+  region?: string;
 }
 
 export interface ReportData {

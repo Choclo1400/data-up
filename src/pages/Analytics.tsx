@@ -1,71 +1,94 @@
-
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
+import Breadcrumbs from '@/components/common/Breadcrumbs';
+import DateRangePicker from '@/components/common/DateRangePicker';
+import ReportCard from '@/components/reports/ReportCard';
+import ReportPreview from '@/components/reports/ReportPreview';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, Download, FileText, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
+import { BarChart3, Download, FileText, Calendar, TrendingUp, TrendingDown, Loader2, Users, Building2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { ReportType, ReportFilters } from '@/types/reports';
+
+const availableReports = [
+  {
+    type: ReportType.REQUEST_STATUS,
+    title: "Solicitudes por Estado",
+    description: "Distribución de solicitudes según su estado actual"
+  },
+  {
+    type: ReportType.TECHNICIAN_PERFORMANCE,
+    title: "Rendimiento de Técnicos",
+    description: "Análisis de eficiencia y productividad por técnico"
+  },
+  {
+    type: ReportType.CLIENT_ANALYSIS,
+    title: "Análisis de Clientes",
+    description: "Estadísticas de satisfacción y actividad por cliente"
+  },
+  {
+    type: ReportType.RESOLUTION_TIMES,
+    title: "Tiempos de Resolución",
+    description: "Análisis de tiempos promedio por tipo de servicio"
+  },
+  {
+    type: ReportType.SERVICE_TYPES,
+    title: "Tipos de Servicio",
+    description: "Distribución y análisis de tipos de servicios"
+  },
+  {
+    type: ReportType.MONTHLY_TRENDS,
+    title: "Tendencias Mensuales",
+    description: "Evolución de solicitudes e ingresos por mes"
+  }
+];
 
 const AnalyticsPage: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const { loading, reportData, selectedReport, generateReport, exportReport, setSelectedReport } = useAnalytics();
   
-  const [dateFrom, setDateFrom] = useState('');
-  const [dateTo, setDateTo] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [serviceTypeFilter, setServiceTypeFilter] = useState('all');
-  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState<ReportFilters>({
+    dateFrom: undefined,
+    dateTo: undefined,
+    reportType: undefined
+  });
 
-  const generateReport = async (format: 'pdf' | 'excel') => {
-    setLoading(true);
-    
-    try {
-      // Simular generación de reporte
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const reportData = {
-        dateFrom,
-        dateTo,
-        statusFilter,
-        serviceTypeFilter,
-        format,
-        generatedAt: new Date().toISOString()
-      };
-      
-      console.log('Generando reporte:', reportData);
-      
-      toast({
-        title: "Reporte generado",
-        description: `El reporte en formato ${format.toUpperCase()} ha sido generado exitosamente.`,
-      });
-      
-      // Simular descarga
-      const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.style.display = 'none';
-      a.href = url;
-      a.download = `reporte-solicitudes-${format}-${Date.now()}.${format === 'pdf' ? 'pdf' : 'xlsx'}`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo generar el reporte.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
+  const handleDateChange = (from: Date | undefined, to: Date | undefined) => {
+    setFilters(prev => ({ ...prev, dateFrom: from, dateTo: to }));
+  };
+
+  const handleReportTypeChange = (type: string) => {
+    setFilters(prev => ({ ...prev, reportType: type as ReportType }));
+  };
+
+  const handleApplyFilters = () => {
+    if (!filters.reportType) {
+      return;
     }
+    generateReport(filters);
+  };
+
+  const handleReportCardClick = (type: ReportType) => {
+    setSelectedReport(type);
+    setFilters(prev => ({ ...prev, reportType: type }));
+  };
+
+  const handleExport = (format: 'pdf' | 'excel') => {
+    if (!filters.reportType) return;
+    
+    exportReport({
+      format,
+      filters,
+      reportType: filters.reportType
+    });
   };
 
   const metricsData = [
@@ -95,11 +118,10 @@ const AnalyticsPage: React.FC = () => {
       value: 23, 
       trend: "+2",
       isPositive: true,
-      icon: BarChart3
+      icon: Users
     }
   ];
 
-  // Datos para gráfico de barras - Solicitudes por mes
   const monthlyData = [
     { mes: 'Ene', solicitudes: 120, completadas: 110, pendientes: 10 },
     { mes: 'Feb', solicitudes: 98, completadas: 89, pendientes: 9 },
@@ -109,13 +131,16 @@ const AnalyticsPage: React.FC = () => {
     { mes: 'Jun', solicitudes: 234, completadas: 220, pendientes: 14 }
   ];
 
-  // Datos para gráfico circular - Tipos de servicio
   const serviceTypeData = [
     { name: 'Instalación', value: 35, color: '#0088FE' },
     { name: 'Mantenimiento', value: 28, color: '#00C49F' },
     { name: 'Reparación', value: 20, color: '#FFBB28' },
     { name: 'Inspección', value: 12, color: '#FF8042' },
     { name: 'Emergencia', value: 5, color: '#8884D8' }
+  ];
+
+  const breadcrumbItems = [
+    { label: 'Análisis y Reportes', icon: BarChart3 }
   ];
 
   return (
@@ -128,16 +153,18 @@ const AnalyticsPage: React.FC = () => {
       )}>
         <Navbar 
           title="Análisis y Reportes" 
-          subtitle="Genera reportes y analiza la eficiencia del sistema"
+          subtitle="Monitorea el rendimiento y genera reportes del sistema"
         />
         
         <main className="flex-1 px-6 py-6">
+          <Breadcrumbs items={breadcrumbItems} className="mb-6" />
+          
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div className="flex items-center gap-3">
               <BarChart3 className="w-8 h-8 text-primary" />
               <div>
                 <h1 className="text-2xl font-bold">Análisis y Reportes</h1>
-                <p className="text-muted-foreground">Monitorea el rendimiento del sistema</p>
+                <p className="text-muted-foreground">Monitorea el rendimiento del sistema y genera reportes detallados</p>
               </div>
             </div>
           </div>
@@ -179,108 +206,109 @@ const AnalyticsPage: React.FC = () => {
             })}
           </div>
 
-          {/* Generador de reportes */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Generador de Reportes
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
-                  <Label htmlFor="dateFrom">Fecha Desde</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="dateFrom"
-                      type="date"
-                      value={dateFrom}
-                      onChange={(e) => setDateFrom(e.target.value)}
-                      className="pl-10"
-                    />
+          {/* Sección de Reportes */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Columna izquierda - Filtros */}
+            <div className="lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Generador de Reportes
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <DateRangePicker
+                    from={filters.dateFrom}
+                    to={filters.dateTo}
+                    onDateChange={handleDateChange}
+                    label="Período"
+                  />
+                  
+                  <div>
+                    <Label htmlFor="reportType">Tipo de Reporte</Label>
+                    <Select value={filters.reportType} onValueChange={handleReportTypeChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar tipo" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(ReportType).filter(type => type && type.trim() !== '').map((type) => (
+                          <SelectItem key={type} value={type}>{type}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
-
-                <div>
-                  <Label htmlFor="dateTo">Fecha Hasta</Label>
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="dateTo"
-                      type="date"
-                      value={dateTo}
-                      onChange={(e) => setDateTo(e.target.value)}
-                      className="pl-10"
-                    />
+                  
+                  <Button 
+                    onClick={handleApplyFilters} 
+                    disabled={loading || !filters.reportType}
+                    className="w-full"
+                  >
+                    {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    Generar Reporte
+                  </Button>
+                  
+                  {reportData && (
+                    <div className="space-y-2 pt-4 border-t">
+                      <Label>Exportar</Label>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleExport('pdf')}
+                          disabled={loading}
+                          className="flex-1"
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          PDF
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleExport('excel')}
+                          disabled={loading}
+                          className="flex-1"
+                        >
+                          <Download className="w-4 h-4 mr-1" />
+                          Excel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Columna derecha - Reportes disponibles */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Reportes Disponibles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 gap-4">
+                    {availableReports.map((report) => (
+                      <ReportCard
+                        key={report.type}
+                        type={report.type}
+                        title={report.title}
+                        description={report.description}
+                        isSelected={selectedReport === report.type}
+                        onClick={() => handleReportCardClick(report.type)}
+                      />
+                    ))}
                   </div>
-                </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
 
-                <div>
-                  <Label htmlFor="statusFilter">Estado</Label>
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todos los estados" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos los estados</SelectItem>
-                      <SelectItem value="nueva">Nueva</SelectItem>
-                      <SelectItem value="en_proceso">En Proceso</SelectItem>
-                      <SelectItem value="completada">Completada</SelectItem>
-                      <SelectItem value="cancelada">Cancelada</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+          {/* Vista previa del reporte */}
+          {reportData && (
+            <ReportPreview reportData={reportData} />
+          )}
 
-                <div>
-                  <Label htmlFor="serviceTypeFilter">Tipo de Servicio</Label>
-                  <Select value={serviceTypeFilter} onValueChange={setServiceTypeFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todos los tipos" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todos los tipos</SelectItem>
-                      <SelectItem value="instalacion">Instalación</SelectItem>
-                      <SelectItem value="mantenimiento">Mantenimiento</SelectItem>
-                      <SelectItem value="reparacion">Reparación</SelectItem>
-                      <SelectItem value="inspeccion">Inspección</SelectItem>
-                      <SelectItem value="emergencia">Emergencia</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                <Button 
-                  onClick={() => generateReport('pdf')} 
-                  disabled={loading}
-                  className="gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Generar Reporte PDF
-                </Button>
-                
-                <Button 
-                  onClick={() => generateReport('excel')} 
-                  disabled={loading}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Generar Reporte Excel
-                </Button>
-              </div>
-
-              {loading && (
-                <div className="text-center py-4">
-                  <p className="text-muted-foreground">Generando reporte, por favor espera...</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Gráficos de análisis */}
+          {/* Gráficos de análisis existentes */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
