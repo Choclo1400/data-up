@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,6 +25,7 @@ import PendingManagerPage from "./pages/PendingManagerPage";
 import PendingSupervisorPage from "./pages/PendingSupervisorPage";
 import ServicesPage from "./pages/ServicesPage";
 import EmployeesPage from "./pages/EmployeesPage";
+import ProfilePage from "./pages/ProfilePage";
 
 const queryClient = new QueryClient();
 

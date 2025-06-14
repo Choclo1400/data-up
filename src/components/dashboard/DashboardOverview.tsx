@@ -2,139 +2,127 @@
 import React from 'react';
 import StatusCard from './StatusCard';
 import { 
-  ClipboardList, Users, AlertTriangle, CheckCircle, 
-  Clock, UserCheck, Settings, Calendar, Building2, BarChart3
+  ClipboardList, 
+  Clock, 
+  CheckCircle, 
+  AlertTriangle,
+  Users,
+  Building2,
+  Wrench,
+  TrendingUp
 } from 'lucide-react';
-import { DashboardStats } from '@/types';
+import { useAuth } from '@/contexts/AuthContext';
 
-// Datos mock para solicitudes técnicas
-const initialStats: DashboardStats = {
-  // Métricas de solicitudes técnicas
-  totalRequests: 156,
-  newRequests: 23,
-  inProgressRequests: 45,
-  completedRequests: 88,
-  overdueRequests: 8,
-  
-  // Métricas de técnicos
-  totalTechnicians: 28,
-  availableTechnicians: 15,
-  busyTechnicians: 13,
-  techniciansWithValidCertificates: 24,
-  techniciansWithWarningCertificates: 3,
-  techniciansWithExpiredCertificates: 1,
-  
-  // Métricas de clientes
-  totalClients: 12,
-  activeClients: 10,
-  
-  // Métricas operacionales
-  averageCompletionTime: 4.2,
-  pendingValidations: 6
-};
+const DashboardOverview: React.FC = () => {
+  const { user } = useAuth();
 
-interface DashboardOverviewProps {
-  stats?: DashboardStats;
-}
+  // Mock data que simula datos reales del sistema
+  const stats = {
+    totalRequests: 145,
+    newRequests: 12,
+    inProgressRequests: 28,
+    completedRequests: 105,
+    overdueRequests: 3,
+    totalClients: 25,
+    activeTechnicians: 18,
+    avgCompletionTime: 4.2
+  };
 
-const DashboardOverview: React.FC<DashboardOverviewProps> = ({ 
-  stats = initialStats 
-}) => {
   return (
-    <section className="space-y-6">
-      <div className="slide-enter" style={{ animationDelay: '0.1s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Estado de Solicitudes Técnicas</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatusCard 
-            title="Total de Solicitudes" 
-            value={stats.totalRequests} 
-            icon={ClipboardList} 
-            status="info" 
-          />
-          <StatusCard 
-            title="En Proceso" 
-            value={stats.inProgressRequests} 
-            icon={Settings} 
-            status="success"
-            change={{ value: 12, trend: 'up' }}
-          />
-          <StatusCard 
-            title="Nuevas" 
-            value={stats.newRequests} 
-            icon={Clock} 
-            status="warning" 
-          />
-          <StatusCard 
-            title="Vencidas" 
-            value={stats.overdueRequests} 
-            icon={AlertTriangle} 
-            status="danger" 
-          />
+    <div className="space-y-6 slide-enter">
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold">Resumen del Sistema</h2>
+          <p className="text-muted-foreground">
+            Vista general de solicitudes técnicas y recursos
+          </p>
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Última actualización: {new Date().toLocaleTimeString('es-CL')}
         </div>
       </div>
 
-      <div className="slide-enter" style={{ animationDelay: '0.2s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Estado de Técnicos</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatusCard 
-            title="Total de Técnicos" 
-            value={stats.totalTechnicians} 
-            icon={UserCheck} 
-            status="info" 
-          />
-          <StatusCard 
-            title="Disponibles" 
-            value={stats.availableTechnicians} 
-            icon={CheckCircle} 
-            status="success" 
-          />
-          <StatusCard 
-            title="Ocupados" 
-            value={stats.busyTechnicians} 
-            icon={Users} 
-            status="warning" 
-          />
-          <StatusCard 
-            title="Cert. Por Vencer" 
-            value={stats.techniciansWithWarningCertificates} 
-            icon={AlertTriangle} 
-            status="warning" 
-          />
-        </div>
+      {/* Métricas principales */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatusCard
+          title="Total Solicitudes"
+          value={stats.totalRequests}
+          icon={ClipboardList}
+          status="info"
+          change={{ value: 8, trend: "up" }}
+        />
+        
+        <StatusCard
+          title="Nuevas"
+          value={stats.newRequests}
+          icon={Clock}
+          status="warning"
+          change={{ value: 3, trend: "up" }}
+        />
+        
+        <StatusCard
+          title="En Progreso"
+          value={stats.inProgressRequests}
+          icon={Wrench}
+          status="neutral"
+          change={{ value: 2, trend: "down" }}
+        />
+        
+        <StatusCard
+          title="Completadas"
+          value={stats.completedRequests}
+          icon={CheckCircle}
+          status="success"
+          change={{ value: 15, trend: "up" }}
+        />
       </div>
 
-      <div className="slide-enter" style={{ animationDelay: '0.3s' }}>
-        <h2 className="text-2xl font-semibold mb-4">Métricas Operacionales</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatusCard 
-            title="Tiempo Promedio (días)" 
-            value={stats.averageCompletionTime} 
-            icon={BarChart3} 
-            status="info"
-            change={{ value: 8, trend: 'down' }}
-          />
-          <StatusCard 
-            title="Pendientes Validación" 
-            value={stats.pendingValidations} 
-            icon={ClipboardList} 
-            status="warning" 
-          />
-          <StatusCard 
-            title="Clientes Activos" 
-            value={stats.activeClients} 
-            icon={Building2} 
-            status="success" 
-          />
-          <StatusCard 
-            title="Completadas Hoy" 
-            value={12} 
-            icon={CheckCircle} 
-            status="success"
-            change={{ value: 15, trend: 'up' }}
-          />
-        </div>
+      {/* Métricas secundarias */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatusCard
+          title="Vencidas"
+          value={stats.overdueRequests}
+          icon={AlertTriangle}
+          status="danger"
+        />
+        
+        <StatusCard
+          title="Clientes Activos"
+          value={stats.totalClients}
+          icon={Building2}
+          status="info"
+        />
+        
+        <StatusCard
+          title="Técnicos Disponibles"
+          value={stats.activeTechnicians}
+          icon={Users}
+          status="success"
+        />
+        
+        <StatusCard
+          title="Tiempo Promedio (días)"
+          value={stats.avgCompletionTime}
+          icon={TrendingUp}
+          status="neutral"
+        />
       </div>
-    </section>
+
+      {/* Información contextual según el rol */}
+      {user && (
+        <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+            Bienvenido, {user.name}
+          </h3>
+          <p className="text-blue-800 dark:text-blue-200 text-sm">
+            {user.role === 'Administrador' && 'Tienes acceso completo al sistema. Puedes gestionar usuarios, servicios y todas las configuraciones.'}
+            {user.role === 'Supervisor' && 'Puedes revisar y aprobar solicitudes técnicas en tu área de responsabilidad.'}
+            {user.role === 'Gestor' && 'Puedes aprobar solicitudes y generar reportes del sistema.'}
+            {user.role === 'Operador' && 'Puedes crear nuevas solicitudes técnicas y consultar el estado de las existentes.'}
+          </p>
+        </div>
+      )}
+    </div>
   );
 };
 
