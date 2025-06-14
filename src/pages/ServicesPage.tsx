@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -13,8 +12,10 @@ import ServiceForm from '@/components/services/ServiceForm';
 import { useServices } from '@/hooks/useServices';
 import { ServiceType, ServiceCategory } from '@/types/services';
 import { useAuth } from '@/contexts/AuthContext';
-import { Settings, Plus, Search, Edit, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Settings, Plus, Search, Edit, Trash2, CheckCircle, XCircle, Upload } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ImportModal } from '@/components/ui/import-modal';
+import { ImportResult } from '@/hooks/useDataImport';
 
 const ServicesPage: React.FC = () => {
   const isMobile = useIsMobile();
@@ -26,6 +27,7 @@ const ServicesPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingService, setEditingService] = useState<ServiceType | null>(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   useEffect(() => {
     loadServices();
@@ -131,6 +133,18 @@ const ServicesPage: React.FC = () => {
     }
   };
 
+  const handleImportComplete = (result: ImportResult) => {
+    toast({
+      title: "Importación completada",
+      description: `Se importaron ${result.successful} de ${result.total} registros exitosamente.`,
+      variant: result.failed > 0 ? "destructive" : "default",
+    });
+    
+    // Recargar la lista de servicios después de la importación
+    loadServices();
+    setIsImportModalOpen(false);
+  };
+
   if (!hasPermission('manage_services')) {
     return (
       <div className="flex min-h-screen bg-background">
@@ -169,10 +183,20 @@ const ServicesPage: React.FC = () => {
               </div>
             </div>
             
-            <Button onClick={() => setIsFormOpen(true)} className="gap-2">
-              <Plus className="w-4 h-4" />
-              Nuevo Servicio
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setIsImportModalOpen(true)}
+                className="gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                Importar
+              </Button>
+              <Button onClick={() => setIsFormOpen(true)} className="gap-2">
+                <Plus className="w-4 h-4" />
+                Nuevo Servicio
+              </Button>
+            </div>
           </div>
 
           <Card>
@@ -278,6 +302,13 @@ const ServicesPage: React.FC = () => {
         initialData={editingService || undefined}
         loading={loading}
         title={editingService ? "Editar Servicio" : "Nuevo Servicio"}
+      />
+
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        title="Importar Servicios"
+        onImportComplete={handleImportComplete}
       />
     </div>
   );
