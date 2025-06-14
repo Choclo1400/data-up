@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, Download, FileText, Calendar, TrendingUp, TrendingDown, Loader2, Users, Building2 } from 'lucide-react';
+import { BarChart3, Download, FileText, Calendar, TrendingUp, TrendingDown, Loader2, Users, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { ReportType, ReportFilters } from '@/types/reports';
@@ -107,11 +107,11 @@ const AnalyticsPage: React.FC = () => {
       icon: Calendar
     },
     { 
-      title: "Eficiencia del Sistema", 
-      value: "94.5%", 
-      trend: "+3%",
+      title: "Satisfacción del Cliente", 
+      value: "4.8/5", 
+      trend: "+0.2",
       isPositive: true,
-      icon: TrendingUp
+      icon: Star
     },
     { 
       title: "Técnicos Activos", 
