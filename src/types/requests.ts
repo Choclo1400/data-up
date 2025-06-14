@@ -135,3 +135,41 @@ export interface ApprovalAction {
   reason?: string;
   comments?: string;
 }
+
+export interface RequestHistoryEntry {
+  id: string;
+  requestId: string;
+  action: string;
+  description: string;
+  performedBy: string;
+  performedByRole: string;
+  performedAt: string;
+  oldValue?: string;
+  newValue?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface RequestComment {
+  id: string;
+  requestId: string;
+  authorId: string;
+  authorName: string;
+  authorRole: string;
+  content: string;
+  createdAt: string;
+  updatedAt?: string;
+  isInternal: boolean; // Para diferenciar comentarios internos vs comunicación con cliente
+}
+
+export interface RequestAttachment {
+  id: string;
+  requestId: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  uploadedBy: string;
+  uploadedByName: string;
+  uploadedAt: string;
+  url: string;
+  description?: string;
+}
