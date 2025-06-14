@@ -362,37 +362,67 @@ const AnalyticsPage: React.FC = () => {
               </CardContent>
             </Card>
 
-            {/* Nuevo gráfico de satisfacción del cliente */}
+            {/* Gráfico de satisfacción del cliente mejorado */}
             <Card>
               <CardHeader>
-                <CardTitle>Satisfacción del Cliente</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yellow-500" />
+                  Satisfacción del Cliente
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                {ratingStats.totalRatings > 0 ? (
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={ratingStats.monthlyTrend}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis domain={[1, 5]} />
-                      <Tooltip />
-                      <Legend />
-                      <Line 
-                        type="monotone" 
-                        dataKey="rating" 
-                        stroke="hsl(var(--primary))" 
-                        name="Calificación Promedio"
-                        strokeWidth={2}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-[300px] text-muted-foreground">
-                    <div className="text-center">
-                      <Star className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p>No hay calificaciones disponibles</p>
+                <div className="h-[300px] flex flex-col">
+                  {ratingStats.totalRatings > 0 ? (
+                    <>
+                      <div className="flex items-center justify-center mb-4 p-4 bg-muted/50 rounded-lg">
+                        <div className="text-center">
+                          <div className="text-3xl font-bold text-primary">{ratingStats.averageRating}</div>
+                          <div className="flex items-center justify-center gap-1 mt-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`w-4 h-4 ${
+                                  star <= ratingStats.averageRating
+                                    ? 'fill-yellow-400 text-yellow-400'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {ratingStats.totalRatings} calificaciones
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={ratingStats.monthlyTrend}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" />
+                            <YAxis domain={[1, 5]} />
+                            <Tooltip />
+                            <Legend />
+                            <Line 
+                              type="monotone" 
+                              dataKey="rating" 
+                              stroke="hsl(var(--primary))" 
+                              name="Calificación Promedio"
+                              strokeWidth={2}
+                              dot={{ r: 4 }}
+                            />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                      <div className="text-center">
+                        <Star className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>No hay calificaciones disponibles</p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>

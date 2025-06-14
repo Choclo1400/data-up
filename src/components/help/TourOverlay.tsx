@@ -42,22 +42,45 @@ const TourOverlay: React.FC = () => {
   const isLastStep = currentStep === steps.length - 1;
 
   const getTooltipPosition = () => {
-    if (!targetPosition) return { top: '50%', left: '50%' };
+    if (!targetPosition) return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
     
     const { position } = currentStepData;
-    const offset = 20;
+    const offset = 320; // Increased offset for better spacing
+    const cardWidth = 320; // Fixed card width
+    
+    let style = { transform: 'translate(-50%, -50%)' };
     
     switch (position) {
       case 'top':
-        return { top: targetPosition.y - offset, left: targetPosition.x };
+        return { 
+          top: Math.max(targetPosition.y - offset, 100), 
+          left: Math.min(Math.max(targetPosition.x, cardWidth / 2), window.innerWidth - cardWidth / 2),
+          ...style
+        };
       case 'bottom':
-        return { top: targetPosition.y + offset, left: targetPosition.x };
+        return { 
+          top: Math.min(targetPosition.y + offset, window.innerHeight - 200), 
+          left: Math.min(Math.max(targetPosition.x, cardWidth / 2), window.innerWidth - cardWidth / 2),
+          ...style
+        };
       case 'left':
-        return { top: targetPosition.y, left: targetPosition.x - offset };
+        return { 
+          top: Math.min(Math.max(targetPosition.y, 150), window.innerHeight - 150), 
+          left: Math.max(targetPosition.x - offset, cardWidth / 2),
+          ...style
+        };
       case 'right':
-        return { top: targetPosition.y, left: targetPosition.x + offset };
+        return { 
+          top: Math.min(Math.max(targetPosition.y, 150), window.innerHeight - 150), 
+          left: Math.min(targetPosition.x + offset, window.innerWidth - cardWidth / 2),
+          ...style
+        };
       default:
-        return { top: targetPosition.y, left: targetPosition.x };
+        return { 
+          top: Math.min(Math.max(targetPosition.y, 150), window.innerHeight - 150), 
+          left: Math.min(Math.max(targetPosition.x, cardWidth / 2), window.innerWidth - cardWidth / 2),
+          ...style
+        };
     }
   };
 
@@ -71,10 +94,12 @@ const TourOverlay: React.FC = () => {
       {/* Spotlight en el elemento target */}
       {targetPosition && (
         <div 
-          className="fixed w-20 h-20 border-4 border-primary rounded-lg z-50 pointer-events-none"
+          className="fixed border-4 border-primary rounded-lg z-50 pointer-events-none animate-pulse"
           style={{
-            left: targetPosition.x - 40,
-            top: targetPosition.y - 40,
+            left: targetPosition.x - 60,
+            top: targetPosition.y - 60,
+            width: 120,
+            height: 120,
             boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)'
           }}
         />
@@ -82,40 +107,41 @@ const TourOverlay: React.FC = () => {
       
       {/* Tooltip del tour */}
       <Card 
-        className="fixed z-50 w-80 transform -translate-x-1/2 -translate-y-1/2"
+        className="fixed z-50 w-80 max-w-[90vw] shadow-2xl border-2"
         style={{
           left: tooltipStyle.left,
-          top: tooltipStyle.top
+          top: tooltipStyle.top,
+          transform: tooltipStyle.transform
         }}
       >
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">{currentStepData.title}</CardTitle>
+            <CardTitle className="text-lg font-semibold">{currentStepData.title}</CardTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={completeTour}
-              className="h-6 w-6 p-0"
+              className="h-8 w-8 p-0 hover:bg-destructive/10"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-xs text-muted-foreground font-medium">
             Paso {currentStep + 1} de {steps.length}
           </div>
         </CardHeader>
         
-        <CardContent className="pt-0">
-          <p className="text-sm text-muted-foreground mb-4">
+        <CardContent className="pt-0 space-y-4">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             {currentStepData.content}
           </p>
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pt-2">
             <Button
               variant="outline"
               size="sm"
               onClick={skipTour}
-              className="flex items-center gap-1"
+              className="flex items-center gap-2 text-xs"
             >
               <SkipForward className="h-3 w-3" />
               Saltar tour
@@ -127,7 +153,7 @@ const TourOverlay: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={prevStep}
-                  className="flex items-center gap-1"
+                  className="flex items-center gap-2 text-xs"
                 >
                   <ArrowLeft className="h-3 w-3" />
                   Anterior
@@ -137,7 +163,7 @@ const TourOverlay: React.FC = () => {
               <Button
                 size="sm"
                 onClick={nextStep}
-                className="flex items-center gap-1"
+                className="flex items-center gap-2 text-xs px-4"
               >
                 {isLastStep ? 'Finalizar' : 'Siguiente'}
                 {!isLastStep && <ArrowRight className="h-3 w-3" />}
