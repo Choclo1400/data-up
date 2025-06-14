@@ -27,7 +27,11 @@ const TourOverlay: React.FC = () => {
           x: rect.left + rect.width / 2,
           y: rect.top + rect.height / 2
         });
+      } else {
+        setTargetPosition(null);
       }
+    } else {
+      setTargetPosition(null);
     }
   }, [isActive, currentStep, steps]);
 
