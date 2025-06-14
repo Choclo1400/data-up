@@ -111,17 +111,19 @@ const ClientsPage: React.FC = () => {
     let filtered = clients.filter(client => {
       const matchesSearch = 
         client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.email.toLowerCase().includes(searchTerm.toLowerCase());
+        (client.contactPerson && client.contactPerson.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (client.region && client.region.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (client.email && client.email.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchesType = !filters.type || client.type === filters.type;
       const matchesRegion = !filters.region || client.region === filters.region;
       const matchesStatus = filters.isActive === undefined || client.isActive === filters.isActive;
       
+      const clientCreatedDate = client.createdDate ? new Date(client.createdDate) : null;
       const matchesDate = (!filters.dateFrom && !filters.dateTo) || 
-        ((!filters.dateFrom || new Date(client.createdDate) >= new Date(filters.dateFrom)) &&
-         (!filters.dateTo || new Date(client.createdDate) <= new Date(filters.dateTo)));
+        (clientCreatedDate && 
+         (!filters.dateFrom || clientCreatedDate >= new Date(filters.dateFrom)) &&
+         (!filters.dateTo || clientCreatedDate <= new Date(filters.dateTo)));
 
       return matchesSearch && matchesType && matchesRegion && matchesStatus && matchesDate;
     });
@@ -134,10 +136,12 @@ const ClientsPage: React.FC = () => {
           comparison = a.name.localeCompare(b.name);
           break;
         case 'createdDate':
-          comparison = new Date(a.createdDate).getTime() - new Date(b.createdDate).getTime();
+          const dateA = a.createdDate ? new Date(a.createdDate).getTime() : 0;
+          const dateB = b.createdDate ? new Date(b.createdDate).getTime() : 0;
+          comparison = dateA - dateB;
           break;
         case 'type':
-          comparison = a.type.localeCompare(b.type);
+          comparison = (a.type || "").localeCompare(b.type || "");
           break;
       }
       
@@ -150,11 +154,20 @@ const ClientsPage: React.FC = () => {
   const handleCreateClient = async (clientData: Partial<Client>) => {
     try {
       const newClient = await createClient(clientData);
-      setClients(prev => [...prev, newClient]);
+      // Mocking the return of a full client object for UI update
+      const createdClient = {
+        ...mockClients[0], // Use a base mock structure
+        ...clientData,
+        id: `CLI-${Date.now()}`,
+        createdDate: new Date().toISOString(),
+        isActive: clientData.isActive !== undefined ? clientData.isActive : true,
+      } as Client;
+      setClients(prev => [...prev, createdClient]);
       toast({
         title: "Cliente creado",
-        description: `${newClient.name} ha sido creado exitosamente.`,
+        description: `${createdClient.name} ha sido creado exitosamente.`,
       });
+      setShowClientForm(false);
     } catch (error) {
       toast({
         title: "Error",
@@ -168,12 +181,15 @@ const ClientsPage: React.FC = () => {
     if (!editingClient) return;
     
     try {
-      const updatedClient = await updateClient(editingClient.id, clientData);
-      setClients(prev => prev.map(c => c.id === editingClient.id ? { ...c, ...updatedClient } : c));
+      const updatedClientData = await updateClient(editingClient.id, clientData);
+       // Mocking the return of a full client object for UI update
+      const updatedClient = { ...editingClient, ...clientData, ...updatedClientData };
+      setClients(prev => prev.map(c => c.id === editingClient.id ? updatedClient : c));
       setEditingClient(null);
+      setShowClientForm(false);
       toast({
         title: "Cliente actualizado",
-        description: `${clientData.name} ha sido actualizado exitosamente.`,
+        description: `${updatedClient.name} ha sido actualizado exitosamente.`,
       });
     } catch (error) {
       toast({
@@ -226,7 +242,7 @@ const ClientsPage: React.FC = () => {
     
     try {
       await archiveClient(client.id);
-      setClients(prev => prev.filter(c => c.id !== client.id));
+      setClients(prev => prev.filter(c => c.id !== client.id)); // Assuming archive removes from active list
       toast({
         title: "Cliente archivado",
         description: `${client.name} ha sido archivado exitosamente.`,
@@ -240,7 +256,8 @@ const ClientsPage: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('es-CL', {
       year: 'numeric',
       month: 'short',
@@ -249,225 +266,222 @@ const ClientsPage: React.FC = () => {
   };
 
   const breadcrumbItems = [
+    { label: "Dashboard", href: "/", icon: Building2 }, // Corrected icon if needed
     { label: "Clientes", icon: Building2 }
   ];
 
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden md:pl-64"> {/* Added md:pl-64 */}
         <Navbar title="Gestión de Clientes" />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6">
           <div className="container mx-auto">
             <Breadcrumbs items={breadcrumbItems} className="mb-6" />
             
-            <div className="flex flex-col lg:flex-row gap-8">
-              <div className="flex-1">
-                <Card>
-                  <CardHeader>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <div>
-                        <CardTitle className="text-2xl">Listado de Clientes</CardTitle>
-                        <CardDescription>
-                          Administración de empresas distribuidoras y clientes corporativos
-                        </CardDescription>
-                      </div>
-                      <Button 
-                        className="flex items-center gap-2"
-                        onClick={() => setShowClientForm(true)}
-                      >
-                        <Plus className="w-4 h-4" />
-                        Nuevo Cliente
-                      </Button>
+            {/* Removed outer flex div as Card will manage its own layout */}
+            <Card>
+              <CardHeader>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <CardTitle className="text-2xl">Listado de Clientes</CardTitle>
+                    <CardDescription>
+                      Administración de empresas distribuidoras y clientes corporativos
+                    </CardDescription>
+                  </div>
+                  <Button 
+                    className="flex items-center gap-2"
+                    onClick={() => { setEditingClient(null); setShowClientForm(true); }}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Nuevo Cliente
+                  </Button>
+                </div>
+                
+                <div className="flex flex-col gap-4 mt-4">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                      <Input
+                        placeholder="Buscar por nombre, contacto, email o región..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
                     </div>
-                    
-                    {/* Search and Filters */}
-                    <div className="flex flex-col gap-4 mt-4">
-                      <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="relative flex-1">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                          <Input
-                            placeholder="Buscar por nombre, contacto, email o región..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10"
-                          />
-                        </div>
-                        <ClientFilters
-                          isOpen={showFilters}
-                          onToggle={() => setShowFilters(!showFilters)}
-                          filters={filters}
-                          onFiltersChange={setFilters}
-                          onClearFilters={() => setFilters({})}
-                        />
-                      </div>
-                      
-                      {showFilters && (
-                        <ClientFilters
-                          isOpen={showFilters}
-                          onToggle={() => setShowFilters(!showFilters)}
-                          filters={filters}
-                          onFiltersChange={setFilters}
-                          onClearFilters={() => setFilters({})}
-                        />
-                      )}
-                    </div>
+                    {/* Button to toggle ClientFilters visibility */}
+                    <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
+                      {showFilters ? "Ocultar Filtros" : "Mostrar Filtros"}
+                    </Button>
+                  </div>
+                  
+                  {/* Conditionally render ClientFilters */}
+                  {showFilters && (
+                    <ClientFilters
+                      isOpen={showFilters} // This prop might be redundant if visibility is controlled here
+                      onToggle={() => setShowFilters(!showFilters)} // Could be used by ClientFilters to close itself
+                      filters={filters}
+                      onFiltersChange={setFilters}
+                      onClearFilters={() => setFilters({})}
+                    />
+                  )}
+                </div>
 
-                    {/* Results Summary */}
-                    <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
-                      <span>
-                        Mostrando {filteredAndSortedClients.length} de {clients.length} clientes
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span>Ordenar por:</span>
-                        <select 
-                          value={`${sortBy}-${sortOrder}`}
-                          onChange={(e) => {
-                            const [field, order] = e.target.value.split('-');
-                            setSortBy(field as 'name' | 'createdDate' | 'type');
-                            setSortOrder(order as 'asc' | 'desc');
-                          }}
-                          className="text-sm border rounded px-2 py-1 bg-background text-foreground"
-                        >
-                          <option value="name-asc">Nombre A-Z</option>
-                          <option value="name-desc">Nombre Z-A</option>
-                          <option value="createdDate-desc">Más reciente</option>
-                          <option value="createdDate-asc">Más antiguo</option>
-                          <option value="type-asc">Tipo A-Z</option>
-                        </select>
-                      </div>
-                    </div>
-                  </CardHeader>
+                <div className="flex items-center justify-between text-sm text-muted-foreground mt-4">
+                  <span>
+                    Mostrando {filteredAndSortedClients.length} de {clients.length} clientes
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span>Ordenar por:</span>
+                    <select 
+                      value={`${sortBy}-${sortOrder}`}
+                      onChange={(e) => {
+                        const [field, order] = e.target.value.split('-');
+                        setSortBy(field as 'name' | 'createdDate' | 'type');
+                        setSortOrder(order as 'asc' | 'desc');
+                      }}
+                      className="text-sm border rounded px-2 py-1 bg-background text-foreground"
+                    >
+                      <option value="name-asc">Nombre A-Z</option>
+                      <option value="name-desc">Nombre Z-A</option>
+                      <option value="createdDate-desc">Más reciente</option>
+                      <option value="createdDate-asc">Más antiguo</option>
+                      <option value="type-asc">Tipo A-Z</option>
+                      <option value="type-desc">Tipo Z-A</option>
+                    </select>
+                  </div>
+                </div>
+              </CardHeader>
 
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Cliente</TableHead>
-                            <TableHead>Tipo</TableHead>
-                            <TableHead>Contacto</TableHead>
-                            <TableHead>Ubicación</TableHead>
-                            <TableHead>Contrato</TableHead>
-                            <TableHead>Estado</TableHead>
-                            <TableHead>Fecha Creación</TableHead>
-                            <TableHead>Acciones</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {filteredAndSortedClients.map((client) => (
-                            <TableRow key={client.id}>
-                              <TableCell>
-                                <div className="flex items-center gap-3">
-                                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                                    <Building2 className="w-5 h-5 text-primary" />
-                                  </div>
-                                  <div>
-                                    <div className="font-medium">{client.name}</div>
-                                    <div className="text-sm text-muted-foreground">{client.id}</div>
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <ClientTypeIcon type={client.type} />
-                                  <Badge variant={getClientTypeBadgeVariant(client.type)}>
-                                    {client.type}
-                                  </Badge>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div>
-                                  <div className="font-medium">{client.contactPerson}</div>
-                                  <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                    <Mail className="w-3 h-3" />
-                                    {client.email}
-                                  </div>
-                                  <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                    <Phone className="w-3 h-3" />
-                                    {client.phone}
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div>
-                                  <div className="font-medium">{client.comuna}</div>
-                                  <div className="text-sm text-muted-foreground">{client.region}</div>
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="text-sm font-mono">
-                                  {client.contractNumber}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant={client.isActive ? 'success' : 'danger'}>
-                                  {client.isActive ? 'Activo' : 'Inactivo'}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <div className="text-sm">
-                                  {formatDate(client.createdDate)}
-                                </div>
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-1">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => {
-                                      setSelectedClient(client);
-                                      setShowClientDialog(true);
-                                    }}
-                                  >
-                                    <Eye className="w-4 h-4" />
-                                  </Button>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => {
-                                      setEditingClient(client);
-                                      setShowClientForm(true);
-                                    }}
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => handleToggleStatus(client)}
-                                  >
-                                    <Power className="w-4 h-4" />
-                                  </Button>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => handleArchiveClient(client)}
-                                  >
-                                    <Archive className="w-4 h-4" />
-                                  </Button>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => handleDeleteClient(client)}
-                                    className="text-destructive hover:text-destructive"
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Cliente</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Contacto</TableHead>
+                        <TableHead>Ubicación</TableHead>
+                        <TableHead>Contrato</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead>Fecha Creación</TableHead>
+                        <TableHead>Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredAndSortedClients.map((client) => (
+                        <TableRow key={client.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                <Building2 className="w-5 h-5 text-primary" />
+                              </div>
+                              <div>
+                                <div className="font-medium">{client.name}</div>
+                                <div className="text-sm text-muted-foreground">{client.id}</div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <ClientTypeIcon type={client.type} />
+                              <Badge variant={getClientTypeBadgeVariant(client.type)}>
+                                {client.type || 'N/A'}
+                              </Badge>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{client.contactPerson || 'N/A'}</div>
+                              {client.email && <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                <Mail className="w-3 h-3" />
+                                {client.email}
+                              </div>}
+                              {client.phone && <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                <Phone className="w-3 h-3" />
+                                {client.phone}
+                              </div>}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{client.comuna || 'N/A'}</div>
+                              <div className="text-sm text-muted-foreground">{client.region || 'N/A'}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm font-mono">
+                              {client.contractNumber || 'N/A'}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={client.isActive ? 'success' : 'danger'}>
+                              {client.isActive ? 'Activo' : 'Inactivo'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              {formatDate(client.createdDate)}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => {
+                                  setSelectedClient(client);
+                                  setShowClientDialog(true);
+                                }}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => {
+                                  setEditingClient(client);
+                                  setShowClientForm(true);
+                                }}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleToggleStatus(client)}
+                                title={client.isActive ? "Desactivar" : "Activar"}
+                              >
+                                <Power className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleArchiveClient(client)}
+                                title="Archivar"
+                              >
+                                <Archive className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleDeleteClient(client)}
+                                className="text-destructive hover:text-destructive"
+                                title="Eliminar"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Formulario de Cliente */}
           <ClientForm
             isOpen={showClientForm}
             onClose={() => {
@@ -476,11 +490,10 @@ const ClientsPage: React.FC = () => {
             }}
             onSubmit={editingClient ? handleUpdateClient : handleCreateClient}
             initialData={editingClient || undefined}
-            loading={loading}
+            loading={loading} // Pass loading state from useClients hook
             title={editingClient ? 'Editar Cliente' : 'Nuevo Cliente'}
           />
 
-          {/* Modal de Detalles */}
           <ClientDialog
             client={selectedClient}
             isOpen={showClientDialog}

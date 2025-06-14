@@ -129,12 +129,22 @@ const RequestsPage: React.FC = () => {
   const handleCreateRequest = async (requestData: Partial<TechnicalRequest>) => {
     try {
       const newRequest = await createRequest(requestData);
-      setRequests(prev => [newRequest, ...prev]);
+      // Assuming createRequest returns the full new request object or we fetch it
+      // For mock data, we'll construct something plausible
+      const createdRequestWithId = { 
+        ...requestData, 
+        id: `REQ-${Date.now()}`, // Simple unique ID for mock
+        requestNumber: `SOL-${new Date().getFullYear()}-${String(requests.length + 1).padStart(3, '0')}`,
+        status: RequestStatus.NEW, // Default status
+        createdDate: new Date().toISOString(),
+        updatedDate: new Date().toISOString(),
+      } as TechnicalRequest; // Cast to ensure type compatibility
+      setRequests(prev => [createdRequestWithId, ...prev]);
       toast({
         title: "Solicitud creada",
         description: "La solicitud técnica ha sido creada exitosamente.",
       });
-      closeForm(); // Close form after successful creation
+      closeForm();
     } catch (error) {
       toast({
         title: "Error",
@@ -161,7 +171,7 @@ const RequestsPage: React.FC = () => {
         title: "Solicitud actualizada",
         description: "La solicitud técnica ha sido actualizada exitosamente.",
       });
-      closeForm(); // Close form after successful update
+      closeForm();
     } catch (error) {
       toast({
         title: "Error",
@@ -173,8 +183,6 @@ const RequestsPage: React.FC = () => {
 
   const handleViewRequest = (request: TechnicalRequest) => {
     console.log('Ver detalles de solicitud:', request);
-    // Here you would typically navigate to a detail page or open a modal
-    // For now, we'll just toast as an example.
     toast({
       title: "Vista de solicitud",
       description: `Abriendo detalles de ${request.requestNumber}`,
@@ -205,134 +213,127 @@ const RequestsPage: React.FC = () => {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden md:pl-64">
         <Navbar title="Solicitudes Técnicas" />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6">
           <div className="container mx-auto">
-            <div className="flex flex-col lg:flex-row gap-8">
-              {/* Main Content */}
-              <div className="flex-1">
-                <Card>
-                  <CardHeader>
-                    <Breadcrumbs items={breadcrumbItems} className="mb-4" />
-                    
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <div>
-                        <CardTitle className="text-2xl">Listado de Solicitudes</CardTitle>
-                        <CardDescription>
-                          Gestión y seguimiento de solicitudes técnicas de clientes
-                        </CardDescription>
-                      </div>
-                      <Button 
-                        className="flex items-center gap-2"
-                        onClick={() => navigate('/requests/new')} // Navigate to NewRequestPage
-                      >
-                        <Plus className="w-4 h-4" />
-                        Nueva Solicitud
-                      </Button>
-                    </div>
-                    
-                    {/* Search and Filters */}
-                    <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                      <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                        <Input
-                          placeholder="Buscar por número, título o cliente..."
-                          value={searchTerm}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                          className="pl-10"
-                        />
-                      </div>
-                      <Button variant="outline" className="flex items-center gap-2">
-                        <Filter className="w-4 h-4" />
-                        Filtros
-                      </Button>
-                    </div>
-                  </CardHeader>
+            <Card>
+              <CardHeader>
+                <Breadcrumbs items={breadcrumbItems} className="mb-4" />
+                
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div>
+                    <CardTitle className="text-2xl">Listado de Solicitudes</CardTitle>
+                    <CardDescription>
+                      Gestión y seguimiento de solicitudes técnicas de clientes
+                    </CardDescription>
+                  </div>
+                  <Button 
+                    className="flex items-center gap-2"
+                    onClick={() => navigate('/requests/new')}
+                  >
+                    <Plus className="w-4 h-4" />
+                    Nueva Solicitud
+                  </Button>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4 mt-4">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <Input
+                      placeholder="Buscar por número, título o cliente..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Button variant="outline" className="flex items-center gap-2">
+                    <Filter className="w-4 h-4" />
+                    Filtros
+                  </Button>
+                </div>
+              </CardHeader>
 
-                  <CardContent>
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Número</TableHead>
-                            <TableHead>Título</TableHead>
-                            <TableHead>Cliente</TableHead>
-                            <TableHead>Tipo</TableHead>
-                            <TableHead>Estado</TableHead>
-                            <TableHead>Prioridad</TableHead>
-                            <TableHead>Técnico</TableHead>
-                            <TableHead>Fecha</TableHead>
-                            <TableHead>Acciones</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {filteredRequests.map((request) => (
-                            <TableRow key={request.id}>
-                              <TableCell className="font-medium">
-                                {request.requestNumber}
-                              </TableCell>
-                              <TableCell>
-                                <div>
-                                  <div className="font-medium">{request.title}</div>
-                                  <div className="text-sm text-muted-foreground flex items-center gap-1">
-                                    <MapPin className="w-3 h-3" />
-                                    {request.location}
-                                  </div>
-                                </div>
-                              </TableCell>
-                              <TableCell>{request.clientName}</TableCell>
-                              <TableCell>
-                                <Badge variant="info">{request.type}</Badge>
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant={getStatusBadgeVariant(request.status)}>
-                                  {request.status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                <Badge variant={getPriorityBadgeVariant(request.priority)}>
-                                  {request.priority}
-                                </Badge>
-                              </TableCell>
-                              <TableCell>
-                                {request.assignedTechnicianName || (
-                                  <span className="text-muted-foreground">Sin asignar</span>
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                {new Date(request.requestedDate).toLocaleDateString('es-CL')}
-                              </TableCell>
-                              <TableCell>
-                                <div className="flex items-center gap-2">
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => handleViewRequest(request)}
-                                  >
-                                    <Eye className="w-4 h-4" />
-                                  </Button>
-                                  <Button 
-                                    variant="ghost" 
-                                    size="sm"
-                                    onClick={() => openEditForm(request)}
-                                  >
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Número</TableHead>
+                        <TableHead>Título</TableHead>
+                        <TableHead>Cliente</TableHead>
+                        <TableHead>Tipo</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead>Prioridad</TableHead>
+                        <TableHead>Técnico</TableHead>
+                        <TableHead>Fecha</TableHead>
+                        <TableHead>Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {filteredRequests.map((request) => (
+                        <TableRow key={request.id}>
+                          <TableCell className="font-medium">
+                            {request.requestNumber}
+                          </TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{request.title}</div>
+                              <div className="text-sm text-muted-foreground flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {request.location}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>{request.clientName}</TableCell>
+                          <TableCell>
+                            <Badge variant="info">{request.type}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getStatusBadgeVariant(request.status)}>
+                              {request.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={getPriorityBadgeVariant(request.priority)}>
+                              {request.priority}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {request.assignedTechnicianName || (
+                              <span className="text-muted-foreground">Sin asignar</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {new Date(request.requestedDate).toLocaleDateString('es-CL')}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => handleViewRequest(request)}
+                              >
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => openEditForm(request)}
+                              >
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Request Form Dialog */}
           <RequestForm
             isOpen={isFormOpen}
             onClose={closeForm}

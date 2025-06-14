@@ -14,11 +14,12 @@ import Navbar from '@/components/layout/Navbar';
 const NewRequestPage: React.FC = () => {
   const navigate = useNavigate();
   const { createRequest, validateScheduleConflict, loading } = useRequests();
-  const [isFormOpen, setIsFormOpen] = useState(true); // Form is open by default on this page
+  // Removed isFormOpen state as the form is always intended to be open on this page.
+  // The RequestForm's internal open/close might be controlled by its 'isOpen' prop if it's a dialog,
+  // but for an embedded form, it's always visible.
 
   const handleCreateRequest = async (requestData: Partial<TechnicalRequest>) => {
     try {
-      // Validar conflictos de fechas antes de crear la solicitud
       if (requestData.requestedDate && requestData.estimatedHours) {
         const hasConflict = await validateScheduleConflict(
           requestData.requestedDate, 
@@ -26,28 +27,26 @@ const NewRequestPage: React.FC = () => {
         );
         
         if (hasConflict) {
-          // The validateScheduleConflict hook should show a toast, so we just return
           return; 
         }
       }
 
       await createRequest(requestData);
-      // The createRequest hook should show a success toast
+      // createRequest hook should show success toast
       
-      // Redirigir al dashboard después de crear la solicitud
       setTimeout(() => {
-        navigate('/requests'); // Navigate to requests list
-      }, 1500); // Shorter delay
+        navigate('/requests');
+      }, 1500);
       
     } catch (error) {
       console.error('Error al crear solicitud:', error);
-      // The createRequest hook should handle showing an error toast
+      // createRequest hook should handle error toast
     }
   };
 
-  const handleFormClose = () => {
-    setIsFormOpen(false);
-    navigate('/requests'); // Navigate back to requests list if form is closed
+  const handleFormCloseOrCancel = () => {
+    // If the form had a cancel button that should navigate away
+    navigate('/requests');
   };
 
   const breadcrumbItems = [
@@ -59,7 +58,7 @@ const NewRequestPage: React.FC = () => {
   return (
     <div className="flex h-screen bg-background">
       <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden md:pl-64"> {/* Added md:pl-64 */}
         <Navbar title="Nueva Solicitud Técnica" />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6">
           <div className="container mx-auto">
@@ -80,7 +79,7 @@ const NewRequestPage: React.FC = () => {
                   
                   <Button 
                     variant="outline"
-                    onClick={() => navigate('/requests')} // Navigate to requests list
+                    onClick={() => navigate('/requests')}
                     className="flex items-center gap-2"
                   >
                     <ArrowLeft className="w-4 h-4" />
@@ -90,7 +89,7 @@ const NewRequestPage: React.FC = () => {
               </CardHeader>
 
               <CardContent>
-                <div className="max-w-4xl">
+                <div className="max-w-4xl"> {/* Container for form content */}
                   <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
                     <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
                       Proceso de Aprobación
@@ -101,15 +100,16 @@ const NewRequestPage: React.FC = () => {
                     </p>
                   </div>
 
-                  {isFormOpen && ( // This check might be redundant if form is always open, but good for consistency
-                    <RequestForm
-                      isOpen={isFormOpen} // Pass true as it's always open on this page initially
-                      onClose={handleFormClose} // Handle programmatic close or cancel
-                      onSubmit={handleCreateRequest}
-                      loading={loading}
-                      title="Datos de la Nueva Solicitud"
-                    />
-                  )}
+                  {/* RequestForm is always "open" or visible on this page */}
+                  <RequestForm
+                    isOpen={true} // Prop indicates it's active, though not necessarily a dialog
+                    onClose={handleFormCloseOrCancel} // For cancel/programmatic close
+                    onSubmit={handleCreateRequest}
+                    loading={loading}
+                    title="Datos de la Nueva Solicitud"
+                    // initialData can be an empty object or specific defaults
+                    initialData={{}} 
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -121,4 +121,3 @@ const NewRequestPage: React.FC = () => {
 };
 
 export default NewRequestPage;
-
