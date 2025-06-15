@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -22,6 +21,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { StatsSkeleton } from '@/components/ui/enhanced-skeleton';
 import { useState, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 
 const RoleBasedDashboard: React.FC = () => {
   const { user, hasPermission } = useAuth();
