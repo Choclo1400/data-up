@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Bell, BellDot, Check, CheckCheck, Trash2, Clock, AlertTriangle, CheckCircle, XCircle, Settings, User, Activity } from 'lucide-react';
+import { Bell, BellDot, Check, CheckCheck, Trash2, Clock, AlertTriangle, CheckCircle, XCircle, Settings, User, Activity, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -20,40 +20,41 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { NotificationType, NotificationPriority } from '@/types/notifications';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 const getNotificationIcon = (type: NotificationType) => {
   switch (type) {
     case NotificationType.APPROVAL:
-      return <CheckCircle className="w-5 h-5 text-green-500" />;
+      return <CheckCircle className="w-5 h-5 text-success-600" />;
     case NotificationType.REJECTION:
-      return <XCircle className="w-5 h-5 text-red-500" />;
+      return <XCircle className="w-5 h-5 text-error-600" />;
     case NotificationType.ASSIGNMENT:
-      return <User className="w-5 h-5 text-blue-500" />;
+      return <User className="w-5 h-5 text-info-600" />;
     case NotificationType.STATUS_CHANGE:
-      return <Activity className="w-5 h-5 text-orange-500" />;
+      return <Activity className="w-5 h-5 text-warning-600" />;
     case NotificationType.BACKUP_ALERT:
-      return <Settings className="w-5 h-5 text-purple-500" />;
+      return <FolderOpen className="w-5 h-5 text-purple-600" />;
     case NotificationType.ERROR:
-      return <AlertTriangle className="w-5 h-5 text-red-600" />;
+      return <AlertTriangle className="w-5 h-5 text-error-600" />;
     case NotificationType.SYSTEM:
-      return <Bell className="w-5 h-5 text-gray-500" />;
+      return <Settings className="w-5 h-5 text-gray-600" />;
     default:
-      return <Bell className="w-5 h-5 text-gray-500" />;
+      return <Bell className="w-5 h-5 text-gray-600" />;
   }
 };
 
 const getPriorityColor = (priority: NotificationPriority) => {
   switch (priority) {
     case NotificationPriority.CRITICAL:
-      return 'bg-red-100 border-red-200 text-red-800';
+      return 'bg-error-50 border-error-200 text-error-800';
     case NotificationPriority.HIGH:
-      return 'bg-orange-100 border-orange-200 text-orange-800';
+      return 'bg-warning-50 border-warning-200 text-warning-800';
     case NotificationPriority.MEDIUM:
-      return 'bg-yellow-100 border-yellow-200 text-yellow-800';
+      return 'bg-info-50 border-info-200 text-info-800';
     case NotificationPriority.LOW:
-      return 'bg-gray-100 border-gray-200 text-gray-800';
+      return 'bg-gray-50 border-gray-200 text-gray-800';
     default:
-      return 'bg-gray-100 border-gray-200 text-gray-800';
+      return 'bg-gray-50 border-gray-200 text-gray-800';
   }
 };
 
@@ -70,9 +71,14 @@ const NotificationPanel: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
+  // Ordenar notificaciones por fecha (más recientes primero)
+  const sortedNotifications = [...notifications].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
   const filteredNotifications = activeTab === 'all' 
-    ? notifications 
-    : notifications.filter(n => n.type === activeTab);
+    ? sortedNotifications 
+    : sortedNotifications.filter(n => n.type === activeTab);
 
   const handleNotificationClick = (notification: any) => {
     if (!notification.isRead) {
@@ -89,15 +95,18 @@ const NotificationPanel: React.FC = () => {
         <Button
           variant="ghost"
           size="sm"
-          className="relative p-2 rounded-lg hover:bg-secondary transition-colors"
+          className="relative p-2 rounded-lg hover:bg-secondary transition-all duration-200 hover:scale-105"
         >
           {unreadCount > 0 ? (
-            <BellDot className="w-5 h-5 text-foreground" />
+            <BellDot className="w-5 h-5 text-foreground animate-pulse" />
           ) : (
             <Bell className="w-5 h-5 text-foreground" />
           )}
           {unreadCount > 0 && (
-            <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+            <Badge 
+              variant="destructive" 
+              className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs animate-bounce"
+            >
               {unreadCount > 99 ? '99+' : unreadCount}
             </Badge>
           )}
@@ -105,12 +114,18 @@ const NotificationPanel: React.FC = () => {
       </DrawerTrigger>
       
       <DrawerContent className="h-[85vh] flex flex-col">
-        <DrawerHeader className="border-b">
+        <DrawerHeader className="border-b bg-gradient-to-r from-primary/5 to-secondary/5">
           <div className="flex items-center justify-between">
             <div>
-              <DrawerTitle className="text-xl font-semibold">Centro de Notificaciones</DrawerTitle>
-              <DrawerDescription>
-                {unreadCount > 0 ? `${unreadCount} notificaciones sin leer` : 'Todas las notificaciones están al día'}
+              <DrawerTitle className="text-xl font-semibold flex items-center gap-2">
+                <Bell className="w-5 h-5 text-primary" />
+                Centro de Notificaciones
+              </DrawerTitle>
+              <DrawerDescription className="text-sm mt-1">
+                {unreadCount > 0 
+                  ? `${unreadCount} notificaciones sin leer` 
+                  : '¡Todo en orden! No hay notificaciones nuevas'
+                }
               </DrawerDescription>
             </div>
             <div className="flex items-center gap-2">
@@ -119,7 +134,7 @@ const NotificationPanel: React.FC = () => {
                   variant="outline"
                   size="sm"
                   onClick={markAllAsRead}
-                  className="text-xs"
+                  className="text-xs hover:scale-105 transition-transform"
                 >
                   <CheckCheck className="w-4 h-4 mr-1" />
                   Marcar todas
@@ -129,7 +144,7 @@ const NotificationPanel: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={deleteAllRead}
-                className="text-xs"
+                className="text-xs hover:scale-105 transition-transform"
               >
                 <Trash2 className="w-4 h-4 mr-1" />
                 Limpiar leídas
@@ -162,45 +177,53 @@ const NotificationPanel: React.FC = () => {
           <div className="flex-1 overflow-hidden">
             <TabsContent value={activeTab} className="h-full m-0">
               {filteredNotifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                  <Bell className="w-12 h-12 mb-4 opacity-50" />
-                  <p className="text-lg font-medium">No hay notificaciones</p>
-                  <p className="text-sm">Las nuevas notificaciones aparecerán aquí</p>
+                <div className="flex flex-col items-center justify-center h-full text-muted-foreground p-8">
+                  <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                    <Bell className="w-10 h-10 text-primary/60" />
+                  </div>
+                  <p className="text-lg font-medium mb-2">No tienes notificaciones recientes</p>
+                  <p className="text-sm text-center">¡Todo en orden! Las nuevas notificaciones aparecerán aquí</p>
                 </div>
               ) : (
                 <ScrollArea className="h-full px-6">
-                  <div className="space-y-3 py-4">
-                    {filteredNotifications.map((notification) => (
+                  <div className="space-y-4 py-4">
+                    {filteredNotifications.map((notification, index) => (
                       <div
                         key={notification.id}
-                        className={`p-4 rounded-xl border border-border hover:shadow-md cursor-pointer transition-all duration-200 ${
+                        className={cn(
+                          "p-4 rounded-xl border transition-all duration-300 cursor-pointer hover:shadow-md hover:scale-[1.02]",
                           !notification.isRead 
-                            ? 'bg-gradient-to-r from-blue-50/80 to-indigo-50/80 dark:from-blue-950/20 dark:to-indigo-950/20 border-blue-200 dark:border-blue-800' 
-                            : 'bg-card hover:bg-accent/50'
-                        }`}
+                            ? 'bg-gradient-to-r from-primary/5 via-primary/3 to-transparent border-primary/30 shadow-sm' 
+                            : 'bg-card hover:bg-accent/30 border-border'
+                        )}
                         onClick={() => handleNotificationClick(notification)}
+                        style={{ 
+                          animationDelay: `${index * 50}ms`,
+                          animation: 'fade-in 0.3s ease-out forwards'
+                        }}
                       >
-                        <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 mt-1">
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0 mt-1 p-2 rounded-lg bg-background shadow-sm">
                             {getNotificationIcon(notification.type)}
                           </div>
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between mb-2">
-                              <p className={`text-sm font-medium ${
+                              <p className={cn(
+                                "text-sm font-semibold",
                                 !notification.isRead ? 'text-foreground' : 'text-muted-foreground'
-                              }`}>
+                              )}>
                                 {notification.title}
                               </p>
                               <div className="flex items-center gap-2 ml-2">
                                 <Badge 
                                   variant="outline" 
-                                  className={`text-xs px-2 py-0.5 ${getPriorityColor(notification.priority)}`}
+                                  className={cn("text-xs px-2 py-1", getPriorityColor(notification.priority))}
                                 >
                                   {notification.priority.toUpperCase()}
                                 </Badge>
                                 {!notification.isRead && (
-                                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse shadow-lg" />
                                 )}
                               </div>
                             </div>
@@ -227,9 +250,10 @@ const NotificationPanel: React.FC = () => {
                                       e.stopPropagation();
                                       markAsRead(notification.id);
                                     }}
-                                    className="h-7 w-7 p-0 hover:bg-green-100 dark:hover:bg-green-900/20"
+                                    className="h-8 px-3 text-xs hover:bg-success-100 hover:text-success-700 transition-colors"
                                   >
-                                    <Check className="w-3 h-3 text-green-600" />
+                                    <Check className="w-3 h-3 mr-1" />
+                                    Marcar como leído
                                   </Button>
                                 )}
                                 <Button
@@ -239,9 +263,9 @@ const NotificationPanel: React.FC = () => {
                                     e.stopPropagation();
                                     deleteNotification(notification.id);
                                   }}
-                                  className="h-7 w-7 p-0 hover:bg-red-100 dark:hover:bg-red-900/20"
+                                  className="h-7 w-7 p-0 hover:bg-error-100 hover:text-error-700 transition-colors"
                                 >
-                                  <Trash2 className="w-3 h-3 text-red-500" />
+                                  <Trash2 className="w-3 h-3" />
                                 </Button>
                               </div>
                             </div>
@@ -258,19 +282,21 @@ const NotificationPanel: React.FC = () => {
 
         <Separator />
         
-        <DrawerFooter className="pt-4">
+        <DrawerFooter className="pt-4 bg-gradient-to-r from-secondary/5 to-primary/5">
           <Button 
             variant="outline" 
             onClick={() => {
               setOpen(false);
               console.log('Navegando al historial completo de notificaciones');
             }}
-            className="w-full"
+            className="w-full hover:scale-105 transition-transform"
           >
             Ver historial completo de notificaciones
           </Button>
           <DrawerClose asChild>
-            <Button variant="ghost">Cerrar</Button>
+            <Button variant="ghost" className="hover:scale-105 transition-transform">
+              Cerrar
+            </Button>
           </DrawerClose>
         </DrawerFooter>
       </DrawerContent>
