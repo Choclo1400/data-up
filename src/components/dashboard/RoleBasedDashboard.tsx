@@ -33,7 +33,7 @@ const RoleBasedDashboard: React.FC = () => {
         return {
           title: 'Panel de Administración',
           description: 'Control total del sistema y gestión de usuarios',
-          color: 'bg-red-50 border-red-200',
+          color: 'bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 border-red-200/50 shadow-lg',
           badgeColor: 'bg-red-600',
           quickActions: [
             { label: 'Gestionar Usuarios', icon: Users, action: () => navigate('/users'), permission: 'manage_users' },
@@ -52,7 +52,7 @@ const RoleBasedDashboard: React.FC = () => {
         return {
           title: 'Panel de Supervisión',
           description: 'Supervisión de operaciones y aprobación de solicitudes',
-          color: 'bg-blue-50 border-blue-200',
+          color: 'bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 border-blue-200/50 shadow-lg',
           badgeColor: 'bg-blue-600',
           quickActions: [
             { label: 'Aprobar Solicitudes', icon: CheckCircle, action: () => navigate('/requests/pending-supervisor'), permission: 'approve_requests' },
@@ -71,7 +71,7 @@ const RoleBasedDashboard: React.FC = () => {
         return {
           title: 'Panel de Gestión',
           description: 'Gestión operativa y seguimiento de proyectos',
-          color: 'bg-green-50 border-green-200',
+          color: 'bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-green-200/50 shadow-lg',
           badgeColor: 'bg-green-600',
           quickActions: [
             { label: 'Revisar Solicitudes', icon: Eye, action: () => navigate('/requests/pending-manager'), permission: 'approve_manager' },
@@ -90,7 +90,7 @@ const RoleBasedDashboard: React.FC = () => {
         return {
           title: 'Panel de Operador',
           description: 'Creación de solicitudes y seguimiento de trabajos',
-          color: 'bg-yellow-50 border-yellow-200',
+          color: 'bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 border-yellow-200/50 shadow-lg',
           badgeColor: 'bg-yellow-600',
           quickActions: [
             { label: 'Nueva Solicitud', icon: Plus, action: () => navigate('/requests/new'), permission: 'create_requests' },
@@ -117,15 +117,21 @@ const RoleBasedDashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Header del rol */}
       <Card className={config.color}>
-        <CardHeader>
-          <div className="flex items-center justify-between">
+        <CardHeader className="relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
+            <div className="w-full h-full bg-white rounded-full transform translate-x-8 -translate-y-8"></div>
+          </div>
+          <div className="absolute bottom-0 left-0 w-24 h-24 opacity-5">
+            <div className="w-full h-full bg-white rounded-full transform -translate-x-4 translate-y-4"></div>
+          </div>
+          <div className="flex items-center justify-between relative z-10">
             <div>
-              <CardTitle className="text-2xl">{config.title}</CardTitle>
-              <CardDescription className="text-base mt-2">
+              <CardTitle className="text-2xl font-bold text-gray-800">{config.title}</CardTitle>
+              <CardDescription className="text-base mt-2 text-gray-700 font-medium">
                 {config.description}
               </CardDescription>
             </div>
-            <Badge className={`${config.badgeColor} text-white`}>
+            <Badge className={`${config.badgeColor} text-white shadow-md`}>
               {user.role}
             </Badge>
           </div>
