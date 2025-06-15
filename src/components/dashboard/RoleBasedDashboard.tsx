@@ -20,10 +20,19 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { StatsSkeleton } from '@/components/ui/enhanced-skeleton';
+import { useState, useEffect } from 'react';
 
 const RoleBasedDashboard: React.FC = () => {
   const { user, hasPermission } = useAuth();
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simular carga de datos
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1500);
+    return () => clearTimeout(timer);
+  }, []);
 
   if (!user) return null;
 
@@ -34,7 +43,7 @@ const RoleBasedDashboard: React.FC = () => {
           title: 'Panel de Administración',
           description: 'Control total del sistema y gestión de usuarios',
           color: 'bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 border-red-200/50 shadow-lg',
-          badgeColor: 'bg-red-600',
+          badgeColor: 'bg-error-600 hover:bg-error-700',
           quickActions: [
             { label: 'Gestionar Usuarios', icon: Users, action: () => navigate('/users'), permission: 'manage_users' },
             { label: 'Configuración', icon: Settings, action: () => navigate('/settings'), permission: 'system_config' },
@@ -42,9 +51,9 @@ const RoleBasedDashboard: React.FC = () => {
             { label: 'Respaldos', icon: Settings, action: () => navigate('/settings'), permission: 'system_config' }
           ],
           stats: [
-            { label: 'Total Usuarios', value: '24', icon: Users },
-            { label: 'Solicitudes Activas', value: '12', icon: ClipboardList },
-            { label: 'Sistema', value: 'Operativo', icon: CheckCircle, color: 'text-green-600' }
+            { label: 'Total Usuarios', value: '24', icon: Users, color: 'text-info-600', bgColor: 'bg-info-50' },
+            { label: 'Solicitudes Activas', value: '12', icon: ClipboardList, color: 'text-warning-600', bgColor: 'bg-warning-50' },
+            { label: 'Sistema', value: 'Operativo', icon: CheckCircle, color: 'text-success-600', bgColor: 'bg-success-50' }
           ]
         };
 
@@ -53,7 +62,7 @@ const RoleBasedDashboard: React.FC = () => {
           title: 'Panel de Supervisión',
           description: 'Supervisión de operaciones y aprobación de solicitudes',
           color: 'bg-gradient-to-br from-blue-50 via-sky-50 to-cyan-50 border-blue-200/50 shadow-lg',
-          badgeColor: 'bg-blue-600',
+          badgeColor: 'bg-info-600 hover:bg-info-700',
           quickActions: [
             { label: 'Aprobar Solicitudes', icon: CheckCircle, action: () => navigate('/requests/pending-supervisor'), permission: 'approve_requests' },
             { label: 'Gestionar Técnicos', icon: Wrench, action: () => navigate('/technicians'), permission: 'manage_technicians' },
@@ -61,9 +70,9 @@ const RoleBasedDashboard: React.FC = () => {
             { label: 'Calendario', icon: Calendar, action: () => navigate('/calendar'), permission: 'view_calendar' }
           ],
           stats: [
-            { label: 'Pendientes Aprobación', value: '5', icon: AlertTriangle, color: 'text-orange-600' },
-            { label: 'Técnicos Activos', value: '8', icon: Wrench },
-            { label: 'Solicitudes Hoy', value: '3', icon: ClipboardList }
+            { label: 'Pendientes Aprobación', value: '5', icon: AlertTriangle, color: 'text-warning-600', bgColor: 'bg-warning-50' },
+            { label: 'Técnicos Activos', value: '8', icon: Wrench, color: 'text-info-600', bgColor: 'bg-info-50' },
+            { label: 'Solicitudes Hoy', value: '3', icon: ClipboardList, color: 'text-success-600', bgColor: 'bg-success-50' }
           ]
         };
 
@@ -72,7 +81,7 @@ const RoleBasedDashboard: React.FC = () => {
           title: 'Panel de Gestión',
           description: 'Gestión operativa y seguimiento de proyectos',
           color: 'bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 border-green-200/50 shadow-lg',
-          badgeColor: 'bg-green-600',
+          badgeColor: 'bg-success-600 hover:bg-success-700',
           quickActions: [
             { label: 'Revisar Solicitudes', icon: Eye, action: () => navigate('/requests/pending-manager'), permission: 'approve_manager' },
             { label: 'Ver Reportes', icon: BarChart3, action: () => navigate('/reports'), permission: 'view_reports' },
@@ -80,9 +89,9 @@ const RoleBasedDashboard: React.FC = () => {
             { label: 'Nueva Solicitud', icon: Plus, action: () => navigate('/requests/new'), permission: 'create_requests' }
           ],
           stats: [
-            { label: 'Solicitudes Mes', value: '28', icon: ClipboardList },
-            { label: 'Clientes Activos', value: '15', icon: Building2 },
-            { label: 'Proyectos', value: '7', icon: FileText }
+            { label: 'Solicitudes Mes', value: '28', icon: ClipboardList, color: 'text-info-600', bgColor: 'bg-info-50' },
+            { label: 'Clientes Activos', value: '15', icon: Building2, color: 'text-success-600', bgColor: 'bg-success-50' },
+            { label: 'Proyectos', value: '7', icon: FileText, color: 'text-warning-600', bgColor: 'bg-warning-50' }
           ]
         };
 
@@ -91,7 +100,7 @@ const RoleBasedDashboard: React.FC = () => {
           title: 'Panel de Operador',
           description: 'Creación de solicitudes y seguimiento de trabajos',
           color: 'bg-gradient-to-br from-yellow-50 via-amber-50 to-orange-50 border-yellow-200/50 shadow-lg',
-          badgeColor: 'bg-yellow-600',
+          badgeColor: 'bg-warning-600 hover:bg-warning-700',
           quickActions: [
             { label: 'Nueva Solicitud', icon: Plus, action: () => navigate('/requests/new'), permission: 'create_requests' },
             { label: 'Mis Solicitudes', icon: ClipboardList, action: () => navigate('/requests'), permission: 'view_requests' },
@@ -99,9 +108,9 @@ const RoleBasedDashboard: React.FC = () => {
             { label: 'Mi Perfil', icon: Users, action: () => navigate('/profile') }
           ],
           stats: [
-            { label: 'Mis Solicitudes', value: '4', icon: ClipboardList },
-            { label: 'En Proceso', value: '2', icon: AlertTriangle, color: 'text-blue-600' },
-            { label: 'Completadas', value: '12', icon: CheckCircle, color: 'text-green-600' }
+            { label: 'Mis Solicitudes', value: '4', icon: ClipboardList, color: 'text-info-600', bgColor: 'bg-info-50' },
+            { label: 'En Proceso', value: '2', icon: AlertTriangle, color: 'text-warning-600', bgColor: 'bg-warning-50' },
+            { label: 'Completadas', value: '12', icon: CheckCircle, color: 'text-success-600', bgColor: 'bg-success-50' }
           ]
         };
 
@@ -114,9 +123,9 @@ const RoleBasedDashboard: React.FC = () => {
   if (!config) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header del rol */}
-      <Card className={config.color}>
+      <Card className={cn("transition-all duration-300 hover:shadow-xl", config.color)}>
         <CardHeader className="relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 opacity-10">
             <div className="w-full h-full bg-white rounded-full transform translate-x-8 -translate-y-8"></div>
@@ -126,39 +135,51 @@ const RoleBasedDashboard: React.FC = () => {
           </div>
           <div className="flex items-center justify-between relative z-10">
             <div>
-              <CardTitle className="text-2xl font-bold text-gray-800">{config.title}</CardTitle>
-              <CardDescription className="text-base mt-2 text-gray-700 font-medium">
+              <CardTitle className="text-2xl font-bold text-gray-800 mb-2">{config.title}</CardTitle>
+              <CardDescription className="text-base text-gray-700 font-medium">
                 {config.description}
               </CardDescription>
             </div>
-            <Badge className={`${config.badgeColor} text-white shadow-md`}>
+            <Badge className={cn(
+              "text-white shadow-md transition-all duration-200 hover:scale-105 px-4 py-2 text-sm font-semibold",
+              config.badgeColor
+            )}>
               {user.role}
             </Badge>
           </div>
         </CardHeader>
       </Card>
 
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {config.stats.map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex items-center">
-                <stat.icon className={`h-8 w-8 ${stat.color || 'text-muted-foreground'}`} />
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                  <p className={`text-2xl font-bold ${stat.color || ''}`}>{stat.value}</p>
+      {/* Estadísticas con loading */}
+      {isLoading ? (
+        <StatsSkeleton />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {config.stats.map((stat, index) => (
+            <Card key={index} className="transition-all duration-300 hover:shadow-lg hover:scale-105 animate-scale-in"
+                  style={{ animationDelay: `${index * 100}ms` }}>
+              <CardContent className="p-6">
+                <div className="flex items-center">
+                  <div className={cn("p-3 rounded-lg", stat.bgColor)}>
+                    <stat.icon className={cn("h-6 w-6", stat.color)} />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                    <p className={cn("text-2xl font-bold transition-colors", stat.color)}>
+                      {stat.value}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Acciones rápidas */}
-      <Card>
+      <Card className="transition-all duration-300 hover:shadow-lg">
         <CardHeader>
-          <CardTitle>Acciones Rápidas</CardTitle>
+          <CardTitle className="text-xl font-semibold">Acciones Rápidas</CardTitle>
           <CardDescription>
             Herramientas disponibles para tu rol
           </CardDescription>
@@ -172,12 +193,27 @@ const RoleBasedDashboard: React.FC = () => {
                 <Button
                   key={index}
                   variant={canAccess ? "outline" : "secondary"}
-                  className={`h-20 flex-col gap-2 ${!canAccess ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={cn(
+                    "h-24 flex-col gap-3 transition-all duration-300 relative group",
+                    canAccess 
+                      ? "hover:scale-105 hover:shadow-md hover:border-primary/50" 
+                      : "opacity-50 cursor-not-allowed",
+                    "animate-scale-in"
+                  )}
+                  style={{ animationDelay: `${(index + 3) * 100}ms` }}
                   onClick={canAccess ? action.action : undefined}
                   disabled={!canAccess}
                 >
-                  <action.icon className="h-6 w-6" />
-                  <span className="text-xs text-center">{action.label}</span>
+                  <div className={cn(
+                    "p-2 rounded-lg transition-colors",
+                    canAccess ? "bg-primary/10 group-hover:bg-primary/20" : "bg-muted"
+                  )}>
+                    <action.icon className={cn(
+                      "h-5 w-5 transition-colors",
+                      canAccess ? "text-primary" : "text-muted-foreground"
+                    )} />
+                  </div>
+                  <span className="text-xs text-center font-medium leading-tight">{action.label}</span>
                 </Button>
               );
             })}

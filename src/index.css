@@ -151,6 +151,73 @@
   .counter-column {
     @apply transition-transform duration-300 ease-out;
   }
+
+  /* Nuevas animaciones para UX mejorado */
+  .animate-slide-out-right {
+    animation: slide-out-right 0.3s ease-out forwards;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-glow-info;
+  }
+
+  .button-success {
+    @apply bg-success-600 hover:bg-success-700 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg;
+  }
+
+  .button-error {
+    @apply bg-error-600 hover:bg-error-700 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg;
+  }
+
+  .button-warning {
+    @apply bg-warning-600 hover:bg-warning-700 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg;
+  }
+
+  .badge-success {
+    @apply bg-success-100 text-success-800 border border-success-200;
+  }
+
+  .badge-error {
+    @apply bg-error-100 text-error-800 border border-error-200;
+  }
+
+  .badge-warning {
+    @apply bg-warning-100 text-warning-800 border border-warning-200;
+  }
+
+  .badge-info {
+    @apply bg-info-100 text-info-800 border border-info-200;
+  }
+}
+
+/* Animaciones adicionales */
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
 }
 
 /* Font imports */
