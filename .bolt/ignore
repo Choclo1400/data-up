@@ -1,0 +1,60 @@
+# Ignorar dependencias y caché
+node_modules/
+.env
+package-lock.json
+
+# Ignorar todo lo de frontend
+frontend/
+public/
+dist/
+build/
+assets/
+*.html
+*.css
+*.js
+*.ts
+*.tsx
+*.jsx
+
+# Ignorar datos pesados y archivos de ejemplo/backup
+uploads/
+data/
+backups/
+*.csv
+*.xlsx
+*.zip
+*.bak
+*.tar.gz
+*.mp4
+*.mov
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# Ignorar documentación y archivos de ayuda
+docs/
+DOCUMENTACION/
+manual_usuario/
+presentaciones/
+slides/
+informe/
+*.md
+README.md
+
+# Ignorar pruebas y archivos de desarrollo no productivos
+test/
+tests/
+coverage/
+.idea/
+.vscode/
+*.log
+scripts/
+ejemplos/
+playground/
+prototipos/
+
+# Ignorar control de versiones y bolt config
+.git/
+.gitignore
+.bolt/ignore
