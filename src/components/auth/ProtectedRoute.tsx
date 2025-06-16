@@ -1,58 +1,44 @@
-
 import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Card, CardContent } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
-import AccessDeniedMessage from './AccessDeniedMessage';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { LoadingState } from '../ui/loading-state';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredPermission?: string;
-  requiredRole?: string;
+  requiredRoles?: string[];
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
   children, 
-  requiredPermission,
-  requiredRole 
+  requiredRoles = [] 
 }) => {
-  const { isAuthenticated, hasPermission, hasRole, loading, user } = useAuth();
+  const { isAuthenticated, user, isLoading } = useAuth();
+  const location = useLocation();
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Card>
-          <CardContent className="py-8">
-            <div className="flex items-center gap-3">
-              <Loader2 className="w-6 h-6 animate-spin" />
-              <span>Cargando...</span>
-            </div>
-          </CardContent>
-        </Card>
+        <LoadingState message="Verificando autenticación..." />
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (requiredPermission && !hasPermission(requiredPermission)) {
+  if (requiredRoles.length > 0 && user && !requiredRoles.includes(user.role)) {
     return (
-      <AccessDeniedMessage 
-        requiredPermission={requiredPermission}
-        showUserInfo={true}
-      />
-    );
-  }
-
-  if (requiredRole && !hasRole(requiredRole as any)) {
-    return (
-      <AccessDeniedMessage 
-        requiredRole={requiredRole}
-        showUserInfo={true}
-      />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Acceso Denegado
+          </h1>
+          <p className="text-gray-600">
+            No tienes permisos para acceder a esta página.
+          </p>
+        </div>
+      </div>
     );
   }
 

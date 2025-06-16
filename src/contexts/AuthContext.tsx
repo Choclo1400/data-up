@@ -1,124 +1,16 @@
-
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { UserRole } from '@/types';
-
-export interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  permissions: string[];
-  isActive: boolean;
-}
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import authService, { User } from '../services/authService';
 
 interface AuthContextType {
-  user: AuthUser | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  user: User | null;
   isAuthenticated: boolean;
-  hasPermission: (permission: string) => boolean;
-  hasRole: (role: UserRole) => boolean;
-  loading: boolean;
+  isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Mock users for authentication
-const mockUsers: AuthUser[] = [
-  {
-    id: 'user-1',
-    name: 'Admin Sistema',
-    email: 'admin@inmel.cl',
-    role: UserRole.ADMIN,
-    permissions: ['create_requests', 'edit_requests', 'delete_requests', 'manage_clients', 'manage_technicians', 'manage_users', 'view_reports', 'system_config', 'manage_services', 'manage_employees'],
-    isActive: true
-  },
-  {
-    id: 'user-2',
-    name: 'Juan Supervisor',
-    email: 'supervisor@inmel.cl',
-    role: UserRole.SUPERVISOR,
-    permissions: ['create_requests', 'edit_requests', 'approve_requests', 'view_reports', 'manage_technicians'],
-    isActive: true
-  },
-  {
-    id: 'user-3',
-    name: 'María Gestora',
-    email: 'gestor@inmel.cl',
-    role: UserRole.MANAGER,
-    permissions: ['create_requests', 'edit_requests', 'approve_manager', 'view_reports'],
-    isActive: true
-  },
-  {
-    id: 'user-4',
-    name: 'Carlos Empleado',
-    email: 'empleado@inmel.cl',
-    role: UserRole.OPERATOR,
-    permissions: ['create_requests', 'view_requests'],
-    isActive: true
-  }
-];
-
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check for stored auth data on app load
-    const storedUser = localStorage.getItem('authUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock authentication - in real app, this would call your API
-    const foundUser = mockUsers.find(u => u.email === email && u.isActive);
-    
-    if (foundUser && password === 'password123') { // Mock password check
-      setUser(foundUser);
-      localStorage.setItem('authUser', JSON.stringify(foundUser));
-      setLoading(false);
-      return true;
-    }
-    
-    setLoading(false);
-    return false;
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('authUser');
-  };
-
-  const hasPermission = (permission: string): boolean => {
-    return user?.permissions.includes(permission) ?? false;
-  };
-
-  const hasRole = (role: UserRole): boolean => {
-    return user?.role === role;
-  };
-
-  return (
-    <AuthContext.Provider value={{
-      user,
-      login,
-      logout,
-      isAuthenticated: !!user,
-      hasPermission,
-      hasRole,
-      loading
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -126,4 +18,77 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        const storedUser = authService.getStoredUser();
+        const token = authService.getStoredToken();
+
+        if (storedUser && token) {
+          // Verify token is still valid by fetching current user
+          const currentUser = await authService.getCurrentUser();
+          setUser(currentUser);
+        }
+      } catch (error) {
+        console.error('Auth initialization error:', error);
+        // Clear invalid stored data
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    try {
+      const response = await authService.login({ email, password });
+      setUser(response.user);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await authService.logout();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+      // Still clear local state even if API call fails
+      setUser(null);
+    }
+  };
+
+  const updateUser = (updatedUser: User) => {
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
+  const value: AuthContextType = {
+    user,
+    isAuthenticated: !!user,
+    isLoading,
+    login,
+    logout,
+    updateUser,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
