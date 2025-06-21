@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import authService, { User } from '../services/authService';
 
@@ -8,6 +9,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (user: User) => void;
+  hasPermission: (permission: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -77,6 +79,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  // Simple permission system based on user role
+  const hasPermission = (permission: string): boolean => {
+    if (!user) return false;
+
+    // Define role-based permissions
+    const rolePermissions: Record<string, string[]> = {
+      'Administrador': ['*'], // Admin has all permissions
+      'Gestor': [
+        'view_reports', 'manage_clients', 'approve_manager', 'create_requests',
+        'view_requests', 'view_calendar'
+      ],
+      'Supervisor': [
+        'approve_requests', 'manage_technicians', 'view_reports', 'view_calendar'
+      ],
+      'Técnico': [
+        'view_requests', 'view_calendar', 'view_reports'
+      ],
+      'Operador': [
+        'view_requests', 'create_requests', 'view_calendar'
+      ]
+    };
+
+    const userPermissions = rolePermissions[user.role] || [];
+    return userPermissions.includes('*') || userPermissions.includes(permission);
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -84,6 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     updateUser,
+    hasPermission,
   };
 
   return (

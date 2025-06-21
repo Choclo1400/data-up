@@ -1,5 +1,6 @@
 
 import api from './api';
+import { UserRole } from '../types';
 
 export interface LoginCredentials {
   email: string;
@@ -18,7 +19,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
   department?: string;
   isActive: boolean;
   twoFactorEnabled: boolean;
@@ -36,7 +37,7 @@ const MOCK_USERS: User[] = [
     id: '1',
     name: 'Admin Usuario',
     email: 'admin@empresa.com',
-    role: 'admin',
+    role: UserRole.ADMIN,
     department: 'Sistemas',
     isActive: true,
     twoFactorEnabled: false,
@@ -45,7 +46,7 @@ const MOCK_USERS: User[] = [
     id: '2',
     name: 'Manager Usuario',
     email: 'manager@empresa.com',
-    role: 'manager',
+    role: UserRole.MANAGER,
     department: 'Operaciones',
     isActive: true,
     twoFactorEnabled: false,
@@ -54,7 +55,7 @@ const MOCK_USERS: User[] = [
     id: '3',
     name: 'Técnico Usuario',
     email: 'tecnico@empresa.com',
-    role: 'technician',
+    role: UserRole.TECHNICIAN,
     department: 'Mantenimiento',
     isActive: true,
     twoFactorEnabled: false,
@@ -63,7 +64,7 @@ const MOCK_USERS: User[] = [
     id: '4',
     name: 'Empleado Usuario',
     email: 'empleado@empresa.com',
-    role: 'employee',
+    role: UserRole.OPERATOR,
     department: 'Producción',
     isActive: true,
     twoFactorEnabled: false,
