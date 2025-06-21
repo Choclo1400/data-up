@@ -33,7 +33,7 @@ interface TwoFactorModalProps {
   loading: boolean;
 }
 
-export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
+const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   isOpen,
   onClose,
   onVerify,
@@ -199,3 +199,6 @@ export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
     </Dialog>
   );
 };
+
+export { TwoFactorModal };
+export default TwoFactorModal;
