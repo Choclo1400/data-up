@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Dialog,
@@ -34,7 +33,7 @@ interface TwoFactorModalProps {
   loading: boolean;
 }
 
-const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
+export const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
   isOpen,
   onClose,
   onVerify,
@@ -200,5 +199,3 @@ const TwoFactorModal: React.FC<TwoFactorModalProps> = ({
     </Dialog>
   );
 };
-
-export default TwoFactorModal;
