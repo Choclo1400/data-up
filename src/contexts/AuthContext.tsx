@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import authService, { User } from '../services/authService';
+import { UserRole } from '../types';
 
 interface AuthContextType {
   user: User | null;
@@ -79,24 +80,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
-  // Simple permission system based on user role
+  // Simple permission system based on user role using UserRole enum
   const hasPermission = (permission: string): boolean => {
     if (!user) return false;
 
-    // Define role-based permissions
-    const rolePermissions: Record<string, string[]> = {
-      'Administrador': ['*'], // Admin has all permissions
-      'Gestor': [
+    // Define role-based permissions using UserRole enum
+    const rolePermissions: Record<UserRole, string[]> = {
+      [UserRole.ADMIN]: ['*'], // Admin has all permissions
+      [UserRole.MANAGER]: [
         'view_reports', 'manage_clients', 'approve_manager', 'create_requests',
         'view_requests', 'view_calendar'
       ],
-      'Supervisor': [
+      [UserRole.SUPERVISOR]: [
         'approve_requests', 'manage_technicians', 'view_reports', 'view_calendar'
       ],
-      'Técnico': [
+      [UserRole.TECHNICIAN]: [
         'view_requests', 'view_calendar', 'view_reports'
       ],
-      'Operador': [
+      [UserRole.OPERATOR]: [
         'view_requests', 'create_requests', 'view_calendar'
       ]
     };
