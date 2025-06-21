@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import requestService, { Request, CreateRequestData, UpdateRequestData } from '../services/requestService';
@@ -6,15 +5,15 @@ import { toast } from 'sonner';
 import { TechnicalRequest, Priority } from '../types/requests';
 
 // Transform TechnicalRequest to service Request format
-const transformToServiceRequest = (techRequest: Partial<TechnicalRequest>): Partial<Request> => {
+const transformToServiceRequest = (techRequest: Partial<TechnicalRequest>): Partial<CreateRequestData | UpdateRequestData> => {
   return {
     title: techRequest.title,
     description: techRequest.description,
     type: techRequest.type,
     priority: transformPriority(techRequest.priority),
-    client: techRequest.clientId,
+    client: typeof techRequest.clientId === 'string' ? techRequest.clientId : techRequest.clientId?._id,
     scheduledDate: techRequest.scheduledDate,
-    // Add other compatible fields as needed
+    assignedTo: typeof techRequest.assignedTo === 'string' ? techRequest.assignedTo : techRequest.assignedTo?._id,
   };
 };
 
@@ -50,8 +49,8 @@ export const useRequests = (params?: {
   const createRequest = async (data: Partial<TechnicalRequest>) => {
     setLoading(true);
     try {
-      const serviceData = transformToServiceRequest(data);
-      await requestService.createRequest(serviceData as CreateRequestData);
+      const serviceData = transformToServiceRequest(data) as CreateRequestData;
+      await requestService.createRequest(serviceData);
       queryClient.invalidateQueries({ queryKey: ['requests'] });
       toast.success('Solicitud creada exitosamente');
     } catch (error: any) {
@@ -65,8 +64,8 @@ export const useRequests = (params?: {
   const updateRequest = async (id: string, data: Partial<TechnicalRequest>) => {
     setLoading(true);
     try {
-      const serviceData = transformToServiceRequest(data);
-      await requestService.updateRequest(id, serviceData as UpdateRequestData);
+      const serviceData = transformToServiceRequest(data) as UpdateRequestData;
+      await requestService.updateRequest(id, serviceData);
       queryClient.invalidateQueries({ queryKey: ['requests'] });
       queryClient.invalidateQueries({ queryKey: ['request', id] });
       toast.success('Solicitud actualizada exitosamente');
