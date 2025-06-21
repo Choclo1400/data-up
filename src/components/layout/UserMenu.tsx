@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { LogOut, Settings, User, Shield } from 'lucide-react'
@@ -45,6 +46,17 @@ function UserMenu() {
       default:
         return 'text-gray-600 dark:text-gray-400'
     }
+  }
+
+  // Mock 2FA handlers for now
+  const handle2FAVerify = async (code: string): Promise<boolean> => {
+    // Mock verification - always succeeds with code 123456
+    return code === '123456'
+  }
+
+  const handle2FAResend = async (): Promise<void> => {
+    // Mock resend
+    console.log('Code resent')
   }
 
   if (!user) return null
@@ -97,7 +109,11 @@ function UserMenu() {
 
       <TwoFactorModal 
         isOpen={show2FAModal} 
-        onClose={() => setShow2FAModal(false)} 
+        onClose={() => setShow2FAModal(false)}
+        onVerify={handle2FAVerify}
+        onResendCode={handle2FAResend}
+        method="2fa-email"
+        loading={false}
       />
     </div>
   )

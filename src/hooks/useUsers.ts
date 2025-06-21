@@ -2,9 +2,28 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import userService, { User as ServiceUser, CreateUserData, UpdateUserData } from '../services/userService';
 import { toast } from 'sonner';
+import { UserRole } from '../types';
 
-// Export the User type for other components to use
-export type User = ServiceUser;
+// Extend the service User type with id property for compatibility
+export interface User extends Omit<ServiceUser, '_id'> {
+  id: string;
+  _id?: string;
+}
+
+// Transform service user to app user format
+const transformUser = (serviceUser: ServiceUser): User => ({
+  ...serviceUser,
+  id: serviceUser._id,
+});
+
+// Transform app user to service format for updates
+const transformUserForService = (user: Partial<User>): Partial<ServiceUser> => {
+  const { id, ...rest } = user;
+  return {
+    ...rest,
+    _id: id,
+  };
+};
 
 export const useUsers = (params?: {
   page?: number;
@@ -15,14 +34,23 @@ export const useUsers = (params?: {
 }) => {
   return useQuery({
     queryKey: ['users', params],
-    queryFn: () => userService.getUsers(params),
+    queryFn: async () => {
+      const result = await userService.getUsers(params);
+      return {
+        ...result,
+        users: result.users.map(transformUser)
+      };
+    },
   });
 };
 
 export const useUser = (id: string) => {
   return useQuery({
     queryKey: ['user', id],
-    queryFn: () => userService.getUserById(id),
+    queryFn: async () => {
+      const user = await userService.getUserById(id);
+      return transformUser(user);
+    },
     enabled: !!id,
   });
 };
@@ -78,7 +106,7 @@ export const useChangeUserRole = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ id, role }: { id: string; role: string }) => 
+    mutationFn: ({ id, role }: { id: string; role: UserRole }) => 
       userService.changeUserRole(id, role),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['users'] });

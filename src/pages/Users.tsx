@@ -15,31 +15,33 @@ import { UserRole } from '@/types';
 import { Users, Plus, Search, Edit, Trash2, UserX, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-// Datos de muestra
+// Datos de muestra con formato correcto
 const sampleUsers: User[] = [
   {
     id: 'USER-001',
+    _id: 'USER-001',
     name: 'Admin Sistema',
     email: 'admin@inmel.cl',
     role: UserRole.ADMIN,
     isActive: true,
+    twoFactorEnabled: false,
+    createdAt: '2023-01-01',
+    updatedAt: '2024-01-15T10:30:00Z',
     permissions: ['create_requests', 'edit_requests', 'delete_requests', 'manage_clients', 'manage_technicians', 'manage_users', 'view_reports', 'system_config'],
-    createdDate: '2023-01-01',
-    lastLogin: '2024-01-15T10:30:00Z',
     department: 'Sistemas',
-    twoFactorEnabled: false
   },
   {
     id: 'USER-002',
+    _id: 'USER-002',
     name: 'Juan Supervisor',
     email: 'juan.supervisor@inmel.cl',
     role: UserRole.SUPERVISOR,
     isActive: true,
+    twoFactorEnabled: false,
+    createdAt: '2023-03-15',
+    updatedAt: '2024-01-14T16:45:00Z',
     permissions: ['create_requests', 'edit_requests', 'manage_technicians', 'view_reports'],
-    createdDate: '2023-03-15',
-    lastLogin: '2024-01-14T16:45:00Z',
     department: 'Operaciones',
-    twoFactorEnabled: false
   }
 ];
 
@@ -77,8 +79,13 @@ const UsersPage: React.FC = () => {
 
   const handleCreateUser = async (data: Partial<User>) => {
     try {
-      const newUser = await createUser.mutateAsync(data);
-      setUsers(prev => [...prev, newUser]);
+      // Add required password field for creation
+      const createData = {
+        ...data,
+        password: 'temp123456' // Temporary password
+      };
+      const newUser = await createUser.mutateAsync(createData);
+      setUsers(prev => [...prev, { ...newUser, id: newUser._id || newUser.id }]);
       toast({
         title: "Usuario creado",
         description: "El usuario ha sido creado exitosamente.",
@@ -295,12 +302,12 @@ const UsersPage: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
-                            {user.permissions.slice(0, 2).map((permission) => (
+                            {user.permissions?.slice(0, 2).map((permission) => (
                               <Badge key={permission} variant="outline" className="text-xs">
                                 {permission.split('_')[0]}
                               </Badge>
                             ))}
-                            {user.permissions.length > 2 && (
+                            {user.permissions && user.permissions.length > 2 && (
                               <Badge variant="outline" className="text-xs">
                                 +{user.permissions.length - 2}
                               </Badge>
@@ -308,7 +315,7 @@ const UsersPage: React.FC = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Nunca'}
+                          {user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : 'Nunca'}
                         </TableCell>
                         <TableCell>
                           <Badge variant={user.isActive ? "default" : "secondary"}>
