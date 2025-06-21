@@ -114,7 +114,10 @@ function App() {
           }
         />
         
+        {/* Ruta específica para 404 - debe aparecer antes del wildcard */}
         <Route path="/404" element={<NotFound />} />
+        
+        {/* Wildcard para rutas no encontradas */}
         <Route path="*" element={<Navigate to="/404" replace />} />
       </Routes>
       
