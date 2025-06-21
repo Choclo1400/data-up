@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Sidebar from '@/components/layout/Sidebar';
@@ -79,13 +80,19 @@ const UsersPage: React.FC = () => {
 
   const handleCreateUser = async (data: Partial<User>) => {
     try {
-      // Add required password field for creation
+      // Ensure required fields are present
       const createData = {
-        ...data,
-        password: 'temp123456' // Temporary password
+        name: data.name || '',
+        email: data.email || '',
+        password: 'temp123456', // Temporary password
+        role: data.role || UserRole.OPERATOR,
+        department: data.department,
+        isActive: data.isActive ?? true,
       };
+      
       const newUser = await createUser.mutateAsync(createData);
-      setUsers(prev => [...prev, { ...newUser, id: newUser._id || newUser.id }]);
+      const userWithId = { ...newUser, id: newUser._id || `USER-${Date.now()}` };
+      setUsers(prev => [...prev, userWithId]);
       toast({
         title: "Usuario creado",
         description: "El usuario ha sido creado exitosamente.",
@@ -372,7 +379,10 @@ const UsersPage: React.FC = () => {
 
       <UserForm
         isOpen={isFormOpen}
-        onClose={closeForm}
+        onClose={() => {
+          setIsFormOpen(false);
+          setEditingUser(null);
+        }}
         onSubmit={editingUser ? handleEditUser : handleCreateUser}
         initialData={editingUser || undefined}
         loading={loading}
@@ -381,11 +391,43 @@ const UsersPage: React.FC = () => {
 
       <RoleChangeDialog
         isOpen={roleChangeDialog.isOpen}
-        onClose={closeRoleChangeDialog}
+        onClose={() => setRoleChangeDialog({
+          isOpen: false,
+          user: null,
+          newRole: UserRole.OPERATOR
+        })}
         user={roleChangeDialog.user}
         newRole={roleChangeDialog.newRole}
-        onRoleChange={handleRoleChange}
-        onConfirm={confirmRoleChange}
+        onRoleChange={(newRole) => setRoleChangeDialog(prev => ({ ...prev, newRole }))}
+        onConfirm={async () => {
+          if (!roleChangeDialog.user) return;
+          
+          const { user, newRole } = roleChangeDialog;
+          
+          try {
+            await changeUserRole.mutateAsync({ id: user.id, role: newRole });
+            setUsers(prev => 
+              prev.map(u => 
+                u.id === user.id ? { ...u, role: newRole } : u
+              )
+            );
+            setRoleChangeDialog({
+              isOpen: false,
+              user: null,
+              newRole: UserRole.OPERATOR
+            });
+            toast({
+              title: "Rol actualizado",
+              description: `El rol del usuario ${user.name} ha sido cambiado a ${newRole}.`,
+            });
+          } catch (error) {
+            toast({
+              title: "Error",
+              description: "No se pudo cambiar el rol del usuario.",
+              variant: "destructive",
+            });
+          }
+        }}
         loading={loading}
       />
     </div>

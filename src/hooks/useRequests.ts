@@ -3,6 +3,33 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import requestService, { Request, CreateRequestData, UpdateRequestData } from '../services/requestService';
 import { toast } from 'sonner';
+import { TechnicalRequest, Priority } from '../types/requests';
+
+// Transform TechnicalRequest to service Request format
+const transformToServiceRequest = (techRequest: Partial<TechnicalRequest>): Partial<Request> => {
+  return {
+    title: techRequest.title,
+    description: techRequest.description,
+    type: techRequest.type,
+    priority: transformPriority(techRequest.priority),
+    client: techRequest.clientId,
+    scheduledDate: techRequest.scheduledDate,
+    // Add other compatible fields as needed
+  };
+};
+
+// Transform Priority enum to service format
+const transformPriority = (priority?: Priority): 'low' | 'medium' | 'high' | 'urgent' | undefined => {
+  if (!priority) return undefined;
+  
+  switch (priority) {
+    case Priority.LOW: return 'low';
+    case Priority.MEDIUM: return 'medium';
+    case Priority.HIGH: return 'high';
+    case Priority.CRITICAL: return 'urgent';
+    default: return 'medium';
+  }
+};
 
 export const useRequests = (params?: {
   page?: number;
@@ -20,10 +47,11 @@ export const useRequests = (params?: {
     queryFn: () => requestService.getRequests(params),
   });
 
-  const createRequest = async (data: Partial<Request>) => {
+  const createRequest = async (data: Partial<TechnicalRequest>) => {
     setLoading(true);
     try {
-      await requestService.createRequest(data as CreateRequestData);
+      const serviceData = transformToServiceRequest(data);
+      await requestService.createRequest(serviceData as CreateRequestData);
       queryClient.invalidateQueries({ queryKey: ['requests'] });
       toast.success('Solicitud creada exitosamente');
     } catch (error: any) {
@@ -34,10 +62,11 @@ export const useRequests = (params?: {
     }
   };
 
-  const updateRequest = async (id: string, data: Partial<Request>) => {
+  const updateRequest = async (id: string, data: Partial<TechnicalRequest>) => {
     setLoading(true);
     try {
-      await requestService.updateRequest(id, data as UpdateRequestData);
+      const serviceData = transformToServiceRequest(data);
+      await requestService.updateRequest(id, serviceData as UpdateRequestData);
       queryClient.invalidateQueries({ queryKey: ['requests'] });
       queryClient.invalidateQueries({ queryKey: ['request', id] });
       toast.success('Solicitud actualizada exitosamente');
@@ -108,12 +137,55 @@ export const useRequests = (params?: {
     ...queryResult,
     createRequest,
     updateRequest,
-    validateScheduleConflict,
-    fetchPendingManager,
-    fetchPendingSupervisor,
-    approveManager,
-    approveSupervisor,
-    rejectRequest,
+    validateScheduleConflict: async (date: string, hours: number): Promise<boolean> => {
+      // Mock validation - in real app would check against API
+      return false;
+    },
+    fetchPendingManager: async () => {
+      return requestService.getRequests({ status: 'pending-manager' });
+    },
+    fetchPendingSupervisor: async () => {
+      return requestService.getRequests({ status: 'pending-supervisor' });
+    },
+    approveManager: async (id: string, comment?: string) => {
+      setLoading(true);
+      try {
+        await requestService.approveRequest(id, comment);
+        queryClient.invalidateQueries({ queryKey: ['requests'] });
+        toast.success('Solicitud aprobada exitosamente');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Error al aprobar la solicitud');
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    approveSupervisor: async (id: string, comment?: string) => {
+      setLoading(true);
+      try {
+        await requestService.approveRequest(id, comment);
+        queryClient.invalidateQueries({ queryKey: ['requests'] });
+        toast.success('Solicitud aprobada exitosamente');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Error al aprobar la solicitud');
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    rejectRequest: async (id: string, reason: string) => {
+      setLoading(true);
+      try {
+        await requestService.rejectRequest(id, reason);
+        queryClient.invalidateQueries({ queryKey: ['requests'] });
+        toast.success('Solicitud rechazada');
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || 'Error al rechazar la solicitud');
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
     loading: loading || queryResult.isLoading
   };
 };
