@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import UserForm from '@/components/users/UserForm';
 import RoleChangeDialog from '@/components/users/RoleChangeDialog';
-import { useUsers, User } from '@/hooks/useUsers';
+import { useCreateUser, useUpdateUser, useDeleteUser, useToggleUserStatus, useChangeUserRole, User } from '@/hooks/useUsers';
 import { UserRole } from '@/types';
 import { Users, Plus, Search, Edit, Trash2, UserX, CheckCircle, XCircle, Shield } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -25,7 +25,9 @@ const sampleUsers: User[] = [
     isActive: true,
     permissions: ['create_requests', 'edit_requests', 'delete_requests', 'manage_clients', 'manage_technicians', 'manage_users', 'view_reports', 'system_config'],
     createdDate: '2023-01-01',
-    lastLogin: '2024-01-15T10:30:00Z'
+    lastLogin: '2024-01-15T10:30:00Z',
+    department: 'Sistemas',
+    twoFactorEnabled: false
   },
   {
     id: 'USER-002',
@@ -35,14 +37,20 @@ const sampleUsers: User[] = [
     isActive: true,
     permissions: ['create_requests', 'edit_requests', 'manage_technicians', 'view_reports'],
     createdDate: '2023-03-15',
-    lastLogin: '2024-01-14T16:45:00Z'
+    lastLogin: '2024-01-14T16:45:00Z',
+    department: 'Operaciones',
+    twoFactorEnabled: false
   }
 ];
 
 const UsersPage: React.FC = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
-  const { createUser, updateUser, deleteUser, toggleUserStatus, changeUserRole, loading } = useUsers();
+  const createUser = useCreateUser();
+  const updateUser = useUpdateUser();
+  const deleteUser = useDeleteUser();
+  const toggleUserStatus = useToggleUserStatus();
+  const changeUserRole = useChangeUserRole();
   
   const [users, setUsers] = useState<User[]>(sampleUsers);
   const [searchTerm, setSearchTerm] = useState('');
@@ -58,6 +66,9 @@ const UsersPage: React.FC = () => {
     newRole: UserRole.OPERATOR
   });
 
+  const loading = createUser.isPending || updateUser.isPending || deleteUser.isPending || 
+                  toggleUserStatus.isPending || changeUserRole.isPending;
+
   const filteredUsers = users.filter(user =>
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -66,7 +77,7 @@ const UsersPage: React.FC = () => {
 
   const handleCreateUser = async (data: Partial<User>) => {
     try {
-      const newUser = await createUser(data);
+      const newUser = await createUser.mutateAsync(data);
       setUsers(prev => [...prev, newUser]);
       toast({
         title: "Usuario creado",
@@ -85,7 +96,7 @@ const UsersPage: React.FC = () => {
     if (!editingUser) return;
     
     try {
-      await updateUser(editingUser.id, data);
+      await updateUser.mutateAsync({ id: editingUser.id, data });
       setUsers(prev => 
         prev.map(user => 
           user.id === editingUser.id ? { ...user, ...data } : user
@@ -109,7 +120,7 @@ const UsersPage: React.FC = () => {
     if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
     
     try {
-      await deleteUser(id);
+      await deleteUser.mutateAsync(id);
       setUsers(prev => prev.filter(user => user.id !== id));
       toast({
         title: "Usuario eliminado",
@@ -126,7 +137,7 @@ const UsersPage: React.FC = () => {
 
   const handleToggleStatus = async (id: string, isActive: boolean) => {
     try {
-      await toggleUserStatus(id, isActive);
+      await toggleUserStatus.mutateAsync(id);
       setUsers(prev => 
         prev.map(user => 
           user.id === id ? { ...user, isActive } : user
@@ -194,7 +205,7 @@ const UsersPage: React.FC = () => {
     const { user, newRole } = roleChangeDialog;
     
     try {
-      await changeUserRole(user.id, user.role, newRole, user.name);
+      await changeUserRole.mutateAsync({ id: user.id, role: newRole });
       setUsers(prev => 
         prev.map(u => 
           u.id === user.id ? { ...u, role: newRole } : u

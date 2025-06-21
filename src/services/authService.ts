@@ -23,6 +23,9 @@ export interface User {
   department?: string;
   isActive: boolean;
   twoFactorEnabled: boolean;
+  permissions: string[];
+  createdDate: string;
+  lastLogin?: string;
 }
 
 export interface AuthResponse {
@@ -41,6 +44,9 @@ const MOCK_USERS: User[] = [
     department: 'Sistemas',
     isActive: true,
     twoFactorEnabled: false,
+    permissions: ['*'],
+    createdDate: '2023-01-01',
+    lastLogin: '2024-01-15T10:30:00Z'
   },
   {
     id: '2',
@@ -50,6 +56,9 @@ const MOCK_USERS: User[] = [
     department: 'Operaciones',
     isActive: true,
     twoFactorEnabled: false,
+    permissions: ['view_reports', 'manage_clients', 'approve_manager', 'create_requests', 'view_requests', 'view_calendar'],
+    createdDate: '2023-03-15',
+    lastLogin: '2024-01-14T16:45:00Z'
   },
   {
     id: '3',
@@ -59,6 +68,9 @@ const MOCK_USERS: User[] = [
     department: 'Mantenimiento',
     isActive: true,
     twoFactorEnabled: false,
+    permissions: ['view_requests', 'view_calendar', 'view_reports'],
+    createdDate: '2023-03-15',
+    lastLogin: '2024-01-13T08:20:00Z'
   },
   {
     id: '4',
@@ -68,6 +80,9 @@ const MOCK_USERS: User[] = [
     department: 'Producción',
     isActive: true,
     twoFactorEnabled: false,
+    permissions: ['view_requests', 'create_requests', 'view_calendar'],
+    createdDate: '2023-03-15',
+    lastLogin: '2024-01-12T14:30:00Z'
   }
 ];
 

@@ -1,6 +1,10 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import userService, { User, CreateUserData, UpdateUserData } from '../services/userService';
+import userService, { User as ServiceUser, CreateUserData, UpdateUserData } from '../services/userService';
 import { toast } from 'sonner';
+
+// Export the User type for other components to use
+export type User = ServiceUser;
 
 export const useUsers = (params?: {
   page?: number;
