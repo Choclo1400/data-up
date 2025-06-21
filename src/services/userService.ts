@@ -1,30 +1,33 @@
+
 import api from './api';
+import { UserRole } from '../types';
 
 export interface User {
   _id: string;
   name: string;
   email: string;
-  role: 'admin' | 'manager' | 'supervisor' | 'technician' | 'operator';
+  role: UserRole;
   department?: string;
   isActive: boolean;
   twoFactorEnabled: boolean;
   lastLogin?: string;
   createdAt: string;
   updatedAt: string;
+  permissions: string[];
 }
 
 export interface CreateUserData {
   name: string;
   email: string;
   password: string;
-  role: string;
+  role: UserRole;
   department?: string;
 }
 
 export interface UpdateUserData {
   name?: string;
   email?: string;
-  role?: string;
+  role?: UserRole;
   department?: string;
   isActive?: boolean;
 }
@@ -60,7 +63,7 @@ class UserService {
     await api.delete(`/users/${id}`);
   }
 
-  async changeUserRole(id: string, role: string): Promise<User> {
+  async changeUserRole(id: string, role: UserRole): Promise<User> {
     const response = await api.put(`/users/${id}/role`, { role });
     return response.data.user;
   }

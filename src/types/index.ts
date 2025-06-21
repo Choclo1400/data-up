@@ -1,3 +1,4 @@
+
 // Forklift Types (mantenemos para referencia)
 export enum ForkliftType {
   GAS = "Gás",
@@ -24,11 +25,11 @@ export interface Forklift {
 
 // User/Operator Types (adaptamos para técnicos)
 export enum UserRole {
-  OPERATOR = "Operador",
-  TECHNICIAN = "Técnico",
-  SUPERVISOR = "Supervisor",
-  MANAGER = "Gestor",
-  ADMIN = "Administrador"
+  OPERATOR = "operator",
+  TECHNICIAN = "technician",
+  SUPERVISOR = "supervisor",
+  MANAGER = "manager",
+  ADMIN = "admin"
 }
 
 export enum CertificateStatus {

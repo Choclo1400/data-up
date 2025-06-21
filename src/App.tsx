@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from './contexts/AuthContext';
 import { Toaster } from './components/ui/sonner';
+import { UserRole } from './types';
 
 // Pages
 import LoginPage from './pages/LoginPage';
@@ -71,7 +72,7 @@ function App() {
         <Route
           path="/users"
           element={
-            <ProtectedRoute requiredRoles={['admin', 'manager']}>
+            <ProtectedRoute requiredRoles={[UserRole.ADMIN, UserRole.MANAGER]}>
               <Users />
             </ProtectedRoute>
           }
@@ -89,7 +90,7 @@ function App() {
         <Route
           path="/analytics"
           element={
-            <ProtectedRoute requiredRoles={['admin', 'manager', 'supervisor']}>
+            <ProtectedRoute requiredRoles={[UserRole.ADMIN, UserRole.MANAGER, UserRole.SUPERVISOR]}>
               <Analytics />
             </ProtectedRoute>
           }
