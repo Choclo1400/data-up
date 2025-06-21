@@ -1,6 +1,8 @@
-
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { LogOut, Settings, User, Shield } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,93 +10,95 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User, Settings, HelpCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useHelpTour } from '@/hooks/useHelpTour';
+} from '@/components/ui/dropdown-menu'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { ModeToggle } from '@/components/mode-toggle'
+import { TwoFactorModal } from '@/components/auth/TwoFactorModal'
 
-const UserMenu: React.FC = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const { startTour } = useHelpTour();
+export function UserMenu() {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+  const [show2FAModal, setShow2FAModal] = useState(false)
 
   const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+    logout()
+    navigate('/login')
+  }
 
-  const handleProfile = () => {
-    navigate('/profile');
-  };
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2)
+  }
 
-  const handleSettings = () => {
-    navigate('/settings');
-  };
+  const getRoleColor = (role: string) => {
+    switch (role) {
+      case 'admin':
+        return 'text-red-600 dark:text-red-400'
+      case 'supervisor':
+        return 'text-blue-600 dark:text-blue-400'
+      case 'manager':
+        return 'text-green-600 dark:text-green-400'
+      default:
+        return 'text-gray-600 dark:text-gray-400'
+    }
+  }
 
-  const handleHelp = () => {
-    navigate('/help');
-  };
-
-  if (!user) return null;
-
-  const initials = user.name
-    .split(' ')
-    .map(name => name[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 2);
+  if (!user) return null
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild data-tour="user-menu">
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-          <Avatar className="h-10 w-10">
-            <AvatarFallback className="bg-primary text-primary-foreground">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700" align="end" forceMount>
-        <DropdownMenuLabel className="font-normal">
-          <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{user.name}</p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.email}
-            </p>
-            <p className="text-xs leading-none text-muted-foreground">
-              {user.role}
-            </p>
-          </div>
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleProfile}>
-          <User className="mr-2 h-4 w-4" />
-          <span>Perfil</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleSettings}>
-          <Settings className="mr-2 h-4 w-4" />
-          <span>Configuración</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleHelp}>
-          <HelpCircle className="mr-2 h-4 w-4" />
-          <span>Centro de Ayuda</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={startTour}>
-          <HelpCircle className="mr-2 h-4 w-4" />
-          <span>Tour Guiado</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>Cerrar Sesión</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
+    <div className="flex items-center gap-2">
+      <ModeToggle />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {getInitials(user.name)}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuLabel className="font-normal">
+            <div className="flex flex-col space-y-1">
+              <p className="text-sm font-medium leading-none">{user.name}</p>
+              <p className="text-xs leading-none text-muted-foreground">
+                {user.email}
+              </p>
+              <p className={`text-xs leading-none capitalize ${getRoleColor(user.role)}`}>
+                {user.role}
+              </p>
+            </div>
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => navigate('/profile')}>
+            <User className="mr-2 h-4 w-4" />
+            <span>Perfil</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => navigate('/settings')}>
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Configuración</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShow2FAModal(true)}>
+            <Shield className="mr-2 h-4 w-4" />
+            <span>Autenticación 2FA</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>Cerrar sesión</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-export default UserMenu;
+      <TwoFactorModal 
+        isOpen={show2FAModal} 
+        onClose={() => setShow2FAModal(false)} 
+      />
+    </div>
+  )
+}

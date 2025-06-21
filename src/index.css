@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,92 +5,57 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222 33% 18%;
-
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 222 33% 18%;
-
+    --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 33% 18%;
-
-    --primary: 216 89% 58%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 20% 96%;
-    --secondary-foreground: 222 33% 18%;
-
-    --muted: 210 20% 96%;
-    --muted-foreground: 218 11% 45%;
-
-    --accent: 216 89% 96%;
-    --accent-foreground: 216 89% 46%;
-
-    --destructive: 0 84% 60%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 216 89% 58%;
-
-    --radius: 0.75rem;
-
-    --sidebar-background: 216 89% 58%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 222 33% 18%;
-    --sidebar-accent: 216 89% 46%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 216 89% 46%;
-    --sidebar-ring: 210 40% 98%;
-
-    --status-operational: 142 71% 45%;
-    --status-maintenance: 41 100% 55%;
-    --status-inactive: 0 0% 70%;
-    --status-warning: 0 84% 60%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.5rem;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
   .dark {
-    --background: 222 33% 10%;
+    --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
-    --card: 222 33% 14%;
+    --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
-    --popover: 222 33% 14%;
+    --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
-    --primary: 216 89% 58%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 222 33% 18%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
-    --muted: 222 33% 18%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 216 89% 24%;
-    --accent-foreground: 216 89% 96%;
-
-    --destructive: 0 62% 50%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 222 33% 20%;
-    --input: 222 33% 20%;
-    --ring: 216 89% 58%;
-
-    --sidebar-background: 222 33% 14%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 216 89% 58%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 222 33% 20%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 33% 20%;
-    --sidebar-ring: 216 89% 58%;
-
-    --status-operational: 142 71% 45%;
-    --status-maintenance: 41 100% 55%;
-    --status-inactive: 0 0% 50%;
-    --status-warning: 0 84% 60%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
   }
 }
 
@@ -99,152 +63,52 @@
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-background text-foreground font-sans;
-  }
-
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/20 rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/30;
+    @apply bg-background text-foreground;
   }
 }
 
-@layer components {
-  .glass-card {
-    @apply bg-white/80 dark:bg-card/80 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-glass;
-  }
-
-  .glass-card-hover {
-    @apply transition-all duration-300 hover:shadow-glass-hover hover:bg-white/90 dark:hover:bg-card/90;
-  }
-
-  .neo-card {
-    @apply bg-secondary shadow-neo transition-all duration-300;
-  }
-
-  .neo-card-active {
-    @apply shadow-neo-pressed;
-  }
-  
-  .slide-enter {
-    animation: slide-in-bottom 0.4s ease-out forwards;
-  }
-  
-  .counter-digit {
-    @apply inline-block overflow-hidden relative h-8;
-  }
-  
-  .counter-column {
-    @apply transition-transform duration-300 ease-out;
-  }
-
-  /* Nuevas animaciones para UX mejorado */
-  .animate-slide-out-right {
-    animation: slide-out-right 0.3s ease-out forwards;
-  }
-
-  .hover-lift {
-    @apply transition-all duration-200 hover:-translate-y-1 hover:shadow-lg;
-  }
-
-  .hover-glow {
-    @apply transition-all duration-300 hover:shadow-glow-info;
-  }
-
-  .button-success {
-    @apply bg-success-600 hover:bg-success-700 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg;
-  }
-
-  .button-error {
-    @apply bg-error-600 hover:bg-error-700 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg;
-  }
-
-  .button-warning {
-    @apply bg-warning-600 hover:bg-warning-700 text-white transition-all duration-200 hover:scale-105 shadow-md hover:shadow-lg;
-  }
-
-  .badge-success {
-    @apply bg-success-100 text-success-800 border border-success-200;
-  }
-
-  .badge-error {
-    @apply bg-error-100 text-error-800 border border-error-200;
-  }
-
-  .badge-warning {
-    @apply bg-warning-100 text-warning-800 border border-warning-200;
-  }
-
-  .badge-info {
-    @apply bg-info-100 text-info-800 border border-info-200;
-  }
+/* Animaciones suaves para transiciones de tema */
+* {
+  transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
-/* Animaciones adicionales */
-@keyframes slide-out-right {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
+/* Estilos para el scroll personalizado */
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-@keyframes shrink {
-  from { width: 100%; }
-  to { width: 0%; }
+::-webkit-scrollbar-track {
+  @apply bg-secondary;
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full;
 }
 
-.animate-float {
-  animation: float 3s ease-in-out infinite;
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/50;
 }
 
-/* Font imports */
-@font-face {
-  font-family: 'SF Pro Display';
-  src: url('https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-regular-webfont.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
+/* Estilos para elementos de formulario en modo oscuro */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="date"],
+.dark input[type="datetime-local"],
+.dark textarea,
+.dark select {
+  @apply bg-background border-border text-foreground;
 }
 
-@font-face {
-  font-family: 'SF Pro Display';
-  src: url('https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-medium-webfont.woff2') format('woff2');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'SF Pro Display';
-  src: url('https://applesocial.s3.amazonaws.com/assets/styles/fonts/sanfrancisco/sanfranciscodisplay-bold-webfont.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-html {
-  font-family: 'SF Pro Display', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="number"]:focus,
+.dark input[type="date"]:focus,
+.dark input[type="datetime-local"]:focus,
+.dark textarea:focus,
+.dark select:focus {
+  @apply ring-ring border-ring;
 }
