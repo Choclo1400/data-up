@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { ModeToggle } from '@/components/mode-toggle'
 import { TwoFactorModal } from '@/components/auth/TwoFactorModal'
 
-export function UserMenu() {
+function UserMenu() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [show2FAModal, setShow2FAModal] = useState(false)
@@ -102,3 +102,5 @@ export function UserMenu() {
     </div>
   )
 }
+
+export default UserMenu
