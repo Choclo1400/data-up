@@ -70,3 +70,5 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     </div>
   );
 };
+
+export default DateRangePicker;
