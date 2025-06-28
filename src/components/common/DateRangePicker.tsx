@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { format } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
@@ -16,7 +15,7 @@ interface DateRangePickerProps {
   label?: string;
 }
 
-const DateRangePicker: React.FC<DateRangePickerProps> = ({
+export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   from,
   to,
   onDateChange,
@@ -71,5 +70,3 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({
     </div>
   );
 };
-
-export default DateRangePicker;
