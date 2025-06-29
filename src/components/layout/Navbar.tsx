@@ -12,7 +12,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext'
 import { ModeToggle } from '@/components/mode-toggle'
 
-export const Navbar: React.FC = () => {
+const Navbar: React.FC = () => {
   const { user, signOut } = useAuth()
 
   return (
@@ -57,3 +57,5 @@ export const Navbar: React.FC = () => {
     </header>
   )
 }
+
+export default Navbar
