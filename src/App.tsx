@@ -8,20 +8,20 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { LoadingSpinner } from '@/components/ui/loading-state';
 
 // Lazy load components for better performance
-const ProtectedRoute = React.lazy(() => import('@/components/auth/ProtectedRoute'));
-const Navbar = React.lazy(() => import('@/components/layout/Navbar'));
-const Sidebar = React.lazy(() => import('@/components/layout/Sidebar'));
-const NotificationCenter = React.lazy(() => import('@/components/notifications/NotificationCenter'));
+const ProtectedRoute = React.lazy(() => import('@/components/auth/ProtectedRoute').then(module => ({ default: module.default })));
+const Navbar = React.lazy(() => import('@/components/layout/Navbar').then(module => ({ default: module.default })));
+const Sidebar = React.lazy(() => import('@/components/layout/Sidebar').then(module => ({ default: module.default })));
+const NotificationCenter = React.lazy(() => import('@/components/notifications/NotificationCenter').then(module => ({ default: module.default })));
 
-const Index = React.lazy(() => import('@/pages/Index'));
-const LoginPage = React.lazy(() => import('@/pages/LoginPage'));
-const Users = React.lazy(() => import('@/pages/Users'));
-const Clients = React.lazy(() => import('@/pages/Clients'));
-const Requests = React.lazy(() => import('@/pages/Requests'));
-const Technicians = React.lazy(() => import('@/pages/Technicians'));
-const ReportsPage = React.lazy(() => import('@/pages/ReportsPage'));
-const Settings = React.lazy(() => import('@/pages/Settings'));
-const NotFound = React.lazy(() => import('@/pages/NotFound'));
+const Index = React.lazy(() => import('@/pages/Index').then(module => ({ default: module.default })));
+const LoginPage = React.lazy(() => import('@/pages/LoginPage').then(module => ({ default: module.default })));
+const Users = React.lazy(() => import('@/pages/Users').then(module => ({ default: module.default })));
+const Clients = React.lazy(() => import('@/pages/Clients').then(module => ({ default: module.default })));
+const Requests = React.lazy(() => import('@/pages/Requests').then(module => ({ default: module.default })));
+const Technicians = React.lazy(() => import('@/pages/Technicians').then(module => ({ default: module.default })));
+const ReportsPage = React.lazy(() => import('@/pages/ReportsPage').then(module => ({ default: module.default })));
+const Settings = React.lazy(() => import('@/pages/Settings').then(module => ({ default: module.default })));
+const NotFound = React.lazy(() => import('@/pages/NotFound').then(module => ({ default: module.default })));
 
 // Create a stable query client instance
 const queryClient = new QueryClient({
