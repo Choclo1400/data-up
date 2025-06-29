@@ -7,21 +7,84 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { LoadingSpinner } from '@/components/ui/loading-state';
 
-// Lazy load components for better performance
-const ProtectedRoute = React.lazy(() => import('@/components/auth/ProtectedRoute'));
-const Navbar = React.lazy(() => import('@/components/layout/Navbar'));
-const Sidebar = React.lazy(() => import('@/components/layout/Sidebar'));
-const NotificationCenter = React.lazy(() => import('@/components/notifications/NotificationCenter'));
+// Lazy load components for better performance with proper error handling
+const ProtectedRoute = React.lazy(() => 
+  import('@/components/auth/ProtectedRoute').catch(() => ({
+    default: () => <div>Error loading Protected Route</div>
+  }))
+);
 
-const Index = React.lazy(() => import('@/pages/Index'));
-const LoginPage = React.lazy(() => import('@/pages/LoginPage'));
-const Users = React.lazy(() => import('@/pages/Users'));
-const Clients = React.lazy(() => import('@/pages/Clients'));
-const Requests = React.lazy(() => import('@/pages/Requests'));
-const Technicians = React.lazy(() => import('@/pages/Technicians'));
-const ReportsPage = React.lazy(() => import('@/pages/ReportsPage'));
-const Settings = React.lazy(() => import('@/pages/Settings'));
-const NotFound = React.lazy(() => import('@/pages/NotFound'));
+const Navbar = React.lazy(() => 
+  import('@/components/layout/Navbar').catch(() => ({
+    default: () => <div>Error loading Navbar</div>
+  }))
+);
+
+const Sidebar = React.lazy(() => 
+  import('@/components/layout/Sidebar').catch(() => ({
+    default: () => <div>Error loading Sidebar</div>
+  }))
+);
+
+const NotificationCenter = React.lazy(() => 
+  import('@/components/notifications/NotificationCenter').catch(() => ({
+    default: () => null
+  }))
+);
+
+const Index = React.lazy(() => 
+  import('@/pages/Index').catch(() => ({
+    default: () => <div>Error loading Dashboard</div>
+  }))
+);
+
+const LoginPage = React.lazy(() => 
+  import('@/pages/LoginPage').catch(() => ({
+    default: () => <div>Error loading Login Page</div>
+  }))
+);
+
+const Users = React.lazy(() => 
+  import('@/pages/Users').catch(() => ({
+    default: () => <div>Error loading Users</div>
+  }))
+);
+
+const Clients = React.lazy(() => 
+  import('@/pages/Clients').catch(() => ({
+    default: () => <div>Error loading Clients</div>
+  }))
+);
+
+const Requests = React.lazy(() => 
+  import('@/pages/Requests').catch(() => ({
+    default: () => <div>Error loading Requests</div>
+  }))
+);
+
+const Technicians = React.lazy(() => 
+  import('@/pages/Technicians').catch(() => ({
+    default: () => <div>Error loading Technicians</div>
+  }))
+);
+
+const ReportsPage = React.lazy(() => 
+  import('@/pages/ReportsPage').catch(() => ({
+    default: () => <div>Error loading Reports</div>
+  }))
+);
+
+const Settings = React.lazy(() => 
+  import('@/pages/Settings').catch(() => ({
+    default: () => <div>Error loading Settings</div>
+  }))
+);
+
+const NotFound = React.lazy(() => 
+  import('@/pages/NotFound').catch(() => ({
+    default: () => <div>Page Not Found</div>
+  }))
+);
 
 // Create a stable query client instance
 const queryClient = new QueryClient({
@@ -48,7 +111,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = React.memo(({ childre
         <Sidebar />
       </Suspense>
       <main className="flex-1 p-6">
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </main>
     </div>
     <Suspense fallback={null}>
@@ -75,16 +140,18 @@ function App() {
                       element={
                         <ProtectedRoute>
                           <AppLayout>
-                            <Routes>
-                              <Route path="/" element={<Index />} />
-                              <Route path="/users" element={<Users />} />
-                              <Route path="/clients" element={<Clients />} />
-                              <Route path="/requests" element={<Requests />} />
-                              <Route path="/technicians" element={<Technicians />} />
-                              <Route path="/reports" element={<ReportsPage />} />
-                              <Route path="/settings" element={<Settings />} />
-                              <Route path="*" element={<NotFound />} />
-                            </Routes>
+                            <Suspense fallback={<LoadingSpinner />}>
+                              <Routes>
+                                <Route path="/" element={<Index />} />
+                                <Route path="/users" element={<Users />} />
+                                <Route path="/clients" element={<Clients />} />
+                                <Route path="/requests" element={<Requests />} />
+                                <Route path="/technicians" element={<Technicians />} />
+                                <Route path="/reports" element={<ReportsPage />} />
+                                <Route path="/settings" element={<Settings />} />
+                                <Route path="*" element={<NotFound />} />
+                              </Routes>
+                            </Suspense>
                           </AppLayout>
                         </ProtectedRoute>
                       }
