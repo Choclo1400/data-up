@@ -10,19 +10,19 @@ import { LoadingSpinner } from '@/components/ui/loading-state';
 // Lazy load components for better performance with proper error handling
 const ProtectedRoute = React.lazy(() => 
   import('@/components/auth/ProtectedRoute').catch(() => ({
-    default: () => <div>Error loading Protected Route</div>
+    default: () => React.createElement('div', null, 'Error loading Protected Route')
   }))
 );
 
 const Navbar = React.lazy(() => 
   import('@/components/layout/Navbar').catch(() => ({
-    default: () => <div>Error loading Navbar</div>
+    default: () => React.createElement('div', null, 'Error loading Navbar')
   }))
 );
 
 const Sidebar = React.lazy(() => 
   import('@/components/layout/Sidebar').catch(() => ({
-    default: () => <div>Error loading Sidebar</div>
+    default: () => React.createElement('div', null, 'Error loading Sidebar')
   }))
 );
 
@@ -34,55 +34,55 @@ const NotificationCenter = React.lazy(() =>
 
 const Index = React.lazy(() => 
   import('@/pages/Index').catch(() => ({
-    default: () => <div>Error loading Dashboard</div>
+    default: () => React.createElement('div', null, 'Error loading Dashboard')
   }))
 );
 
 const LoginPage = React.lazy(() => 
   import('@/pages/LoginPage').catch(() => ({
-    default: () => <div>Error loading Login Page</div>
+    default: () => React.createElement('div', null, 'Error loading Login Page')
   }))
 );
 
 const Users = React.lazy(() => 
   import('@/pages/Users').catch(() => ({
-    default: () => <div>Error loading Users</div>
+    default: () => React.createElement('div', null, 'Error loading Users')
   }))
 );
 
 const Clients = React.lazy(() => 
   import('@/pages/Clients').catch(() => ({
-    default: () => <div>Error loading Clients</div>
+    default: () => React.createElement('div', null, 'Error loading Clients')
   }))
 );
 
 const Requests = React.lazy(() => 
   import('@/pages/Requests').catch(() => ({
-    default: () => <div>Error loading Requests</div>
+    default: () => React.createElement('div', null, 'Error loading Requests')
   }))
 );
 
 const Technicians = React.lazy(() => 
   import('@/pages/Technicians').catch(() => ({
-    default: () => <div>Error loading Technicians</div>
+    default: () => React.createElement('div', null, 'Error loading Technicians')
   }))
 );
 
 const ReportsPage = React.lazy(() => 
   import('@/pages/ReportsPage').catch(() => ({
-    default: () => <div>Error loading Reports</div>
+    default: () => React.createElement('div', null, 'Error loading Reports')
   }))
 );
 
 const Settings = React.lazy(() => 
   import('@/pages/Settings').catch(() => ({
-    default: () => <div>Error loading Settings</div>
+    default: () => React.createElement('div', null, 'Error loading Settings')
   }))
 );
 
 const NotFound = React.lazy(() => 
   import('@/pages/NotFound').catch(() => ({
-    default: () => <div>Page Not Found</div>
+    default: () => React.createElement('div', null, 'Page Not Found')
   }))
 );
 
