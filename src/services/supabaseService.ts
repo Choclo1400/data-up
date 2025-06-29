@@ -336,6 +336,9 @@ export const notificationService = {
   }
 };
 
+// Export notificationService as notificationsService for backward compatibility
+export const notificationsService = notificationService;
+
 // Audit Log Management
 export const auditService = {
   async getAuditLogs(limit = 100) {
