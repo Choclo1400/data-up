@@ -301,6 +301,9 @@ export const requestService = {
   }
 };
 
+// Export requestService as requestsService for backward compatibility
+export const requestsService = requestService;
+
 // Notification Management
 export const notificationService = {
   async getNotifications(userId: string) {
