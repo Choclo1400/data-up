@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Building2, Zap, Power, Cpu, Factory } from 'lucide-react';
 import { ClientType } from '@/types/requests';
@@ -9,7 +8,7 @@ interface ClientTypeIconProps {
   className?: string;
 }
 
-const ClientTypeIcon: React.FC<ClientTypeIconProps> = ({ type, className }) => {
+export const ClientTypeIcon: React.FC<ClientTypeIconProps> = ({ type, className }) => {
   const getIcon = () => {
     switch (type) {
       case ClientType.ENEL:
