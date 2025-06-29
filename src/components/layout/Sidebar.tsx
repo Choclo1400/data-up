@@ -21,7 +21,7 @@ const navigation = [
   { name: 'Configuración', href: '/settings', icon: Settings },
 ]
 
-export const Sidebar: React.FC = () => {
+const Sidebar: React.FC = () => {
   return (
     <div className="flex h-full w-64 flex-col bg-background border-r">
       <div className="flex h-14 items-center border-b px-4">
@@ -50,3 +50,5 @@ export const Sidebar: React.FC = () => {
     </div>
   )
 }
+
+export default Sidebar
