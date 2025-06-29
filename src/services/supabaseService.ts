@@ -356,3 +356,4 @@ export const notificationService = {
 export const clientsService = clientService;
 export const notificationsService = notificationService;
 export const requestsService = requestService;
+export const usersService = userService;
