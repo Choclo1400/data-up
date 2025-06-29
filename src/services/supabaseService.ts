@@ -188,6 +188,9 @@ export const clientService = {
   }
 };
 
+// Export clientService as clientsService for backward compatibility
+export const clientsService = clientService;
+
 // Service Request Management
 export const requestService = {
   async getRequests() {
