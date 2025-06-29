@@ -1,197 +1,188 @@
-
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Technician, RequestType } from '@/types/requests';
-import { Loader2 } from 'lucide-react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { useUsers } from '@/hooks/useUsers';
+
+const technicianSchema = z.object({
+  name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
+  email: z.string().email('Email inválido'),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+  role: z.enum(['technician', 'supervisor'], {
+    required_error: 'Selecciona un rol',
+  }),
+  specialization: z.string().optional(),
+  phone: z.string().optional(),
+});
+
+type TechnicianFormData = z.infer<typeof technicianSchema>;
 
 interface TechnicianFormProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSubmit: (data: Partial<Technician>) => Promise<void>;
-  initialData?: Partial<Technician>;
-  loading?: boolean;
-  title?: string;
+  onSuccess?: () => void;
+  initialData?: Partial<TechnicianFormData>;
+  isEditing?: boolean;
+  technicianId?: string;
 }
 
-interface FormData {
-  name: string;
-  email: string;
-  phone: string;
-  region: string;
-  specialties: RequestType[];
-  maxConcurrentRequests: number;
-}
-
-const regiones = [
-  "Región de Arica y Parinacota", "Región de Tarapacá", "Región de Antofagasta",
-  "Región de Atacama", "Región de Coquimbo", "Región de Valparaíso",
-  "Región Metropolitana", "Región del Libertador", "Región del Maule",
-  "Región del Biobío", "Región de La Araucanía", "Región de Los Ríos",
-  "Región de Los Lagos", "Región de Aysén", "Región de Magallanes"
-];
-
-const TechnicianForm: React.FC<TechnicianFormProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
+export const TechnicianForm: React.FC<TechnicianFormProps> = ({
+  onSuccess,
   initialData,
-  loading = false,
-  title = "Nuevo Técnico"
+  isEditing = false,
+  technicianId,
 }) => {
-  const { register, handleSubmit, formState: { errors }, setValue, watch, reset } = useForm<FormData>({
-    defaultValues: {
-      name: initialData?.name || '',
-      email: initialData?.email || '',
-      phone: initialData?.phone || '',
-      region: initialData?.region || regiones[0], // Set default to first region
-      specialties: initialData?.specialties || [],
-      maxConcurrentRequests: initialData?.maxConcurrentRequests || 5
-    }
+  const [isLoading, setIsLoading] = useState(false);
+  const { createUser, updateUser } = useUsers();
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm<TechnicianFormData>({
+    resolver: zodResolver(technicianSchema),
+    defaultValues: initialData,
   });
 
-  const watchedSpecialties = watch('specialties') || [];
-  const watchedRegion = watch('region');
-
-  const handleFormSubmit = async (data: FormData) => {
-    await onSubmit(data);
-    reset();
-    onClose();
-  };
-
-  const handleClose = () => {
-    reset();
-    onClose();
-  };
-
-  const toggleSpecialty = (specialty: RequestType) => {
-    const currentSpecialties = watchedSpecialties;
-    const newSpecialties = currentSpecialties.includes(specialty)
-      ? currentSpecialties.filter(s => s !== specialty)
-      : [...currentSpecialties, specialty];
-    setValue('specialties', newSpecialties);
+  const onSubmit = async (data: TechnicianFormData) => {
+    setIsLoading(true);
+    try {
+      if (isEditing && technicianId) {
+        await updateUser.mutateAsync({
+          id: technicianId,
+          ...data,
+        });
+        toast.success('Técnico actualizado exitosamente');
+      } else {
+        await createUser.mutateAsync({
+          ...data,
+          is_active: true,
+        });
+        toast.success('Técnico creado exitosamente');
+      }
+      onSuccess?.();
+    } catch (error) {
+      toast.error(isEditing ? 'Error al actualizar técnico' : 'Error al crear técnico');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardHeader>
+        <CardTitle>
+          {isEditing ? 'Editar Técnico' : 'Nuevo Técnico'}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="name">Nombre Completo</Label>
+            <div className="space-y-2">
+              <Label htmlFor="name">Nombre completo</Label>
               <Input
                 id="name"
-                {...register("name", { required: "El nombre es obligatorio" })}
-                placeholder="Ej: Juan Pérez"
+                {...register('name')}
+                placeholder="Nombre del técnico"
               />
               {errors.name && (
-                <p className="text-sm text-destructive mt-1">{errors.name.message}</p>
+                <p className="text-sm text-red-500">{errors.name.message}</p>
               )}
             </div>
 
-            <div>
-              <Label htmlFor="email">Correo Electrónico</Label>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                {...register("email", { 
-                  required: "El correo es obligatorio",
-                  pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                    message: "Correo electrónico inválido"
-                  }
-                })}
-                placeholder="juan.perez@inmel.cl"
+                {...register('email')}
+                placeholder="email@ejemplo.com"
               />
               {errors.email && (
-                <p className="text-sm text-destructive mt-1">{errors.email.message}</p>
+                <p className="text-sm text-red-500">{errors.email.message}</p>
+              )}
+            </div>
+          </div>
+
+          {!isEditing && (
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input
+                id="password"
+                type="password"
+                {...register('password')}
+                placeholder="Contraseña"
+              />
+              {errors.password && (
+                <p className="text-sm text-red-500">{errors.password.message}</p>
+              )}
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="role">Rol</Label>
+              <Select
+                value={watch('role')}
+                onValueChange={(value) => setValue('role', value as 'technician' | 'supervisor')}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona un rol" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="technician">Técnico</SelectItem>
+                  <SelectItem value="supervisor">Supervisor</SelectItem>
+                </SelectContent>
+              </Select>
+              {errors.role && (
+                <p className="text-sm text-red-500">{errors.role.message}</p>
               )}
             </div>
 
-            <div>
+            <div className="space-y-2">
               <Label htmlFor="phone">Teléfono</Label>
               <Input
                 id="phone"
-                {...register("phone", { required: "El teléfono es obligatorio" })}
-                placeholder="+56 9 1234 5678"
+                {...register('phone')}
+                placeholder="Número de teléfono"
               />
               {errors.phone && (
-                <p className="text-sm text-destructive mt-1">{errors.phone.message}</p>
+                <p className="text-sm text-red-500">{errors.phone.message}</p>
               )}
-            </div>
-
-            <div>
-              <Label htmlFor="region">Región</Label>
-              <Select value={watchedRegion} onValueChange={(value) => setValue("region", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar región" />
-                </SelectTrigger>
-                <SelectContent>
-                  {regiones.filter(region => region && region.trim() !== '').map((region) => (
-                    <SelectItem key={region} value={region}>{region}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="maxConcurrentRequests">Máximo de Solicitudes Concurrentes</Label>
-              <Input
-                id="maxConcurrentRequests"
-                type="number"
-                min="1"
-                max="20"
-                {...register("maxConcurrentRequests", { 
-                  required: "Este campo es obligatorio",
-                  valueAsNumber: true,
-                  min: { value: 1, message: "Debe ser al menos 1" },
-                  max: { value: 20, message: "No puede ser mayor a 20" }
-                })}
-              />
-              {errors.maxConcurrentRequests && (
-                <p className="text-sm text-destructive mt-1">{errors.maxConcurrentRequests.message}</p>
-              )}
-            </div>
-
-            <div className="md:col-span-2">
-              <Label>Especialidades</Label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2">
-                {Object.values(RequestType).filter(specialty => specialty && specialty.trim() !== '').map((specialty) => (
-                  <div key={specialty} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={specialty}
-                      checked={watchedSpecialties.includes(specialty)}
-                      onCheckedChange={() => toggleSpecialty(specialty)}
-                    />
-                    <Label htmlFor={specialty} className="text-sm">{specialty}</Label>
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={handleClose}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={loading}>
-              {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {initialData ? 'Actualizar' : 'Crear'} Técnico
+          <div className="space-y-2">
+            <Label htmlFor="specialization">Especialización</Label>
+            <Textarea
+              id="specialization"
+              {...register('specialization')}
+              placeholder="Describe las especialidades del técnico..."
+              rows={3}
+            />
+            {errors.specialization && (
+              <p className="text-sm text-red-500">{errors.specialization.message}</p>
+            )}
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="min-w-[120px]"
+            >
+              {isLoading ? 'Guardando...' : isEditing ? 'Actualizar' : 'Crear Técnico'}
             </Button>
           </div>
         </form>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+    </Card>
   );
 };
-
-export default TechnicianForm;
