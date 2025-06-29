@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { Navbar } from '@/components/layout/Navbar'
-import { Sidebar } from '@/components/layout/Sidebar'
-import { NotificationCenter } from '@/components/notifications/NotificationCenter'
+import ProtectedRoute from '@/components/auth/ProtectedRoute'
+import Navbar from '@/components/layout/Navbar'
+import Sidebar from '@/components/layout/Sidebar'
+import NotificationCenter from '@/components/notifications/NotificationCenter'
 
 // Pages
 import LoginPage from '@/pages/LoginPage'
