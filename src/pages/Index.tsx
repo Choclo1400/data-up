@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, ClipboardList, Building2, TrendingUp } from 'lucide-react'
 import { useUsers, useClients, useRequests } from '@/hooks/useSupabaseQuery'
 
-export const Index: React.FC = () => {
+const Index: React.FC = () => {
   const { data: users } = useUsers()
   const { data: clients } = useClients()
   const { data: requests } = useRequests()
@@ -107,3 +107,5 @@ export const Index: React.FC = () => {
     </div>
   )
 }
+
+export default Index

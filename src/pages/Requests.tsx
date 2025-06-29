@@ -14,7 +14,7 @@ import {
 import { useRequests } from '@/hooks/useSupabaseQuery'
 import { LoadingState } from '@/components/ui/loading-state'
 
-export const Requests: React.FC = () => {
+const Requests: React.FC = () => {
   const { data: requests, isLoading, error } = useRequests()
 
   if (isLoading) return <LoadingState />
@@ -141,3 +141,5 @@ export const Requests: React.FC = () => {
     </div>
   )
 }
+
+export default Requests

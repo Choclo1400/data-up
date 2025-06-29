@@ -14,7 +14,7 @@ import {
 import { useUsers } from '@/hooks/useSupabaseQuery'
 import { LoadingState } from '@/components/ui/loading-state'
 
-export const Users: React.FC = () => {
+const Users: React.FC = () => {
   const { data: users, isLoading, error } = useUsers()
 
   if (isLoading) return <LoadingState />
@@ -101,3 +101,5 @@ export const Users: React.FC = () => {
     </div>
   )
 }
+
+export default Users

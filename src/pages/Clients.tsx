@@ -14,7 +14,7 @@ import {
 import { useClients } from '@/hooks/useSupabaseQuery'
 import { LoadingState } from '@/components/ui/loading-state'
 
-export const Clients: React.FC = () => {
+const Clients: React.FC = () => {
   const { data: clients, isLoading, error } = useClients()
 
   if (isLoading) return <LoadingState />
@@ -98,3 +98,5 @@ export const Clients: React.FC = () => {
     </div>
   )
 }
+
+export default Clients

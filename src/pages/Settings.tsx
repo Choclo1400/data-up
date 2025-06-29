@@ -6,7 +6,7 @@ import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 
-export const Settings: React.FC = () => {
+const Settings: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
@@ -119,3 +119,5 @@ export const Settings: React.FC = () => {
     </div>
   )
 }
+
+export default Settings

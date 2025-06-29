@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useRequests, useClients, useUsers } from '@/hooks/useSupabaseQuery'
 
-export const ReportsPage: React.FC = () => {
+const ReportsPage: React.FC = () => {
   const { data: requests } = useRequests()
   const { data: clients } = useClients()
   const { data: users } = useUsers()
@@ -108,3 +108,5 @@ export const ReportsPage: React.FC = () => {
     </div>
   )
 }
+
+export default ReportsPage
