@@ -1,69 +1,146 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { 
+  usersService, 
+  clientsService, 
+  requestsService, 
+  notificationsService, 
+  auditService 
+} from '@/services/supabaseService'
 
-// Generic hook for Supabase queries
-export function useSupabaseQuery<T>(
-  queryKey: string[],
-  queryFn: () => Promise<{ success: boolean; data?: T; error?: string }>,
-  options?: {
-    enabled?: boolean
-    staleTime?: number
-    refetchInterval?: number
-  }
-) {
+// Users hooks
+export const useUsers = () => {
   return useQuery({
-    queryKey,
-    queryFn: async () => {
-      const result = await queryFn()
-      if (!result.success) {
-        throw new Error(result.error)
-      }
-      return result.data
-    },
-    staleTime: options?.staleTime ?? 5 * 60 * 1000, // 5 minutes
-    enabled: options?.enabled,
-    refetchInterval: options?.refetchInterval,
+    queryKey: ['users'],
+    queryFn: () => usersService.getUsers()
   })
 }
 
-// Generic hook for Supabase mutations
-export function useSupabaseMutation<TData, TVariables>(
-  mutationFn: (variables: TVariables) => Promise<{ success: boolean; data?: TData; error?: string }>,
-  options?: {
-    onSuccess?: (data: TData) => void
-    onError?: (error: string) => void
-    invalidateQueries?: string[][]
-    successMessage?: string
-    errorMessage?: string
-  }
-) {
-  const queryClient = useQueryClient()
+export const useUser = (id: string) => {
+  return useQuery({
+    queryKey: ['user', id],
+    queryFn: () => usersService.getUserById(id),
+    enabled: !!id
+  })
+}
 
+export const useCreateUser = () => {
+  const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (variables: TVariables) => {
-      const result = await mutationFn(variables)
-      if (!result.success) {
-        throw new Error(result.error)
-      }
-      return result.data
-    },
-    onSuccess: (data) => {
-      if (options?.successMessage) {
-        toast.success(options.successMessage)
-      }
-      
-      if (options?.invalidateQueries) {
-        options.invalidateQueries.forEach(queryKey => {
-          queryClient.invalidateQueries({ queryKey })
-        })
-      }
-      
-      options?.onSuccess?.(data)
-    },
-    onError: (error: Error) => {
-      const errorMessage = options?.errorMessage || error.message
-      toast.error(errorMessage)
-      options?.onError?.(error.message)
-    },
+    mutationFn: usersService.createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    }
+  })
+}
+
+export const useUpdateUser = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: any }) => 
+      usersService.updateUser(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    }
+  })
+}
+
+// Clients hooks
+export const useClients = () => {
+  return useQuery({
+    queryKey: ['clients'],
+    queryFn: () => clientsService.getClients()
+  })
+}
+
+export const useClient = (id: string) => {
+  return useQuery({
+    queryKey: ['client', id],
+    queryFn: () => clientsService.getClientById(id),
+    enabled: !!id
+  })
+}
+
+export const useCreateClient = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: clientsService.createClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] })
+    }
+  })
+}
+
+export const useUpdateClient = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: any }) => 
+      clientsService.updateClient(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['clients'] })
+    }
+  })
+}
+
+// Requests hooks
+export const useRequests = () => {
+  return useQuery({
+    queryKey: ['requests'],
+    queryFn: () => requestsService.getRequests()
+  })
+}
+
+export const useRequest = (id: string) => {
+  return useQuery({
+    queryKey: ['request', id],
+    queryFn: () => requestsService.getRequestById(id),
+    enabled: !!id
+  })
+}
+
+export const useCreateRequest = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: requestsService.createRequest,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requests'] })
+    }
+  })
+}
+
+export const useUpdateRequest = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: any }) => 
+      requestsService.updateRequest(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['requests'] })
+    }
+  })
+}
+
+// Notifications hooks
+export const useNotifications = (userId: string) => {
+  return useQuery({
+    queryKey: ['notifications', userId],
+    queryFn: () => notificationsService.getNotifications(userId),
+    enabled: !!userId
+  })
+}
+
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: notificationsService.markAsRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    }
+  })
+}
+
+// Audit logs hooks
+export const useAuditLogs = () => {
+  return useQuery({
+    queryKey: ['audit-logs'],
+    queryFn: () => auditService.getAuditLogs()
   })
 }

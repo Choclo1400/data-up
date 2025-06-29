@@ -15,20 +15,3 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true
   }
 })
-
-// Helper function for handling Supabase errors
-export const handleSupabaseError = (error: any) => {
-  console.error('Supabase error:', error)
-  return {
-    success: false,
-    error: error.message || 'An unexpected error occurred'
-  }
-}
-
-// Helper function for successful responses
-export const handleSupabaseSuccess = (data: any) => {
-  return {
-    success: true,
-    data
-  }
-}

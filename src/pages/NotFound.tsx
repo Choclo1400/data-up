@@ -1,46 +1,37 @@
+import React from 'react'
+import { Link } from 'react-router-dom'
+import { Home, ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useLocation, Link } from "react-router-dom";
-import { useEffect } from "react";
-import { Home } from "lucide-react";
-import { Button } from "@/components/ui/button";
-
-const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    // Solo registrar como error si NO es acceso directo a /404
-    if (location.pathname !== "/404") {
-      console.error(
-        "404 Erro: Usuário tentou acessar uma rota inexistente:",
-        location.pathname
-      );
-    }
-  }, [location.pathname]);
-
-  const getErrorMessage = () => {
-    if (location.pathname === "/404") {
-      return "Esta é a página de erro 404";
-    }
-    return `A página "${location.pathname}" que você está tentando acessar não existe ou foi movida.`;
-  };
-
+export const NotFound: React.FC = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center max-w-md p-6">
-        <h1 className="text-6xl font-bold mb-4 text-primary">404</h1>
-        <p className="text-xl text-foreground mb-6">Página não encontrada</p>
-        <p className="text-muted-foreground mb-8">
-          {getErrorMessage()}
-        </p>
-        <Button asChild className="gap-2">
-          <Link to="/">
-            <Home className="w-4 h-4" />
-            Voltar para o Dashboard
-          </Link>
-        </Button>
-      </div>
+      <Card className="w-full max-w-md text-center">
+        <CardHeader>
+          <CardTitle className="text-6xl font-bold text-muted-foreground">
+            404
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <h2 className="text-2xl font-semibold">Página no encontrada</h2>
+          <p className="text-muted-foreground">
+            La página que buscas no existe o ha sido movida.
+          </p>
+          <div className="flex flex-col space-y-2">
+            <Button asChild>
+              <Link to="/">
+                <Home className="mr-2 h-4 w-4" />
+                Ir al Dashboard
+              </Link>
+            </Button>
+            <Button variant="outline" onClick={() => window.history.back()}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver Atrás
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
-  );
-};
-
-export default NotFound;
+  )
+}

@@ -1,391 +1,246 @@
-import { supabase, handleSupabaseError, handleSupabaseSuccess } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 import { Database } from '@/types/database'
 
 type Tables = Database['public']['Tables']
+type User = Tables['users']['Row']
 type Client = Tables['clients']['Row']
-type Service = Tables['services']['Row']
-type Request = Tables['requests']['Row']
-type Profile = Tables['profiles']['Row']
+type ServiceRequest = Tables['service_requests']['Row']
 type AuditLog = Tables['audit_logs']['Row']
 type Notification = Tables['notifications']['Row']
-type Rating = Tables['ratings']['Row']
 
-// Clients
-export const clientService = {
-  async getAll() {
-    try {
-      const { data, error } = await supabase
-        .from('clients')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+// Auth Service
+export const authService = {
+  async signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+    return { data, error }
   },
 
-  async create(client: Tables['clients']['Insert']) {
-    try {
-      const { data, error } = await supabase
-        .from('clients')
-        .insert(client)
-        .select()
-        .single()
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async signUp(email: string, password: string, userData: Partial<User>) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: userData
+      }
+    })
+    return { data, error }
   },
 
-  async update(id: string, updates: Tables['clients']['Update']) {
-    try {
-      const { data, error } = await supabase
-        .from('clients')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single()
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async signOut() {
+    const { error } = await supabase.auth.signOut()
+    return { error }
   },
 
-  async delete(id: string) {
-    try {
-      const { error } = await supabase
-        .from('clients')
-        .delete()
-        .eq('id', id)
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(null)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async getCurrentUser() {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    return { user, error }
   }
 }
 
-// Services
-export const serviceService = {
-  async getAll() {
-    try {
-      const { data, error } = await supabase
-        .from('services')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+// Users Service
+export const usersService = {
+  async getUsers() {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: false })
+    return { data, error }
   },
 
-  async create(service: Tables['services']['Insert']) {
-    try {
-      const { data, error } = await supabase
-        .from('services')
-        .insert(service)
-        .select()
-        .single()
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async getUserById(id: string) {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single()
+    return { data, error }
   },
 
-  async update(id: string, updates: Tables['services']['Update']) {
-    try {
-      const { data, error } = await supabase
-        .from('services')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single()
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async createUser(user: Tables['users']['Insert']) {
+    const { data, error } = await supabase
+      .from('users')
+      .insert(user)
+      .select()
+      .single()
+    return { data, error }
   },
 
-  async delete(id: string) {
-    try {
-      const { error } = await supabase
-        .from('services')
-        .delete()
-        .eq('id', id)
+  async updateUser(id: string, updates: Tables['users']['Update']) {
+    const { data, error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    return { data, error }
+  },
 
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(null)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async deleteUser(id: string) {
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', id)
+    return { error }
   }
 }
 
-// Requests
-export const requestService = {
-  async getAll() {
-    try {
-      const { data, error } = await supabase
-        .from('requests')
-        .select(`
-          *,
-          client:clients(*),
-          service:services(*),
-          assigned_technician:profiles!requests_assigned_technician_id_fkey(*),
-          created_by_profile:profiles!requests_created_by_fkey(*)
-        `)
-        .order('created_at', { ascending: false })
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+// Clients Service
+export const clientsService = {
+  async getClients() {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .order('created_at', { ascending: false })
+    return { data, error }
   },
 
-  async create(request: Tables['requests']['Insert']) {
-    try {
-      const { data, error } = await supabase
-        .from('requests')
-        .insert(request)
-        .select(`
-          *,
-          client:clients(*),
-          service:services(*),
-          assigned_technician:profiles!requests_assigned_technician_id_fkey(*),
-          created_by_profile:profiles!requests_created_by_fkey(*)
-        `)
-        .single()
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async getClientById(id: string) {
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('id', id)
+      .single()
+    return { data, error }
   },
 
-  async update(id: string, updates: Tables['requests']['Update']) {
-    try {
-      const { data, error } = await supabase
-        .from('requests')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select(`
-          *,
-          client:clients(*),
-          service:services(*),
-          assigned_technician:profiles!requests_assigned_technician_id_fkey(*),
-          created_by_profile:profiles!requests_created_by_fkey(*)
-        `)
-        .single()
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async createClient(client: Tables['clients']['Insert']) {
+    const { data, error } = await supabase
+      .from('clients')
+      .insert(client)
+      .select()
+      .single()
+    return { data, error }
   },
 
-  async delete(id: string) {
-    try {
-      const { error } = await supabase
-        .from('requests')
-        .delete()
-        .eq('id', id)
+  async updateClient(id: string, updates: Tables['clients']['Update']) {
+    const { data, error } = await supabase
+      .from('clients')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    return { data, error }
+  },
 
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(null)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async deleteClient(id: string) {
+    const { error } = await supabase
+      .from('clients')
+      .delete()
+      .eq('id', id)
+    return { error }
   }
 }
 
-// Profiles
-export const profileService = {
-  async getAll() {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+// Service Requests Service
+export const requestsService = {
+  async getRequests() {
+    const { data, error } = await supabase
+      .from('service_requests')
+      .select(`
+        *,
+        client:clients(*),
+        assigned_technician:users!assigned_technician_id(*),
+        approved_by:users!approved_by_id(*)
+      `)
+      .order('created_at', { ascending: false })
+    return { data, error }
   },
 
-  async getTechnicians() {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('role', 'technician')
-        .eq('is_active', true)
-        .order('full_name')
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async getRequestById(id: string) {
+    const { data, error } = await supabase
+      .from('service_requests')
+      .select(`
+        *,
+        client:clients(*),
+        assigned_technician:users!assigned_technician_id(*),
+        approved_by:users!approved_by_id(*)
+      `)
+      .eq('id', id)
+      .single()
+    return { data, error }
   },
 
-  async update(id: string, updates: Tables['profiles']['Update']) {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single()
+  async createRequest(request: Tables['service_requests']['Insert']) {
+    const { data, error } = await supabase
+      .from('service_requests')
+      .insert(request)
+      .select()
+      .single()
+    return { data, error }
+  },
 
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async updateRequest(id: string, updates: Tables['service_requests']['Update']) {
+    const { data, error } = await supabase
+      .from('service_requests')
+      .update(updates)
+      .eq('id', id)
+      .select()
+      .single()
+    return { data, error }
+  },
+
+  async deleteRequest(id: string) {
+    const { error } = await supabase
+      .from('service_requests')
+      .delete()
+      .eq('id', id)
+    return { error }
   }
 }
 
-// Audit Logs
-export const auditService = {
-  async getAll(limit = 100) {
-    try {
-      const { data, error } = await supabase
-        .from('audit_logs')
-        .select(`
-          *,
-          user:profiles(*)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(limit)
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
-  },
-
-  async create(log: Tables['audit_logs']['Insert']) {
-    try {
-      const { data, error } = await supabase
-        .from('audit_logs')
-        .insert(log)
-        .select()
-        .single()
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
-  }
-}
-
-// Notifications
-export const notificationService = {
-  async getByUserId(userId: string) {
-    try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
-  },
-
-  async create(notification: Tables['notifications']['Insert']) {
-    try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .insert(notification)
-        .select()
-        .single()
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+// Notifications Service
+export const notificationsService = {
+  async getNotifications(userId: string) {
+    const { data, error } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+    return { data, error }
   },
 
   async markAsRead(id: string) {
-    try {
-      const { data, error } = await supabase
-        .from('notifications')
-        .update({ is_read: true })
-        .eq('id', id)
-        .select()
-        .single()
+    const { data, error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', id)
+      .select()
+      .single()
+    return { data, error }
+  },
 
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async createNotification(notification: Tables['notifications']['Insert']) {
+    const { data, error } = await supabase
+      .from('notifications')
+      .insert(notification)
+      .select()
+      .single()
+    return { data, error }
   }
 }
 
-// Ratings
-export const ratingService = {
-  async getAll() {
-    try {
-      const { data, error } = await supabase
-        .from('ratings')
-        .select(`
-          *,
-          request:requests(*),
-          client:clients(*),
-          technician:profiles(*)
-        `)
-        .order('created_at', { ascending: false })
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+// Audit Logs Service
+export const auditService = {
+  async getAuditLogs() {
+    const { data, error } = await supabase
+      .from('audit_logs')
+      .select(`
+        *,
+        user:users(*)
+      `)
+      .order('timestamp', { ascending: false })
+    return { data, error }
   },
 
-  async create(rating: Tables['ratings']['Insert']) {
-    try {
-      const { data, error } = await supabase
-        .from('ratings')
-        .insert(rating)
-        .select(`
-          *,
-          request:requests(*),
-          client:clients(*),
-          technician:profiles(*)
-        `)
-        .single()
-
-      if (error) return handleSupabaseError(error)
-      return handleSupabaseSuccess(data)
-    } catch (error) {
-      return handleSupabaseError(error)
-    }
+  async createAuditLog(log: Tables['audit_logs']['Insert']) {
+    const { data, error } = await supabase
+      .from('audit_logs')
+      .insert(log)
+      .select()
+      .single()
+    return { data, error }
   }
 }
