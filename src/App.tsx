@@ -1,16 +1,11 @@
-import React, { Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { Navbar } from '@/components/layout/Navbar';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { NotificationCenter } from '@/components/notifications/NotificationCenter';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { LoadingState } from '@/components/ui/loading-state';
-
-// Import components directly instead of lazy loading to avoid undefined errors
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import Navbar from '@/components/layout/Navbar';
+import Sidebar from '@/components/layout/Sidebar';
 import Index from '@/pages/Index';
 import LoginPage from '@/pages/LoginPage';
 import Users from '@/pages/Users';
@@ -20,6 +15,7 @@ import Technicians from '@/pages/Technicians';
 import ReportsPage from '@/pages/ReportsPage';
 import Settings from '@/pages/Settings';
 import NotFound from '@/pages/NotFound';
+import './App.css';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,8 +30,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <BrowserRouter>
-          <AuthProvider>
+        <AuthProvider>
+          <Router>
             <div className="min-h-screen bg-background">
               <Routes>
                 <Route path="/login" element={<LoginPage />} />
@@ -43,26 +39,23 @@ function App() {
                   path="/*"
                   element={
                     <ProtectedRoute>
-                      <div className="flex h-screen">
+                      <div className="flex h-screen bg-background">
                         <Sidebar />
                         <div className="flex-1 flex flex-col overflow-hidden">
                           <Navbar />
-                          <main className="flex-1 overflow-auto p-6">
-                            <Suspense fallback={<LoadingState />}>
-                              <Routes>
-                                <Route path="/" element={<Index />} />
-                                <Route path="/users" element={<Users />} />
-                                <Route path="/clients" element={<Clients />} />
-                                <Route path="/requests" element={<Requests />} />
-                                <Route path="/technicians" element={<Technicians />} />
-                                <Route path="/reports" element={<ReportsPage />} />
-                                <Route path="/settings" element={<Settings />} />
-                                <Route path="*" element={<NotFound />} />
-                              </Routes>
-                            </Suspense>
+                          <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6">
+                            <Routes>
+                              <Route path="/" element={<Index />} />
+                              <Route path="/users" element={<Users />} />
+                              <Route path="/clients" element={<Clients />} />
+                              <Route path="/requests" element={<Requests />} />
+                              <Route path="/technicians" element={<Technicians />} />
+                              <Route path="/reports" element={<ReportsPage />} />
+                              <Route path="/settings" element={<Settings />} />
+                              <Route path="*" element={<NotFound />} />
+                            </Routes>
                           </main>
                         </div>
-                        <NotificationCenter />
                       </div>
                     </ProtectedRoute>
                   }
@@ -70,8 +63,8 @@ function App() {
               </Routes>
             </div>
             <Toaster />
-          </AuthProvider>
-        </BrowserRouter>
+          </Router>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
