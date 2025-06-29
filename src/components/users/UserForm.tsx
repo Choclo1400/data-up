@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -38,7 +37,7 @@ const availablePermissions = [
   'system_config'
 ];
 
-const UserForm: React.FC<UserFormProps> = ({
+export const UserForm: React.FC<UserFormProps> = ({
   isOpen,
   onClose,
   onSubmit,
@@ -163,5 +162,3 @@ const UserForm: React.FC<UserFormProps> = ({
     </Dialog>
   );
 };
-
-export default UserForm;
