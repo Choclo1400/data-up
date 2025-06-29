@@ -1,124 +1,137 @@
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import { User, Session } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
+import { Database } from '@/types/database'
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import authService, { User } from '../services/authService';
-import { UserRole } from '../types';
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  updateUser: (user: User) => void;
-  hasPermission: (permission: string) => boolean;
+  user: User | null
+  profile: Profile | null
+  session: Session | null
+  loading: boolean
+  signIn: (email: string, password: string) => Promise<{ error?: string }>
+  signOut: () => Promise<void>
+  updateProfile: (updates: Partial<Profile>) => Promise<{ error?: string }>
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const initializeAuth = async () => {
-      try {
-        const storedUser = authService.getStoredUser();
-        const token = authService.getStoredToken();
-
-        if (storedUser && token) {
-          // Verify token is still valid by fetching current user
-          const currentUser = await authService.getCurrentUser();
-          setUser(currentUser);
-        }
-      } catch (error) {
-        console.error('Auth initialization error:', error);
-        // Clear invalid stored data
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('user');
-      } finally {
-        setIsLoading(false);
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        fetchProfile(session.user.id)
+      } else {
+        setLoading(false)
       }
-    };
+    })
 
-    initializeAuth();
-  }, []);
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session)
+      setUser(session?.user ?? null)
+      
+      if (session?.user) {
+        await fetchProfile(session.user.id)
+      } else {
+        setProfile(null)
+        setLoading(false)
+      }
+    })
 
-  const login = async (email: string, password: string) => {
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const fetchProfile = async (userId: string) => {
     try {
-      const response = await authService.login({ email, password });
-      setUser(response.user);
-    } catch (error) {
-      throw error;
-    }
-  };
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-  const logout = async () => {
+      if (error) {
+        console.error('Error fetching profile:', error)
+      } else {
+        setProfile(data)
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const signIn = async (email: string, password: string) => {
     try {
-      await authService.logout();
-      setUser(null);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      })
+
+      if (error) {
+        return { error: error.message }
+      }
+
+      return {}
     } catch (error) {
-      console.error('Logout error:', error);
-      // Still clear local state even if API call fails
-      setUser(null);
+      return { error: 'An unexpected error occurred' }
     }
-  };
+  }
 
-  const updateUser = (updatedUser: User) => {
-    setUser(updatedUser);
-    localStorage.setItem('user', JSON.stringify(updatedUser));
-  };
+  const signOut = async () => {
+    await supabase.auth.signOut()
+  }
 
-  // Simple permission system based on user role using UserRole enum
-  const hasPermission = (permission: string): boolean => {
-    if (!user) return false;
+  const updateProfile = async (updates: Partial<Profile>) => {
+    if (!user) return { error: 'No user logged in' }
 
-    // Define role-based permissions using UserRole enum
-    const rolePermissions: Record<UserRole, string[]> = {
-      [UserRole.ADMIN]: ['*'], // Admin has all permissions
-      [UserRole.MANAGER]: [
-        'view_reports', 'manage_clients', 'approve_manager', 'create_requests',
-        'view_requests', 'view_calendar'
-      ],
-      [UserRole.SUPERVISOR]: [
-        'approve_requests', 'manage_technicians', 'view_reports', 'view_calendar'
-      ],
-      [UserRole.TECHNICIAN]: [
-        'view_requests', 'view_calendar', 'view_reports'
-      ],
-      [UserRole.OPERATOR]: [
-        'view_requests', 'create_requests', 'view_calendar'
-      ]
-    };
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', user.id)
 
-    const userPermissions = rolePermissions[user.role] || [];
-    return userPermissions.includes('*') || userPermissions.includes(permission);
-  };
+      if (error) {
+        return { error: error.message }
+      }
 
-  const value: AuthContextType = {
+      // Refresh profile
+      await fetchProfile(user.id)
+      return {}
+    } catch (error) {
+      return { error: 'An unexpected error occurred' }
+    }
+  }
+
+  const value = {
     user,
-    isAuthenticated: !!user,
-    isLoading,
-    login,
-    logout,
-    updateUser,
-    hasPermission,
-  };
+    profile,
+    session,
+    loading,
+    signIn,
+    signOut,
+    updateProfile,
+  }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
+}
