@@ -66,6 +66,7 @@ export const signUpUser = async (data: SignUpData): Promise<AuthResponse> => {
         name,
         role,
         is_active: true,
+        password_hash: '', // This will be managed by Supabase Auth
       });
 
     if (insertError) {
@@ -103,17 +104,96 @@ export const signInUser = async (data: SignInData): Promise<AuthResponse> => {
   try {
     const { email, password } = data;
 
+    // First, try to authenticate with Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
     if (authError) {
+      // If Supabase Auth fails, check if user exists in our users table
+      // This handles cases where users were created directly in the database
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .eq('is_active', true)
+        .single();
+
+      if (userError || !userData) {
+        return {
+          user: null,
+          error: authError,
+          success: false,
+          message: 'Invalid login credentials',
+        };
+      }
+
+      // If user exists in our table but not in Supabase Auth, 
+      // we need to create them in Supabase Auth first
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name: userData.name,
+            role: userData.role,
+          },
+        },
+      });
+
+      if (signUpError) {
+        return {
+          user: null,
+          error: signUpError,
+          success: false,
+          message: 'Failed to sync user account',
+        };
+      }
+
+      // Update the user ID in our table to match Supabase Auth
+      if (signUpData.user) {
+        await supabase
+          .from('users')
+          .update({ id: signUpData.user.id })
+          .eq('email', email);
+
+        // Now try to sign in again
+        const { data: retryAuthData, error: retryError } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (retryError) {
+          return {
+            user: null,
+            error: retryError,
+            success: false,
+            message: retryError.message,
+          };
+        }
+
+        // Update last login timestamp
+        if (retryAuthData.user) {
+          await supabase
+            .from('users')
+            .update({ last_login: new Date().toISOString() })
+            .eq('id', retryAuthData.user.id);
+        }
+
+        return {
+          user: retryAuthData.user,
+          error: null,
+          success: true,
+          message: 'Signed in successfully',
+        };
+      }
+
       return {
         user: null,
         error: authError,
         success: false,
-        message: authError.message,
+        message: 'Invalid login credentials',
       };
     }
 
