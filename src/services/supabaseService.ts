@@ -8,6 +8,89 @@ type ServiceRequest = Tables['service_requests']['Row'];
 type AuditLog = Tables['audit_logs']['Row'];
 type Notification = Tables['notifications']['Row'];
 
+// Auth Service
+export const authService = {
+  async signUp(email: string, password: string, userData: Partial<User>) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+    
+    if (error) throw error;
+    
+    // Create user profile
+    if (data.user) {
+      const { error: profileError } = await supabase
+        .from('users')
+        .insert({
+          id: data.user.id,
+          email,
+          password_hash: '', // This will be handled by Supabase Auth
+          ...userData
+        });
+      
+      if (profileError) throw profileError;
+    }
+    
+    return data;
+  },
+
+  async signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    
+    if (error) throw error;
+    
+    // Update last login
+    if (data.user) {
+      await supabase
+        .from('users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', data.user.id);
+    }
+    
+    return data;
+  },
+
+  async signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  },
+
+  async getCurrentUser() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error) throw error;
+    
+    if (user) {
+      const { data: profile, error: profileError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (profileError) throw profileError;
+      return { user, profile };
+    }
+    
+    return { user: null, profile: null };
+  },
+
+  async updatePassword(newPassword: string) {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword
+    });
+    
+    if (error) throw error;
+  },
+
+  async resetPassword(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    if (error) throw error;
+  }
+};
+
 // Users Service
 export const userService = {
   async getAll() {
