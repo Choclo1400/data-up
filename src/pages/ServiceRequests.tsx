@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
-import { RequestForm } from '@/components/requests/RequestForm';
+import RequestForm from '@/components/requests/RequestForm';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
