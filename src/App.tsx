@@ -1,71 +1,104 @@
-import React from 'react'
-import { Routes, Route } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ThemeProvider } from '@/components/theme-provider'
-import { AuthProvider } from '@/contexts/AuthContext'
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
-import { Navbar } from '@/components/layout/Navbar'
-import { Sidebar } from '@/components/layout/Sidebar'
-import { Toaster } from '@/components/ui/sonner'
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/theme-provider';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { LoadingSpinner } from '@/components/ui/loading-state';
 
-// Pages
-import { LoginPage } from '@/pages/LoginPage'
-import { Index } from '@/pages/Index'
-import { Users } from '@/pages/Users'
-import { Clients } from '@/pages/Clients'
-import { Requests } from '@/pages/Requests'
-import { Settings } from '@/pages/Settings'
-import { ReportsPage } from '@/pages/ReportsPage'
-import { Technicians } from '@/pages/Technicians'
-import { NotFound } from '@/pages/NotFound'
+// Lazy load components for better performance
+const ProtectedRoute = React.lazy(() => import('@/components/auth/ProtectedRoute'));
+const Navbar = React.lazy(() => import('@/components/layout/Navbar'));
+const Sidebar = React.lazy(() => import('@/components/layout/Sidebar'));
+const NotificationCenter = React.lazy(() => import('@/components/notifications/NotificationCenter'));
 
+const Index = React.lazy(() => import('@/pages/Index'));
+const LoginPage = React.lazy(() => import('@/pages/LoginPage'));
+const Users = React.lazy(() => import('@/pages/Users'));
+const Clients = React.lazy(() => import('@/pages/Clients'));
+const Requests = React.lazy(() => import('@/pages/Requests'));
+const Technicians = React.lazy(() => import('@/pages/Technicians'));
+const ReportsPage = React.lazy(() => import('@/pages/ReportsPage'));
+const Settings = React.lazy(() => import('@/pages/Settings'));
+const NotFound = React.lazy(() => import('@/pages/NotFound'));
+
+// Create a stable query client instance
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+    },
+    mutations: {
       retry: 1,
-      refetchOnWindowFocus: false,
     },
   },
-})
+});
+
+const AppLayout: React.FC<{ children: React.ReactNode }> = React.memo(({ children }) => (
+  <div className="min-h-screen bg-background">
+    <Suspense fallback={<LoadingSpinner />}>
+      <Navbar />
+    </Suspense>
+    <div className="flex">
+      <Suspense fallback={<div className="w-64 bg-card border-r" />}>
+        <Sidebar />
+      </Suspense>
+      <main className="flex-1 p-6">
+        {children}
+      </main>
+    </div>
+    <Suspense fallback={null}>
+      <NotificationCenter />
+    </Suspense>
+  </div>
+));
+
+AppLayout.displayName = 'AppLayout';
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <AuthProvider>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route
-              path="/*"
-              element={
-                <ProtectedRoute>
-                  <div className="flex h-screen bg-background">
-                    <Sidebar />
-                    <div className="flex flex-1 flex-col overflow-hidden">
-                      <Navbar />
-                      <main className="flex-1 overflow-auto p-6">
-                        <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/users" element={<Users />} />
-                          <Route path="/clients" element={<Clients />} />
-                          <Route path="/requests" element={<Requests />} />
-                          <Route path="/technicians" element={<Technicians />} />
-                          <Route path="/reports" element={<ReportsPage />} />
-                          <Route path="/settings" element={<Settings />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </main>
-                    </div>
-                  </div>
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-          <Toaster />
-        </AuthProvider>
-      </ThemeProvider>
-    </QueryClientProvider>
-  )
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+          <AuthProvider>
+            <Router>
+              <div className="min-h-screen bg-background">
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Routes>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route
+                      path="/*"
+                      element={
+                        <ProtectedRoute>
+                          <AppLayout>
+                            <Routes>
+                              <Route path="/" element={<Index />} />
+                              <Route path="/users" element={<Users />} />
+                              <Route path="/clients" element={<Clients />} />
+                              <Route path="/requests" element={<Requests />} />
+                              <Route path="/technicians" element={<Technicians />} />
+                              <Route path="/reports" element={<ReportsPage />} />
+                              <Route path="/settings" element={<Settings />} />
+                              <Route path="*" element={<NotFound />} />
+                            </Routes>
+                          </AppLayout>
+                        </ProtectedRoute>
+                      }
+                    />
+                  </Routes>
+                </Suspense>
+              </div>
+            </Router>
+            <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
+  );
 }
 
-export default App
+export default App;
