@@ -46,7 +46,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-        <AuthProvider>
+        <main id="main-content" tabIndex={-1}>
+          <Routes>
           <Router>
             <div className="min-h-screen bg-background">
               <Suspense fallback={<LoadingFallback />}>

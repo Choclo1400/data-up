@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import focus styles */
+@import './styles/focus.css';
+
 @layer base {
   :root {
     --background: 0 0% 100%;
