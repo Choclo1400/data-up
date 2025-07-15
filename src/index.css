@@ -1,9 +1,9 @@
+/* Import focus styles */
+@import './styles/focus.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import focus styles */
-@import './styles/focus.css';
 
 @layer base {
   :root {
