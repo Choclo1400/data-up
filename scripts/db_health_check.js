@@ -20,7 +20,7 @@ const ADMIN_USER_ID = '550e8400-e29b-41d4-a716-446655440001';
 
 // Función auxiliar para ejecutar y medir el tiempo de las pruebas
 async function runTest(name, testFunction) {
-  console.log(`\n--- Ejecutando prueba: ${name} ---`);
+  console.log(\`\n--- Ejecutando prueba: ${name} ---`);
   const startTime = process.hrtime.bigint();
   let success = false;
   let errorMessage = '';
@@ -31,14 +31,14 @@ async function runTest(name, testFunction) {
     success = true;
   } catch (error) {
     errorMessage = error.message || 'Error desconocido';
-    console.error(`ERROR en ${name}:`, error);
+    console.error(\`ERROR en ${name}:`, error);
   } finally {
     const endTime = process.hrtime.bigint();
     const durationMs = Number(endTime - startTime) / 1_000_000;
-    console.log(`Resultado: ${success ? 'ÉXITO' : 'FALLO'}`);
-    console.log(`Tiempo: ${durationMs.toFixed(2)} ms`);
+    console.log(\`Resultado: ${success ? 'ÉXITO' : 'FALLO'}`);
+    console.log(\`Tiempo: ${durationMs.toFixed(2)} ms`);
     if (errorMessage) {
-      console.log(`Mensaje de error: ${errorMessage}`);
+      console.log(\`Mensaje de error: ${errorMessage}`);
     }
     return { name, success, durationMs, errorMessage, result };
   }
@@ -65,7 +65,7 @@ async function testReadOperations() {
     .limit(5);
   if (usersError) throw usersError;
   results.usersCount = users.length;
-  console.log(`Leídos ${users.length} usuarios.`);
+  console.log(\`Leídos ${users.length} usuarios.`);
 
   // Leer clientes
   const { data: clients, error: clientsError } = await supabase
@@ -74,7 +74,7 @@ async function testReadOperations() {
     .limit(5);
   if (clientsError) throw clientsError;
   results.clientsCount = clients.length;
-  console.log(`Leídos ${clients.length} clientes.`);
+  console.log(\`Leídos ${clients.length} clientes.`);
 
   // Leer solicitudes de servicio (filtrando por un técnico asignado si es posible, para RLS)
   const { data: serviceRequests, error: srError } = await supabase
@@ -84,17 +84,17 @@ async function testReadOperations() {
     .limit(5);
   if (srError) {
     // Si falla por RLS, intenta leer sin filtro (puede que no devuelva nada si RLS es estricto)
-    console.warn(`Advertencia: Falló la lectura de service_requests para ADMIN_USER_ID. Intentando sin filtro. Error: ${srError.message}`);
+    console.warn(\`Advertencia: Falló la lectura de service_requests para ADMIN_USER_ID. Intentando sin filtro. Error: ${srError.message}`);
     const { data: allServiceRequests, error: allSrError } = await supabase
       .from('service_requests')
       .select('id, description, status')
       .limit(5);
     if (allSrError) throw allSrError;
     results.serviceRequestsCount = allServiceRequests.length;
-    console.log(`Leídas ${allServiceRequests.length} solicitudes de servicio (posiblemente filtradas por RLS).`);
+    console.log(\`Leídas ${allServiceRequests.length} solicitudes de servicio (posiblemente filtradas por RLS).`);
   } else {
     results.serviceRequestsCount = serviceRequests.length;
-    console.log(`Leídas ${serviceRequests.length} solicitudes de servicio (asignadas al admin).`);
+    console.log(\`Leídas ${serviceRequests.length} solicitudes de servicio (asignadas al admin).`);
   }
 
   // Leer notificaciones
@@ -104,7 +104,7 @@ async function testReadOperations() {
     .limit(5);
   if (notificationsError) throw notificationsError;
   results.notificationsCount = notifications.length;
-  console.log(`Leídas ${notifications.length} notificaciones.`);
+  console.log(\`Leídas ${notifications.length} notificaciones.`);
 
   // Leer logs de auditoría (solo si el usuario tiene permisos, ej. admin)
   const { data: auditLogs, error: auditLogsError } = await supabase
@@ -112,11 +112,11 @@ async function testReadOperations() {
     .select('id, action, resource')
     .limit(5);
   if (auditLogsError) {
-    console.warn(`Advertencia: Falló la lectura de audit_logs (esperado si no es admin). Error: ${auditLogsError.message}`);
+    console.warn(\`Advertencia: Falló la lectura de audit_logs (esperado si no es admin). Error: ${auditLogsError.message}`);
     results.auditLogsCount = 0;
   } else {
     results.auditLogsCount = auditLogs.length;
-    console.log(`Leídos ${auditLogs.length} logs de auditoría.`);
+    console.log(\`Leídos ${auditLogs.length} logs de auditoría.`);
   }
 
   return results;
@@ -173,7 +173,7 @@ async function testCrudOperations() {
     console.log('Cliente de prueba actualizado:', updatedClient);
 
   } catch (error) {
-    console.warn(`Advertencia: Las operaciones CRUD pueden fallar debido a RLS. Error: ${error.message}`);
+    console.warn(\`Advertencia: Las operaciones CRUD pueden fallar debido a RLS. Error: ${error.message}`);
     // No lanzar el error para permitir que la prueba continúe y se intente la eliminación
   } finally {
     // Eliminar el cliente (intentar siempre, incluso si la creación/actualización falló)
@@ -183,7 +183,7 @@ async function testCrudOperations() {
       .delete()
       .eq('id', testClientId);
     if (deleteError) {
-      console.warn(`Advertencia: Falló la eliminación del cliente de prueba (posiblemente por RLS o no existía). Error: ${deleteError.message}`);
+      console.warn(\`Advertencia: Falló la eliminación del cliente de prueba (posiblemente por RLS o no existía). Error: ${deleteError.message}`);
     } else {
       deleted = true;
       console.log('Cliente de prueba eliminado.');
@@ -209,7 +209,7 @@ async function testRelationships() {
 
   if (error) throw error;
 
-  console.log(`Se encontraron ${data.length} solicitudes de servicio con información relacionada.`);
+  console.log(\`Se encontraron ${data.length} solicitudes de servicio con información relacionada.`);
   if (data.length > 0) {
     console.log('Ejemplo de solicitud con relaciones:', JSON.stringify(data[0], null, 2));
     // Verificar que los datos relacionados no son nulos
@@ -236,23 +236,23 @@ async function main() {
   console.log('\n--- Informe Final ---');
   let overallStatus = 'ÉXITO';
   allResults.forEach(res => {
-    console.log(`\n${res.name}: ${res.success ? 'ÉXITO' : 'FALLO'} (${res.durationMs.toFixed(2)} ms)`);
+    console.log(\`\n${res.name}: ${res.success ? 'ÉXITO' : 'FALLO'} (${res.durationMs.toFixed(2)} ms)`);
     if (res.errorMessage) {
-      console.log(`  Error: ${res.errorMessage}`);
+      console.log(\`  Error: ${res.errorMessage}`);
     }
     if (!res.success) {
       overallStatus = 'FALLO CON ERRORES';
     }
   });
 
-  console.log(`\nEstado General de la Base de Datos: ${overallStatus}`);
+  console.log(\`\nEstado General de la Base de Datos: ${overallStatus}`);
 
   // Recomendaciones de optimización
   console.log('\n--- Recomendaciones de Optimización ---');
   console.log('1. **Índices**: Las migraciones ya incluyen índices. Para una optimización más profunda, revisa el rendimiento de tus consultas más frecuentes en el panel de Supabase (sección "Database" -> "Performance") para identificar consultas lentas y añadir índices adicionales si es necesario.');
   console.log('2. **Políticas de RLS**: Asegúrate de que tus políticas de Row Level Security (RLS) sean lo suficientemente permisivas para las operaciones que tus usuarios deben realizar, pero lo suficientemente restrictivas para proteger tus datos. Las advertencias en las pruebas CRUD pueden indicar RLS activo.');
   console.log('3. **Pool de Conexiones**: Para aplicaciones con alto tráfico, considera optimizar el pool de conexiones de tu cliente Supabase.');
-  console.log('4. **Optimización de Consultas**: Revisa tus consultas SQL para asegurarte de que son eficientes, evitando `SELECT *` innecesarios y utilizando `JOIN`s de manera efectiva.');
+  console.log('4. **Optimización de Consultas**: Revisa tus consultas SQL para asegurarte de que son eficientes, evitando \`SELECT *` innecesarios y utilizando \`JOIN`s de manera efectiva.');
   console.log('5. **Tipos de Datos**: Utiliza los tipos de datos más apropiados para tus columnas para optimizar el almacenamiento y el rendimiento.');
 }
 
