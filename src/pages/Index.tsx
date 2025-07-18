@@ -1,5 +1,6 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Users, ClipboardList, Building2, TrendingUp } from 'lucide-react'
 import { useUsers, useClients, useRequests } from '@/hooks/useSupabaseQuery'
 
@@ -40,9 +41,27 @@ const Index: React.FC = () => {
       <div>
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <p className="text-muted-foreground">
-          Resumen general del sistema de gestión de servicios
+          Panel de control personalizado
         </p>
       </div>
+
+      <Card className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 border-slate-200 dark:border-slate-700">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-bold text-slate-800 dark:text-slate-200">
+                Panel de Administración
+              </CardTitle>
+              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                Control total del sistema y gestión de usuarios
+              </p>
+            </div>
+            <Badge variant="destructive" className="bg-red-500 hover:bg-red-600 text-white font-medium">
+              Administrador
+            </Badge>
+          </div>
+        </CardHeader>
+      </Card>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
