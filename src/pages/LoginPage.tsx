@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -8,24 +8,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { toast } from 'sonner';
 
 export default function LoginPage() {
-  const { user, loading, signIn } = useAuth();
+  const { user, signIn, loading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // If user is already authenticated, redirect to dashboard
-  if (user && !loading) {
-    return <Navigate to="/" replace />;
-  }
-
-  // Show loading spinner while checking authentication
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-2">Cargando...</span>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
       </div>
     );
+  }
+
+  if (user) {
+    return <Navigate to="/" replace />;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,7 +31,6 @@ export default function LoginPage() {
 
     try {
       const { error } = await signIn(email, password);
-      
       if (error) {
         toast.error('Error al iniciar sesión: ' + error.message);
       } else {

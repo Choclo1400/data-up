@@ -1,18 +1,15 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-
-// Pages
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import LoginPage from '@/pages/LoginPage';
 import Index from '@/pages/Index';
 import ServiceRequests from '@/pages/ServiceRequests';
 import Clients from '@/pages/Clients';
 import UsersManagement from '@/pages/UsersManagement';
-import TechniciansPage from '@/pages/TechniciansPage';
-import ReportsPage from '@/pages/ReportsPage';
 import Settings from '@/pages/Settings';
 import NotFound from '@/pages/NotFound';
 
@@ -28,7 +25,7 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <AuthProvider>
           <Router>
             <Routes>
@@ -66,22 +63,6 @@ function App() {
                 }
               />
               <Route
-                path="/technicians"
-                element={
-                  <ProtectedRoute>
-                    <TechniciansPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/reports"
-                element={
-                  <ProtectedRoute>
-                    <ReportsPage />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
                 path="/settings"
                 element={
                   <ProtectedRoute>
@@ -89,7 +70,8 @@ function App() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="*" element={<NotFound />} />
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
           </Router>
           <Toaster />
