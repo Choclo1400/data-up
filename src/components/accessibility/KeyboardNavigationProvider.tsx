@@ -26,7 +26,7 @@ export function KeyboardNavigationProvider({ children }: KeyboardNavigationProvi
 
     const handleKeyDown = (event: KeyboardEvent) => {
       // Detect keyboard navigation
-      if (event.key && (event.key === 'Tab' || event.key.startsWith('Arrow') || event.key === 'Enter' || event.key === ' ')) {
+      if (event.key === 'Tab' || event.key.startsWith('Arrow') || event.key === 'Enter' || event.key === ' ') {
         setIsKeyboardUser(true);
         document.body.classList.add('keyboard-navigation-active');
         
