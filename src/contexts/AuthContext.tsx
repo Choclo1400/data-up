@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { User } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
@@ -26,8 +27,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log('AuthProvider: Initializing auth state')
+    
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('AuthProvider: Error getting session:', error)
+      } else {
+        console.log('AuthProvider: Initial session:', session)
+      }
       setUser(session?.user ?? null)
       setLoading(false)
     })
@@ -35,6 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('AuthProvider: Auth state change:', event, session)
         setUser(session?.user ?? null)
         setLoading(false)
       }
@@ -44,16 +53,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    console.log('AuthProvider: Attempting sign in for:', email)
     const result = await authService.signIn(email, password)
     return result
   }
 
   const signUp = async (email: string, password: string, userData?: any) => {
+    console.log('AuthProvider: Attempting sign up for:', email)
     const result = await authService.signUp(email, password, userData)
     return result
   }
 
   const signOut = async () => {
+    console.log('AuthProvider: Signing out')
     await authService.signOut()
   }
 
@@ -64,6 +76,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signUp,
     signOut
   }
+
+  console.log('AuthProvider: Current state - user:', !!user, 'loading:', loading)
 
   return (
     <AuthContext.Provider value={value}>
