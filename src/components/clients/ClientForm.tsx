@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -51,13 +51,13 @@ export function ClientForm({ onSuccess, onCancel }: ClientFormProps) {
 
   const onSubmit = async (data: ClientFormData) => {
     try {
-      // Clean empty strings to undefined for optional fields
+      // Clean empty strings to null for optional fields
       const cleanData = {
         ...data,
-        email: data.email || undefined,
-        phone: data.phone || undefined,
-        address: data.address || undefined,
-        contact_person: data.contact_person || undefined
+        email: data.email || null,
+        phone: data.phone || null,
+        address: data.address || null,
+        contact_person: data.contact_person || null
       };
 
       const newClient = await createClient(cleanData);

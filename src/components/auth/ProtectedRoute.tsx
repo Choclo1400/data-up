@@ -1,17 +1,15 @@
 
-import React from 'react'
+
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { LoadingState } from '@/components/ui/loading-state'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
-  requiredRole?: string[]
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ 
-  children, 
-  requiredRole 
+  children 
 }) => {
   const { user, loading } = useAuth()
   const location = useLocation()
@@ -20,7 +18,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (loading) {
     console.log('ProtectedRoute: Showing loading state')
-    return <LoadingState />
+    return <LoadingState isLoading={true}>Loading...</LoadingState>
   }
 
   if (!user) {

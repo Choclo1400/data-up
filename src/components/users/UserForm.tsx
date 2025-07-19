@@ -49,7 +49,7 @@ export const UserForm: React.FC<UserFormProps> = ({
     defaultValues: {
       name: initialData?.name || '',
       email: initialData?.email || '',
-      role: initialData?.role || UserRole.OPERATOR,
+      role: initialData?.role || 'operator' as UserRole,
       permissions: initialData?.permissions || []
     }
   });

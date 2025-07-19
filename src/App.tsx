@@ -1,5 +1,5 @@
 
-import React from 'react';
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
@@ -40,7 +40,7 @@ function App() {
           <AuthProvider>
             <Router>
               <div className="min-h-screen bg-background">
-                <SkipLink />
+                <SkipLink href="#main-content">Skip to main content</SkipLink>
                 <Routes>
                   <Route path="/login" element={<LoginPage />} />
                   <Route

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { useUsers } from '@/hooks/useUsers';
+import { useCreateUser, useUpdateUser } from '@/hooks/useUsers';
 
 const technicianSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -38,7 +38,8 @@ export const TechnicianForm: React.FC<TechnicianFormProps> = ({
   technicianId,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { createUser, updateUser } = useUsers();
+  const createUserMutation = useCreateUser();
+  const updateUserMutation = useUpdateUser();
 
   const {
     register,
@@ -48,23 +49,20 @@ export const TechnicianForm: React.FC<TechnicianFormProps> = ({
     formState: { errors },
   } = useForm<TechnicianFormData>({
     resolver: zodResolver(technicianSchema),
-    defaultValues: initialData,
+    ...(initialData && { defaultValues: initialData }),
   });
 
   const onSubmit = async (data: TechnicianFormData) => {
     setIsLoading(true);
     try {
       if (isEditing && technicianId) {
-        await updateUser.mutateAsync({
+        await updateUserMutation.mutateAsync({
           id: technicianId,
-          ...data,
+          data,
         });
         toast.success('Técnico actualizado exitosamente');
       } else {
-        await createUser.mutateAsync({
-          ...data,
-          is_active: true,
-        });
+        await createUserMutation.mutateAsync(data);
         toast.success('Técnico creado exitosamente');
       }
       onSuccess?.();
@@ -83,7 +81,7 @@ export const TechnicianForm: React.FC<TechnicianFormProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nombre completo</Label>

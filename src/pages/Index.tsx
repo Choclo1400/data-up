@@ -1,12 +1,11 @@
-import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, ClipboardList, Building2, TrendingUp } from 'lucide-react'
-import { useUsers, useClients, useRequests } from '@/hooks/useSupabaseQuery'
 
-const Index: React.FC = () => {
-  const { data: users } = useUsers()
-  const { data: clients } = useClients()
-  const { data: requests } = useRequests()
+const Index = () => {
+  // Mock data for now until Supabase is connected
+  const users = { data: [] }
+  const clients = { data: [] }
+  const requests = { data: [] }
 
   const stats = [
     {
@@ -23,13 +22,13 @@ const Index: React.FC = () => {
     },
     {
       title: 'Solicitudes Activas',
-      value: requests?.data?.filter(r => r.status !== 'completed').length || 0,
+      value: requests?.data?.filter((r: any) => r.status !== 'completed').length || 0,
       icon: ClipboardList,
       color: 'text-orange-600'
     },
     {
       title: 'Solicitudes Completadas',
-      value: requests?.data?.filter(r => r.status === 'completed').length || 0,
+      value: requests?.data?.filter((r: any) => r.status === 'completed').length || 0,
       icon: TrendingUp,
       color: 'text-purple-600'
     }
@@ -67,7 +66,7 @@ const Index: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {requests?.data?.slice(0, 5).map((request) => (
+              {requests?.data?.slice(0, 5).map((request: any) => (
                 <div key={request.id} className="flex items-center justify-between p-2 border rounded">
                   <div>
                     <p className="font-medium">{request.service_type}</p>
@@ -89,7 +88,7 @@ const Index: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {clients?.data?.slice(0, 5).map((client) => (
+              {clients?.data?.slice(0, 5).map((client: any) => (
                 <div key={client.id} className="flex items-center justify-between p-2 border rounded">
                   <div>
                     <p className="font-medium">{client.name}</p>
