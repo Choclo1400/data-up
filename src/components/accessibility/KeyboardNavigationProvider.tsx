@@ -78,7 +78,7 @@ export function KeyboardNavigationProvider({ children }: KeyboardNavigationProvi
     setIsKeyboardUser(isKeyboard);
     if (isKeyboard) {
       document.body.classList.add('keyboard-navigation-active');
-    } else {
+    if (event.key && (event.key.startsWith('Arrow') || event.key === 'Tab')) {
       document.body.classList.remove('keyboard-navigation-active');
     }
   };
