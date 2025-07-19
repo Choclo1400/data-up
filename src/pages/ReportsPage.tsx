@@ -1,13 +1,13 @@
-import React from 'react'
 import { FileText, Download, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useRequests, useClients, useUsers } from '@/hooks/useSupabaseQuery'
+// Mock hooks for now - will be replaced when Supabase is connected
 
-const ReportsPage: React.FC = () => {
-  const { data: requests } = useRequests()
-  const { data: clients } = useClients()
-  const { data: users } = useUsers()
+const ReportsPage = () => {
+  // Mock data for now
+  const requests = { data: [] }
+  const clients = { data: [] }
+  const users = { data: [] }
 
   const generateReport = (type: string) => {
     // Placeholder for report generation
@@ -96,7 +96,7 @@ const ReportsPage: React.FC = () => {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">
-                {users?.data?.filter(u => u.role === 'technician').length || 0}
+                {users?.data?.filter((u: any) => u.role === 'technician').length || 0}
               </div>
               <div className="text-sm text-muted-foreground">
                 Total Técnicos

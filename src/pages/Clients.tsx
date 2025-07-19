@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { ClientDialog } from '@/components/clients/ClientDialog';
 import { ClientTypeIcon } from '@/components/clients/ClientTypeIcon';
 import { getClients } from '@/services/clientService';
-import { Plus, Search, Building2, Users, Mail, Phone, MapPin, User } from 'lucide-react';
+import { Plus, Search, Users, Mail, Phone, MapPin, User } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Clients() {
@@ -112,7 +112,7 @@ export default function Clients() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <ClientTypeIcon type={client.type} />
+                    <ClientTypeIcon type={client.type as any} />
                     <div>
                       <CardTitle className="text-lg">{client.name}</CardTitle>
                       <CardDescription>

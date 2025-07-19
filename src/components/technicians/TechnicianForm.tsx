@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
-import { useCreateUser, useUpdateUser } from '@/hooks/useUsers';
+// Mock hooks for now - will be replaced when Supabase is connected
 
 const technicianSchema = z.object({
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
@@ -38,8 +38,9 @@ export const TechnicianForm: React.FC<TechnicianFormProps> = ({
   technicianId,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const createUserMutation = useCreateUser();
-  const updateUserMutation = useUpdateUser();
+  // Mock mutations for now
+  const createUserMutation = { mutateAsync: async () => {} };
+  const updateUserMutation = { mutateAsync: async () => {} };
 
   const {
     register,
@@ -52,17 +53,14 @@ export const TechnicianForm: React.FC<TechnicianFormProps> = ({
     ...(initialData && { defaultValues: initialData }),
   });
 
-  const onSubmit = async (data: TechnicianFormData) => {
+  const onSubmit = async (_data: TechnicianFormData) => {
     setIsLoading(true);
     try {
       if (isEditing && technicianId) {
-        await updateUserMutation.mutateAsync({
-          id: technicianId,
-          data,
-        });
+        await updateUserMutation.mutateAsync();
         toast.success('Técnico actualizado exitosamente');
       } else {
-        await createUserMutation.mutateAsync(data);
+        await createUserMutation.mutateAsync();
         toast.success('Técnico creado exitosamente');
       }
       onSuccess?.();

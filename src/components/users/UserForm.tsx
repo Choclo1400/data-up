@@ -7,8 +7,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { UserRole } from '@/types';
-import { User } from '@/hooks/useUsers';
+// Mock types for now - will be replaced when Supabase is connected
 import { Loader2 } from 'lucide-react';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  permissions?: string[];
+}
 
 interface UserFormProps {
   isOpen: boolean;
