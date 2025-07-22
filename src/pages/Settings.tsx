@@ -1,5 +1,5 @@
 import React from 'react'
-import { Settings as SettingsIcon, User, Bell, Shield, Database } from 'lucide-react'
+import { User, Bell, Shield, Database } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
