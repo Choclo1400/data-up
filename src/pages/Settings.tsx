@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { NotificationTest } from "@/components/layout/NotificationTest"
 
 const Settings: React.FC = () => {
   return (
@@ -113,6 +114,17 @@ const Settings: React.FC = () => {
                 Limpiar Cache
               </Button>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Pruebas del Sistema</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <NotificationTest />
           </CardContent>
         </Card>
       </div>
