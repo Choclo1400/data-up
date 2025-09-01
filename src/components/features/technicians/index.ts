@@ -1,1 +1,1 @@
-export { default as TechnicianForm } from './TechnicianForm';
+export { TechnicianForm } from './TechnicianForm';

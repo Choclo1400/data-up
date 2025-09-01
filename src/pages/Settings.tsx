@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { NotificationTest } from "@/components/layout/NotificationTest"
+import NotificationTest from "@/components/layout/NotificationTest"
 
 const Settings: React.FC = () => {
   return (

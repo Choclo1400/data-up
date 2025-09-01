@@ -1,1 +1,1 @@
-export { default as useOptimizedQuery } from './useOptimizedQuery';
+export { useOptimizedQuery } from './useOptimizedQuery';

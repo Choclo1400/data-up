@@ -1,2 +1,2 @@
-export { default as SkipLink } from './SkipLink';
-export { default as KeyboardNavigationProvider } from './KeyboardNavigationProvider';
+export { SkipLink, SkipLinks } from './SkipLink';
+export { KeyboardNavigationProvider, useKeyboardUser } from './KeyboardNavigationProvider';

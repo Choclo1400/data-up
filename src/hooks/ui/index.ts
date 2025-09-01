@@ -1,1 +1,2 @@
-export { default as useKeyboardNavigation } from './useKeyboardNavigation';
+// UI hooks exports
+export { useKeyboardNavigation } from './useKeyboardNavigation';

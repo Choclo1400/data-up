@@ -14,7 +14,7 @@ import { Loader2, Users, Building2 } from 'lucide-react';
 
 const clientSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
-  type: z.enum(['individual', 'company'], {
+  type: z.enum(['individual', 'business'], {
     required_error: 'El tipo de cliente es requerido'
   }),
   email: z.string().email('Email inválido').optional().or(z.literal('')),
@@ -90,7 +90,7 @@ export function ClientForm({ onSuccess, onCancel }: ClientFormProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            {clientType === 'company' ? <Building2 className="h-5 w-5" /> : <Users className="h-5 w-5" />}
+            {clientType === 'business' ? <Building2 className="h-5 w-5" /> : <Users className="h-5 w-5" />}
             Crear Nuevo Cliente
           </CardTitle>
           <CardDescription>
@@ -117,7 +117,7 @@ export function ClientForm({ onSuccess, onCancel }: ClientFormProps) {
                 <Label htmlFor="type">Tipo de Cliente *</Label>
                 <Select
                   value={clientType}
-                  onValueChange={(value: 'individual' | 'company') => setValue('type', value)}
+                  onValueChange={(value: 'individual' | 'business') => setValue('type', value)}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Selecciona un tipo" />
@@ -129,10 +129,10 @@ export function ClientForm({ onSuccess, onCancel }: ClientFormProps) {
                         Individual
                       </div>
                     </SelectItem>
-                    <SelectItem value="company">
+                    <SelectItem value="business">
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4" />
-                        Empresa
+                         Empresa
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -168,7 +168,7 @@ export function ClientForm({ onSuccess, onCancel }: ClientFormProps) {
               </div>
             </div>
 
-            {clientType === 'company' && (
+            {clientType === 'business' && (
               <div className="space-y-2">
                 <Label htmlFor="contact_person">Persona de Contacto</Label>
                 <Input

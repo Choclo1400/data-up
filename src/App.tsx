@@ -1,16 +1,12 @@
 
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'sonner';
-import { ThemeProvider } from '@/components/theme-provider';
 import { ThemeProvider } from '@/components/shared/theme';
-import { KeyboardNavigationProvider } from '@/components/shared/accessibility';
-import { SkipLink } from '@/components/accessibility/SkipLink';
+import { KeyboardNavigationProvider, SkipLink } from '@/components/shared/accessibility';
 import { ProtectedRoute } from '@/components/features/auth';
-import Navbar from '@/components/layout/Navbar';
-import Sidebar from '@/components/layout/Sidebar';
-import { SkipLink } from '@/components/shared/accessibility';
+import { Navbar, Sidebar } from '@/components/layout';
+import { AuthProvider } from '@/contexts/AuthContext';
 import LoginPage from '@/pages/LoginPage';
 import ServiceRequests from '@/pages/ServiceRequests';
 import Clients from '@/pages/Clients';
@@ -18,6 +14,8 @@ import UsersManagement from '@/pages/UsersManagement';
 import TechniciansPage from '@/pages/TechniciansPage';
 import ReportsPage from '@/pages/ReportsPage';
 import Settings from '@/pages/Settings';
+import Index from '@/pages/Index';
+import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient({
   defaultOptions: {

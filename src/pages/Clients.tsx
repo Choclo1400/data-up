@@ -14,12 +14,14 @@ export default function Clients() {
   const [searchTerm, setSearchTerm] = useState('');
   const queryClient = useQueryClient();
 
-  const { data: clients = [], isLoading, error } = useQuery({
+  const { data: clientsResult, isLoading, error } = useQuery({
     queryKey: ['clients'],
     queryFn: getClients,
   });
 
-  const filteredClients = clients.filter(client =>
+  const clients = clientsResult?.data || [];
+
+  const filteredClients = clients.filter((client: any) =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     client.type.toLowerCase().includes(searchTerm.toLowerCase())
@@ -106,7 +108,7 @@ export default function Clients() {
             </CardContent>
           </Card>
         ) : (
-          filteredClients.map((client) => (
+          filteredClients.map((client: any) => (
             <Card key={client.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">

@@ -1,2 +1,2 @@
-export { default as ModeToggle } from './mode-toggle';
-export { default as ThemeProvider } from './theme-provider';
+export { ModeToggle } from './mode-toggle';
+export { ThemeProvider, useTheme } from './theme-provider';
