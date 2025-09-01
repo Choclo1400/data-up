@@ -1,13 +1,15 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/lib/supabase';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { Bell, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
-export function NotificationTest() {
+const NotificationTest = () => {
   const { user } = useAuth();
 
-  const createTestNotification = async () => {
+  const createTestNotification = async (type: 'info' | 'warning' | 'error' | 'success', title: string, message: string) => {
     if (!user) {
       toast.error('Debes estar autenticado para crear notificaciones');
       return;
@@ -18,155 +20,108 @@ export function NotificationTest() {
         .from('notifications')
         .insert({
           user_id: user.id,
-          title: 'Notificación de Prueba',
-          message: `Esta es una notificación de prueba creada el ${new Date().toLocaleString('es-ES')}`,
-          type: 'info',
+          title,
+          message,
+          type,
           is_read: false
         });
 
       if (error) throw error;
 
-      toast.success('Notificación de prueba creada exitosamente');
+      toast.success(`Notificación ${type} creada exitosamente`);
+      
+      // Trigger a refetch of notifications by invalidating the query
+      // This will update the notification panel immediately
+      window.dispatchEvent(new CustomEvent('notification-created'));
+      
     } catch (error) {
-      console.error('Error creating test notification:', error);
-      toast.error('Error al crear la notificación de prueba');
+      console.error('Error creating notification:', error);
+      toast.error('Error al crear la notificación');
     }
   };
 
-  const createUrgentNotification = async () => {
-    if (!user) {
-      toast.error('Debes estar autenticado para crear notificaciones');
-      return;
+  const testNotifications = [
+    {
+      type: 'info' as const,
+      title: 'Nueva actualización disponible',
+      message: 'Se ha lanzado una nueva versión del sistema con mejoras de rendimiento.',
+      icon: Info,
+      color: 'bg-blue-500'
+    },
+    {
+      type: 'error' as const,
+      title: 'Solicitud urgente asignada',
+      message: 'Se te ha asignado una solicitud de emergencia que requiere atención inmediata.',
+      icon: AlertTriangle,
+      color: 'bg-red-500'
+    },
+    {
+      type: 'success' as const,
+      title: 'Solicitud completada',
+      message: 'La solicitud #12345 ha sido completada exitosamente por el técnico.',
+      icon: CheckCircle,
+      color: 'bg-green-500'
+    },
+    {
+      type: 'warning' as const,
+      title: 'Mantenimiento programado',
+      message: 'El sistema estará en mantenimiento mañana de 02:00 a 04:00 AM.',
+      icon: Bell,
+      color: 'bg-yellow-500'
     }
-
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: user.id,
-          title: 'Solicitud Urgente Asignada',
-          message: 'Se te ha asignado una nueva solicitud de servicio con prioridad URGENTE. Requiere atención inmediata.',
-          type: 'error',
-          is_read: false
-        });
-
-      if (error) throw error;
-
-      toast.success('Notificación urgente creada');
-    } catch (error) {
-      console.error('Error creating urgent notification:', error);
-      toast.error('Error al crear la notificación urgente');
-    }
-  };
-
-  const createSuccessNotification = async () => {
-    if (!user) {
-      toast.error('Debes estar autenticado para crear notificaciones');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: user.id,
-          title: 'Solicitud Completada',
-          message: 'La solicitud de servicio #12345 ha sido completada exitosamente. El cliente ha confirmado su satisfacción.',
-          type: 'success',
-          is_read: false
-        });
-
-      if (error) throw error;
-
-      toast.success('Notificación de éxito creada');
-    } catch (error) {
-      console.error('Error creating success notification:', error);
-      toast.error('Error al crear la notificación de éxito');
-    }
-  };
-
-  const createWarningNotification = async () => {
-    if (!user) {
-      toast.error('Debes estar autenticado para crear notificaciones');
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('notifications')
-        .insert({
-          user_id: user.id,
-          title: 'Recordatorio de Mantenimiento',
-          message: 'El mantenimiento programado del sistema comenzará en 30 minutos. Guarda tu trabajo.',
-          type: 'warning',
-          is_read: false
-        });
-
-      if (error) throw error;
-
-      toast.success('Notificación de advertencia creada');
-    } catch (error) {
-      console.error('Error creating warning notification:', error);
-      toast.error('Error al crear la notificación de advertencia');
-    }
-  };
-
-  if (!user) {
-    return (
-      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <p className="text-yellow-800">Debes iniciar sesión para probar las notificaciones</p>
-      </div>
-    );
-  }
+  ];
 
   return (
-    <div className="space-y-4 p-6 bg-white rounded-lg shadow-sm border">
-      <h3 className="text-lg font-semibold text-gray-900">
-        Pruebas de Notificaciones
-      </h3>
-      <p className="text-sm text-gray-600">
-        Usa estos botones para crear notificaciones de prueba y verificar que el panel funciona correctamente.
-      </p>
-      
-      <div className="grid grid-cols-2 gap-3">
-        <Button 
-          onClick={createTestNotification}
-          variant="outline"
-          className="w-full"
-        >
-          📢 Notificación Info
-        </Button>
-        
-        <Button 
-          onClick={createUrgentNotification}
-          variant="destructive"
-          className="w-full"
-        >
-          🚨 Notificación Urgente
-        </Button>
-        
-        <Button 
-          onClick={createSuccessNotification}
-          variant="default"
-          className="w-full bg-green-600 hover:bg-green-700"
-        >
-          ✅ Notificación Éxito
-        </Button>
-        
-        <Button 
-          onClick={createWarningNotification}
-          variant="outline"
-          className="w-full border-yellow-500 text-yellow-700 hover:bg-yellow-50"
-        >
-          ⚠️ Notificación Advertencia
-        </Button>
-      </div>
-
-      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
-        <p className="text-sm text-blue-800">
-          <strong>Instrucciones:</strong> Después de crear una notificación, haz clic en el ícono de campana 🔔 en la barra superior para ver el panel de notificaciones.
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Bell className="h-5 w-5" />
+          Pruebas del Sistema de Notificaciones
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          Usa estos botones para crear notificaciones de prueba y verificar que el panel funciona correctamente.
+          Después de crear una notificación, haz clic en el ícono de campana en la barra superior.
         </p>
-      </div>
-    </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {testNotifications.map((notification, index) => {
+            const IconComponent = notification.icon;
+            return (
+              <Button
+                key={index}
+                variant="outline"
+                className="h-auto p-4 flex flex-col items-start gap-2 hover:bg-muted/50"
+                onClick={() => createTestNotification(notification.type, notification.title, notification.message)}
+              >
+                <div className="flex items-center gap-2 w-full">
+                  <div className={`p-1 rounded-full ${notification.color}`}>
+                    <IconComponent className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="font-medium text-sm">{notification.title}</span>
+                </div>
+                <span className="text-xs text-muted-foreground text-left">
+                  {notification.message}
+                </span>
+              </Button>
+            );
+          })}
+        </div>
+
+        <div className="mt-6 p-4 bg-muted/30 rounded-lg">
+          <h4 className="font-medium text-sm mb-2">Cómo probar:</h4>
+          <ol className="text-xs text-muted-foreground space-y-1">
+            <li>1. Haz clic en cualquier botón de arriba para crear una notificación</li>
+            <li>2. Observa el ícono de campana en la barra superior (debería mostrar un contador)</li>
+            <li>3. Haz clic en la campana para abrir el panel de notificaciones</li>
+            <li>4. Verifica que la notificación aparece con el estilo correcto</li>
+            <li>5. Haz clic en la notificación para marcarla como leída</li>
+          </ol>
+        </div>
+      </CardContent>
+    </Card>
   );
-}
+};
+
+export default NotificationTest;

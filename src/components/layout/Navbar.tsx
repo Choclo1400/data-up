@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useAuth } from '@/contexts/AuthContext'
-import { ModeToggle } from '@/components/mode-toggle'
+import { ModeToggle } from '@/components/shared/theme'
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
