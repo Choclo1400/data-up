@@ -3,7 +3,7 @@ import type { Database } from '@/integrations/supabase/types';
 
 type Notification = Database['public']['Tables']['notifications']['Row'];
 type NotificationInsert = Database['public']['Tables']['notifications']['Insert'];
-type NotificationUpdate = Database['public']['Tables']['notifications']['Update'];
+
 
 export async function getNotifications(userId: string): Promise<Notification[]> {
   const { data, error } = await supabase

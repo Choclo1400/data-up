@@ -19,7 +19,7 @@ export default function Clients() {
     queryFn: getClients,
   });
 
-  const clients = clientsResult?.data || [];
+  const clients = clientsResult || [];
 
   const filteredClients = clients.filter((client: any) =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

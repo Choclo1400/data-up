@@ -78,8 +78,7 @@ export function KeyboardNavigationProvider({ children }: KeyboardNavigationProvi
     setIsKeyboardUser(isKeyboard);
     if (isKeyboard) {
       document.body.classList.add('keyboard-navigation-active');
-    }
-    if (event.key?.length === 1 && event.key.match(/[a-zA-Z]/)) {
+    } else {
       document.body.classList.remove('keyboard-navigation-active');
     }
   };
