@@ -1,1 +1,2 @@
-export { useOptimizedQuery } from './useOptimizedQuery';
+export * from './useOptimizedQuery';
+export * from './useServiceRequests';
