@@ -12,9 +12,10 @@ import ServiceRequests from '@/pages/ServiceRequests';
 import Clients from '@/pages/Clients';
 import UsersManagement from '@/pages/UsersManagement';
 import TechniciansPage from '@/pages/TechniciansPage';
+import TechniciansPage from '@/pages/TechniciansPage';
 import ReportsPage from '@/pages/ReportsPage';
 import Settings from '@/pages/Settings';
-import Index from '@/pages/Index';
+import Dashboard from '@/pages/Dashboard';
 import NotFound from '@/pages/NotFound';
 
 const queryClient = new QueryClient({
@@ -32,6 +33,14 @@ function App() {
   
   return (
     <QueryClientProvider client={queryClient}>
+                  <Route path="/technicians" element={
+                    <ProtectedRoute>
+                      <Navbar />
+                      <main className="container mx-auto px-4 py-8">
+                        <TechniciansPage />
+                      </main>
+                    </ProtectedRoute>
+                  } />
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <KeyboardNavigationProvider>
           <AuthProvider>
@@ -43,7 +52,7 @@ function App() {
                   <Route
                     path="/*"
                     element={
-                      <ProtectedRoute>
+                        <Dashboard />
                         <div className="flex h-screen">
                           <Sidebar />
                           <div className="flex-1 flex flex-col overflow-hidden">
