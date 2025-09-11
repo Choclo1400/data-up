@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { createClient } from '@/services/clientService';
+import { createClient, createSampleClients } from '@/services/clientService';
 import { toast } from 'sonner';
 import { Loader2, Users, Building2 } from 'lucide-react';
 

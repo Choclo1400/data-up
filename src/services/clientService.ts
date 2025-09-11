@@ -74,6 +74,47 @@ export async function deleteClient(id: string): Promise<void> {
     throw new Error(`Error deleting client: ${error.message}`);
   }
 }
+// Create sample clients for testing
+export const createSampleClients = async (): Promise<void> => {
+  const sampleClients = [
+    {
+      name: 'Empresa Demo S.L.',
+      email: 'demo@empresa.com',
+      phone: '+34 900 123 456',
+      address: 'Calle Demo 123, 28001 Madrid',
+      type: 'company' as const,
+      contact_person: 'Juan Demo',
+      is_active: true
+    },
+    {
+      name: 'María Ejemplo',
+      email: 'maria@ejemplo.com',
+      phone: '+34 600 654 321',
+      address: 'Avenida Ejemplo 45, 08002 Barcelona',
+      type: 'individual' as const,
+      contact_person: 'María Ejemplo',
+      is_active: true
+    },
+    {
+      name: 'Tecnología Avanzada Ltd.',
+      email: 'info@tecavanzada.com',
+      phone: '+34 915 789 012',
+      address: 'Polígono Industrial, Nave 7, 41001 Sevilla',
+      type: 'company' as const,
+      contact_person: 'Carlos Técnico',
+      is_active: true
+    }
+  ];
+
+  const { error } = await supabase
+    .from('clients')
+    .insert(sampleClients);
+
+  if (error) {
+    throw new Error(`Error creating sample clients: ${error.message}`);
+  }
+};
+
 
 export async function searchClients(query: string): Promise<Client[]> {
   const { data, error } = await supabase
